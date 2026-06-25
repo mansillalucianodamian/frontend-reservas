@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="container-image">
+    <img src="cancha-padel.png" alt="Cancha de pádel" class="image-padel">
+  </div>
+
+  <div class="container-calendar">
+    <div class="header-reservas">
+      <h2 class="title">Reservar cancha de pádel</h2>
+      <button (click)="verMisReservas()" class="button-secondary">Mis reservas</button>
+      <button (click)="verCarrito()" class="button-carrito">Carrito</button>
+    </div>
+
+    <div class="calendar-section">
+      <p class="subtitle">Selecciona un día:</p>
+      <button *ngFor="let dia of diasDisponibles; trackBy: trackByDia" 
+              (click)="seleccionarDia(dia)" 
+              class="button-day">
+        <div class="day-name">{{ dia | date:'EEEE' }}</div>
+        <div class="day-date">{{ dia | date:'dd-MM-yyyy' }}</div>
+      </button>
+    </div>
+
+    <div *ngIf="fechaSeleccionada" class="schedule-section">
+      <p class="subtitle">Horarios para {{ fechaSeleccionada }}</p>
+
+      <div *ngIf="(horariosDisponibles$ | async) as horarios" class="schedule-list">
+        <button *ngFor="let h of horarios" (click)="seleccionarHorario(h)" class="button-hour">
+          {{ h }}
+        </button>
+        <p *ngIf="horarios.length === 0" class="no-schedules">
+          No hay horarios disponibles para este día
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="horaSeleccionada" class="action-section">
+      <p class="price">Costo de la cancha: {{ costoCancha | currency:'ARS' }}</p>
+      <button (click)="agregarAlCarrito()" class="button-primary">Reservar AHORA</button>
+    </div>
+
+    <div *ngIf="mensaje" class="message-box">
+      <p>{{ mensaje }}</p>
+      <button *ngIf="mensaje.includes('Debes iniciar sesión')" 
+              (click)="irLogin()" 
+              class="button-login">
+        Iniciar sesión
+      </button>
+    </div>
+  </div>
+</div>

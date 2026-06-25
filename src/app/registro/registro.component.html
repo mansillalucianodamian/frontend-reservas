@@ -1,0 +1,70 @@
+<div class="container">
+  <h2 class="content-title">Registro de Usuario</h2>
+
+  <div *ngIf="errorMessage" class="message message-error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="message message-success">
+    {{ successMessage }}
+  </div>
+
+  <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="content-form">
+
+    <label class="form-label">Nombre:</label>
+    <input formControlName="nombre" class="form-input" />
+    <div *ngIf="registroForm.get('nombre')?.invalid && (registroForm.get('nombre')?.dirty || registroForm.get('nombre')?.touched)">
+      <small *ngIf="registroForm.get('nombre')?.errors?.['required']">El nombre es requerido</small>
+      <small *ngIf="registroForm.get('nombre')?.errors?.['minlength']">Debe tener al menos 2 caracteres</small>
+      <small *ngIf="registroForm.get('nombre')?.errors?.['maxlength']">No puede superar los 50 caracteres</small>
+      <small *ngIf="registroForm.get('nombre')?.errors?.['pattern']">Solo letras y espacios</small>
+    </div>
+
+    <label class="form-label">Apellido:</label>
+    <input formControlName="apellido" class="form-input" />
+    <div *ngIf="registroForm.get('apellido')?.invalid && (registroForm.get('apellido')?.dirty || registroForm.get('apellido')?.touched)">
+      <small *ngIf="registroForm.get('apellido')?.errors?.['required']">El apellido es requerido</small>
+      <small *ngIf="registroForm.get('apellido')?.errors?.['minlength']">Debe tener al menos 2 caracteres</small>
+      <small *ngIf="registroForm.get('apellido')?.errors?.['maxlength']">No puede superar los 50 caracteres</small>
+      <small *ngIf="registroForm.get('apellido')?.errors?.['pattern']">Solo letras y espacios</small>
+    </div>
+
+    <label class="form-label">DNI:</label>
+    <input formControlName="dni" class="form-input" />
+    <div *ngIf="registroForm.get('dni')?.invalid && (registroForm.get('dni')?.dirty || registroForm.get('dni')?.touched)">
+      <small *ngIf="registroForm.get('dni')?.errors?.['required']">El DNI es requerido</small>
+      <small *ngIf="registroForm.get('dni')?.errors?.['minlength']">Debe tener al menos 7 caracteres</small>
+      <small *ngIf="registroForm.get('dni')?.errors?.['maxlength']">No puede superar los 20 caracteres</small>
+    </div>
+
+    <label class="form-label">Teléfono:</label>
+    <input formControlName="telefono" class="form-input" />
+    <div *ngIf="registroForm.get('telefono')?.invalid && (registroForm.get('telefono')?.dirty || registroForm.get('telefono')?.touched)">
+      <small *ngIf="registroForm.get('telefono')?.errors?.['required']">El teléfono es requerido</small>
+      <small *ngIf="registroForm.get('telefono')?.errors?.['minlength']">Debe tener al menos 6 caracteres</small>
+      <small *ngIf="registroForm.get('telefono')?.errors?.['maxlength']">No puede superar los 20 caracteres</small>
+    </div>
+
+    <label class="form-label">Email:</label>
+    <input formControlName="email" class="form-input" />
+    <div *ngIf="registroForm.get('email')?.invalid && (registroForm.get('email')?.dirty || registroForm.get('email')?.touched)">
+      <small *ngIf="registroForm.get('email')?.errors?.['required']">El email es requerido</small>
+      <small *ngIf="registroForm.get('email')?.errors?.['email']">Formato de email inválido</small>
+    </div>
+
+    <label class="form-label">Contraseña:</label>
+    <input type="password" formControlName="password" class="form-input" />
+    <div *ngIf="registroForm.get('password')?.invalid && (registroForm.get('password')?.dirty || registroForm.get('password')?.touched)">
+      <small *ngIf="registroForm.get('password')?.errors?.['required']">La contraseña es requerida</small>
+      <small *ngIf="registroForm.get('password')?.errors?.['minlength']">Debe tener al menos 6 caracteres</small>
+      <small *ngIf="registroForm.get('password')?.errors?.['maxlength']">No puede superar los 30 caracteres</small>
+      <small *ngIf="registroForm.get('password')?.errors?.['pattern']">
+        Debe contener al menos una mayúscula, una minúscula y un número
+      </small>
+    </div>
+
+    <button type="submit" [disabled]="isLoading" class="button button-ok">
+      {{ isLoading ? 'Procesando...' : 'Registrarse' }}
+    </button>
+  </form>
+</div>

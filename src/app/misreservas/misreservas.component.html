@@ -1,0 +1,32 @@
+<h3 class="reservas-title">Mis reservas</h3>
+
+<div *ngIf="(reservas$ | async) as reservas; else cargando" class="reservas-container">
+  <div *ngIf="reservas.length; else vacio">
+    <div *ngFor="let r of reservas.slice().reverse()" class="reserva-card" [ngClass]="r.estado.toLowerCase()">
+      <div class="reserva-info">
+        <p class="reserva-text">{{ r.fecha }} - {{ r.hora }}</p>
+        <p class="reserva-estado">Estado: {{ r.estado }}</p>
+      </div>
+      <button (click)="cancelarReserva(r.id)" [disabled]="r.estado !== 'Pendiente'" class="button-cancel">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
+<ng-template #cargando>
+  <p class="loading">Cargando reservas...</p>
+</ng-template>
+
+<ng-template #vacio>
+  <p class="empty">No tienes reservas registradas</p>
+</ng-template>
+
+<!-- Mensajes -->
+<div *ngIf="mensaje" class="success-message">
+  {{ mensaje }}
+</div>
+
+<div *ngIf="errorMessage" class="error-message">
+  {{ errorMessage }}
+</div>

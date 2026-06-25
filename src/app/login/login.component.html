@@ -1,0 +1,41 @@
+<div class="container">
+    <h2 class="content-title">Iniciar Sesión</h2>
+
+    <div *ngIf="errorMessage" class="message message-error">
+        {{ errorMessage }}
+    </div>
+
+    <div *ngIf="successMessage" class="message message-success">
+        {{ successMessage }}
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="content-form">
+
+        <label class="form-label">Email:</label>
+        <input formControlName="email" class="form-input" />
+        <div
+            *ngIf="loginForm.get('email')?.invalid && (loginForm.get('email')?.dirty || loginForm.get('email')?.touched)">
+            <small *ngIf="loginForm.get('email')?.errors?.['required']">El email es requerido</small>
+            <small *ngIf="loginForm.get('email')?.errors?.['email']">Formato de email inválido</small>
+        </div>
+
+        <label class="form-label">Contraseña:</label>
+        <input type="password" formControlName="password" class="form-input" />
+        <div
+            *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)">
+            <small *ngIf="loginForm.get('password')?.errors?.['required']">La contraseña es requerida</small>
+        </div>
+
+        <button type="submit" [disabled]="isLoading" class="button button-ok">
+            {{ isLoading ? 'Procesando...' : 'Ingresar' }}
+        </button>
+
+        <button type="button" class="button button-warning" (click)="goToForgotPassword()">
+            ¿Olvidaste tu contraseña?
+        </button>
+
+        <button type="button" class="button button-cancel" (click)="goToRegister()">
+            ¿No tienes usuario? Crear cuenta
+        </button>
+    </form>
+</div>

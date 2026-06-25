@@ -1,0 +1,29 @@
+<h3 class="cart-title">Carrito de reservas</h3>
+
+<div *ngIf="(carrito$ | async) as carrito; else vacio" class="cart-container">
+    <div *ngFor="let r of carrito" class="cart-item">
+        <img src="cancha-padel.png" alt="Cancha de pádel" class="cart-image">
+        <div class="cart-details">
+            <p class="cart-text">{{ r.fecha }} - {{ r.hora }}</p>
+            <p class="cart-price">{{ r.costo | currency:'ARS' }}</p>
+            <button (click)="eliminar(r)" class="button-remove">Eliminar</button>
+        </div>
+    </div>
+
+    <!-- Total -->
+    <div class="cart-total">
+        <p>Total: {{ calcularTotal(carrito) | currency:'ARS' }}</p>
+    </div>
+
+    <!-- Acciones -->
+    <div class="cart-actions">
+        <button (click)="confirmar()" class="button-primary">Confirmar y pagar</button>
+        <button (click)="seguirComprando()" class="button-secondary">Seguir comprando</button>
+    </div>
+</div>
+
+<ng-template #vacio>
+    <p class="cart-empty">No hay reservas en el carrito</p>
+</ng-template>
+
+<div *ngIf="mensaje" class="cart-message">{{ mensaje }}</div>

@@ -1,0 +1,44 @@
+<h3 class="admin-title">Panel Super Admin</h3>
+
+<!-- Gestión de usuarios -->
+<section class="admin-section">
+    <h4 class="section-title">Usuarios</h4>
+    <div *ngIf="(usuarios$ | async) as usuarios" class="list-container">
+        <div *ngFor="let u of usuarios" class="card user-card">
+            <p class="user-info">
+                {{ u.apellido || '' }}, {{ u.nombre || '' }}
+                <span class="user-role">Rol: {{ u.rol || '' }}</span>
+            </p>
+            <div class="card-actions">
+                <button (click)="asignarRol(u.id, 'usuario')" class="button-role usuario">Usuario</button>
+                <button (click)="asignarRol(u.id, 'recepcionista')"
+                    class="button-role recepcionista">Recepcionista</button>
+                <button (click)="asignarRol(u.id, 'super_admin')" class="button-role superadmin">Super Admin</button>
+                <button (click)="eliminarUsuario(u.id)" class="button-remove">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Gestión de reservas -->
+<section class="admin-section">
+    <h4 class="section-title">Reservas</h4>
+    <div *ngIf="(reservas$ | async) as reservas" class="list-container">
+        <div *ngFor="let r of reservas" class="card reserva-card" [ngClass]="r.estado.toLowerCase()">
+            <p class="reserva-info">
+                Código: {{ r.codigo || r.id }} |
+                Usuario ID: {{ r.usuario_id }} |
+                Fecha: {{ r.fecha | date:'shortDate' }} {{ r.hora }} |
+                Estado: {{ r.estado }}
+            </p>
+            <div class="card-actions">
+                <button (click)="cancelarReserva(r.id)" class="button-cancel">Cancelar</button>
+                <button (click)="bloquearReserva(r.fecha, r.hora, 'Uso interno')" class="button-block">Bloquear</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mensajes -->
+<div *ngIf="mensaje" class="success-message">{{ mensaje }}</div>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>

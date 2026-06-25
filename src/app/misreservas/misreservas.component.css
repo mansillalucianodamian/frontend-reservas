@@ -1,0 +1,103 @@
+/* Título */
+.reservas-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+/* Contenedor */
+.reservas-container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Tarjeta de reserva */
+.reserva-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Info */
+.reserva-text {
+    font-weight: 600;
+    margin: 0;
+}
+
+.reserva-estado {
+    margin: 0.3rem 0;
+    font-style: italic;
+    color: #7f8c8d;
+}
+
+/* Botón cancelar */
+.button-cancel {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.button-cancel:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.button-cancel:hover:enabled {
+    background-color: #c0392b;
+}
+
+/* Estados con colores */
+.reserva-card.pendiente {
+    border-left: 6px solid #f39c12;
+    /* naranja */
+}
+
+.reserva-card.confirmada {
+    border-left: 6px solid #27ae60;
+    /* verde */
+}
+
+.reserva-card.cancelada {
+    border-left: 6px solid #e74c3c;
+    /* rojo */
+}
+
+/* Mensajes */
+.success-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 4px;
+    background-color: #d4efdf;
+    color: #1e8449;
+    text-align: center;
+    font-weight: 500;
+}
+
+.error-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 4px;
+    background-color: #f5b7b1;
+    color: #922b21;
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Estados vacíos y cargando */
+.loading,
+.empty {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+}

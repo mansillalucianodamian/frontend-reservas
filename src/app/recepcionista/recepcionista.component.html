@@ -1,0 +1,38 @@
+<h3 class="recep-title">📋 Panel Recepcionista</h3>
+
+<div *ngIf="(reservas$ | async) as reservas; else cargando" class="recep-container">
+    <!-- Barra de búsqueda -->
+    <div class="search-bar">
+        <input type="text" placeholder=" Buscar por usuario..." [(ngModel)]="filtroUsuario" class="search-input">
+    </div>
+
+    <div *ngIf="reservas.length; else vacio">
+        <div *ngFor="let r of reservas | userFilter:filtroUsuario" class="reserva-card"
+            [ngClass]="r.estado.toLowerCase()">
+            <div class="reserva-info">
+                <p><span class="label">👤 Usuario:</span> {{ r.usuario }}</p>
+                <p><span class="label">📅 Fecha y hora:</span> {{ r.fecha | date:'dd/MM/yyyy' }} - {{ r.hora }}</p>
+                <p><span class="label">📌 Estado: </span> <span class="estado" [ngClass]="r.estado.toLowerCase()">{{
+                        r.estado }}</span></p>
+
+            </div>
+            <div class="card-actions">
+                <button (click)="aprobarReserva(r.id)" [disabled]="r.estado !== 'Pendiente'" class="button-approve">
+                     Aprobar Pago
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ng-template #cargando>
+    <p class="loading">⏳ Cargando reservas...</p>
+</ng-template>
+
+<ng-template #vacio>
+    <p class="empty">⚠️ No hay reservas registradas</p>
+</ng-template>
+
+<!-- Mensajes -->
+<div *ngIf="mensaje" class="success-message">{{ mensaje }}</div>
+<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>

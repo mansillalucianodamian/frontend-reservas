@@ -1,0 +1,93 @@
+/* Contenedor principal */
+.container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #1f1f1f, #2c2c2c);
+    /* fondo oscuro moderno */
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    font-family: 'Segoe UI', sans-serif;
+    color: #f5f5f5;
+}
+
+/* Título */
+.content-title {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Formularios */
+.content-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #ccc;
+}
+
+.form-input {
+    padding: 0.6rem;
+    border: 1px solid #444;
+    border-radius: 8px;
+    background: #333;
+    color: #f5f5f5;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.form-input:focus {
+    border-color: #009688;
+    /* verde del logo */
+    background: #444;
+    outline: none;
+}
+
+/* Mensajes */
+.message {
+    padding: 0.6rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.message-error {
+    background: rgba(229, 57, 53, 0.2);
+    color: #ff8a80;
+}
+
+.message-success {
+    background: rgba(0, 150, 136, 0.2);
+    color: #80cbc4;
+}
+
+/* Botones */
+.button {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+.button:hover {
+    transform: translateY(-2px);
+}
+
+/* Variantes */
+.button-ok {
+    background: #e53935;
+    /* rojo */
+    color: #fff;
+}
+
+.button-ok:hover {
+    background: #c62828;
+}

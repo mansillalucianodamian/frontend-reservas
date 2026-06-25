@@ -1,0 +1,140 @@
+/* Título */
+.recep-title {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+/* Contenedor */
+.recep-container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tarjeta de reserva */
+.reserva-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+}
+
+.reserva-card:hover {
+    transform: translateY(-3px);
+}
+
+/* Info */
+.reserva-info p {
+    margin: 0.3rem 0;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.label {
+    font-weight: 600;
+    color: #34495e;
+}
+
+/* Estado con colores */
+.estado.pendiente {
+    color: #f39c12;
+    font-style: italic; 
+}
+
+.estado.aprobado {
+    color: #27ae60;
+    font-weight: bold;
+}
+
+.estado.cancelado {
+    color: #e74c3c;
+    font-weight: bold;
+}
+
+/* Acciones */
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Botón aprobar */
+.button-approve {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+}
+
+.button-approve:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+.button-approve:hover:enabled {
+    background-color: #1e8449;
+}
+
+/* Mensajes */
+.success-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 6px;
+    background-color: #d4efdf;
+    color: #1e8449;
+    text-align: center;
+    font-weight: 600;
+}
+
+.error-message {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    border-radius: 6px;
+    background-color: #f5b7b1;
+    color: #922b21;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Estados vacíos y cargando */
+.loading,
+.empty {
+    text-align: center;
+    color: #7f8c8d;
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+/* Barra de búsqueda */
+.search-bar {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.6rem 1rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 1rem;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color:  #3498db;
+    box-shadow: 0 0 6px rgba(52, 152, 219, 0.5);
+}
