@@ -39,7 +39,6 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
 }
 .title {
   font-size: 1.4rem;

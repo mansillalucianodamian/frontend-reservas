@@ -48,7 +48,7 @@ export class UsuariosService {
 
   // 🔹 Listar usuarios
   getUsuarios(): Observable<Usuario[]> {
-    return this.http.get<{ ok: boolean, users: Usuario[] }>(
+    return this.http.get<{ ok: boolean; users: Usuario[] }>(
       this.apiAdminUrl,
       { headers: this.getHeaders() }
     ).pipe(
@@ -58,8 +58,8 @@ export class UsuariosService {
   }
 
   // 🔹 Crear usuario
-  crearUsuario(usuario: Usuario): Observable<{ ok: boolean, message: string, usuario?: Usuario }> {
-    return this.http.post<{ ok: boolean, message: string, usuario?: Usuario }>(
+  crearUsuario(usuario: Usuario): Observable<{ ok: boolean; message: string; usuario?: Usuario }> {
+    return this.http.post<{ ok: boolean; message: string; usuario?: Usuario }>(
       this.apiAdminUrl,
       usuario,
       { headers: this.getHeaders() }
@@ -72,8 +72,8 @@ export class UsuariosService {
   }
 
   // 🔹 Editar usuario
-  editarUsuario(id: number, usuario: Partial<Usuario>): Observable<{ ok: boolean, message: string }> {
-    return this.http.put<{ ok: boolean, message: string }>(
+  editarUsuario(id: number, usuario: Partial<Usuario>): Observable<{ ok: boolean; message: string }> {
+    return this.http.put<{ ok: boolean; message: string }>(
       `${this.apiAdminUrl}/${id}`,
       usuario,
       { headers: this.getHeaders() }
@@ -86,8 +86,8 @@ export class UsuariosService {
   }
 
   // 🔹 Eliminar usuario
-  eliminarUsuario(id: number): Observable<{ ok: boolean, message: string }> {
-    return this.http.delete<{ ok: boolean, message: string }>(
+  eliminarUsuario(id: number): Observable<{ ok: boolean; message: string }> {
+    return this.http.delete<{ ok: boolean; message: string }>(
       `${this.apiAdminUrl}/${id}`,
       { headers: this.getHeaders() }
     ).pipe(
@@ -97,18 +97,21 @@ export class UsuariosService {
       })))
     );
   }
-  asignarRol(id: number, rol: string): Observable<{ ok: boolean, message: string }> {
-  return this.http.put<{ ok: boolean, message: string }>(
-    `${this.apiAdminUrl}/${id}`,
-    { rol },
-    { headers: this.getHeaders() }
-  ).pipe(
-    catchError(err => throwError(() => ({
-      ok: false,
-      message: err.error?.message || 'Error al asignar rol'
-    })))
-  );
+
+  // 🔹 Asignar rol
+  asignarRol(id: number, rol: string): Observable<{ ok: boolean; message: string }> {
+    return this.http.put<{ ok: boolean; message: string }>(
+      `${this.apiAdminUrl}/${id}`,
+      { rol },
+      { headers: this.getHeaders() }
+    ).pipe(
+      catchError(err => throwError(() => ({
+        ok: false,
+        message: err.error?.message || 'Error al asignar rol'
+      })))
+    );
+  }
 }
-}
+
 
 
