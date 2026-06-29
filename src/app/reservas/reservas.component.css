@@ -1,127 +1,134 @@
-/* Centrado general */
+/* Contenedor principal */
 .container {
   display: flex;
-  justify-content: center; /* centra horizontalmente */
-  align-items: center;     /* centra verticalmente */
-  gap: 2rem;
+  justify-content: center;
+  align-items: stretch;   /* 👈 fuerza que ambos hijos tengan el mismo alto */
+  gap: 1.5rem;
   margin: 2rem auto;
-  max-width: 1200px;
+  max-width: 1100px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
+
+/* Imagen */
+.container-image {
+  flex: 1;
+  display: flex;
+}
+.image-padel {
+  width: 100%;
+  height: 100%;           /* 👈 ocupa todo el alto del contenedor */
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Tarjeta calendario */
+.container-calendar {
+  flex: 1;
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* contenido distribuido */
+}
+
+/* Header: título a la izquierda, botones a la derecha */
 .header-reservas {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
-
-/* Imagen ocupa 1/3 */
-.container-image {
-  flex: 2; /* 1 parte */
-  display: flex;
-  justify-content: center;
-}
-.image-padel {
-  max-width: 100%;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-/* Calendario ocupa 2/3 */
-.container-calendar {
-  flex: 2; /* 2 partes */
-  background: #f9f9f9;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-/* Títulos */
 .title {
-  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
   color: #2c3e50;
-  margin-bottom: 1rem;
 }
+
+/* Subtítulos */
 .subtitle {
   font-weight: 600;
+  color: #3F801F;
+  font-size: 1rem;
   margin-bottom: 0.5rem;
 }
 
-/* Botones generales */
+/* Botones base */
 button {
   cursor: pointer;
   border: none;
-  border-radius: 4px;
-  padding: 0.5rem 1rem;
-  margin: 0.3rem;
-  transition: background 0.3s;
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s, transform 0.2s;
+}
+button:hover {
+  transform: translateY(-2px);
+}
+
+/* Botón principal */
+.button-primary {
+  background-color: #3F801F;
+  color: #fff;
+  width: 100%;
+  font-size: 1.1rem;
+}
+.button-primary:hover {
+  background-color: #2e6016;
+}
+
+/* Botón Mis reservas */
+.button-secondary {
+  background-color: #F1B822;
+  color: #2c3e50;
+}
+.button-secondary:hover {
+  background-color: #d9a51f;
+}
+
+/* Botón Carrito */
+.button-carrito {
+  background-color: #3F801F;
+  color: #fff;
+}
+.button-carrito:hover {
+  background-color: #2e6016;
+}
+
+/* Botón Login */
+.button-login {
+  background-color: #BF2824;
+  color: #fff;
+}
+.button-login:hover {
+  background-color: #9e1f1c;
 }
 
 /* Botones de días */
 .button-day {
-  background-color: #3498db;
-  color: white;
+  background-color: #F1B822;
+  color: #2c3e50;
+  min-width: 120px;
 }
 .button-day:hover {
-  background-color: #2980b9;
+  background-color: #d9a51f;
 }
 
-/* Horarios en horizontal */
+/* Botones de horarios */
 .schedule-list {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
 }
 .button-hour {
-  background-color: #9b59b6;
-  color: white;
+  background-color: #e9ecef; /* gris sobrio */
+  color: #2c3e50;
+  border: 1px solid #ccc;
 }
 .button-hour:hover {
-  background-color: #8e44ad;
-}
-
-/* Botón principal */
-.button-primary {
-  background-color: #27ae60;
-  color: white;
-  font-weight: bold;
-}
-.button-primary:hover {
-  background-color: #1e8449;
-}
-
-/* Botón secundario */
-.button-secondary {
-  background-color: #f39c12;
-  color: white;
-}
-.button-secondary:hover {
-  background-color: #d35400;
-}
-.button-carrito {
-  background-color: #009688;
-  color: white;
-}
-.button-carrito:hover {
-  background-color: #009688;
-}
-
-/* Botón login */
-.button-login {
-  background-color: #e74c3c;
-  color: white;
-}
-.button-login:hover {
-  background-color: #c0392b;
-}
-
-/* Mensajes */
-.message-box {
-  margin-top: 1rem;
-  padding: 0.8rem;
-  border-radius: 4px;
-  background-color: #fce4ec;
-  color: #c2185b;
-  font-weight: 500;
+  background-color: #d6d6d6;
 }
 
 /* Precio */
@@ -129,10 +136,17 @@ button {
   font-size: 1.1rem;
   font-weight: bold;
   color: #2c3e50;
+  margin-top: 0.5rem;
 }
 
-/* No hay horarios */
-.no-schedules {
-  color: #7f8c8d;
-  font-style: italic;
+/* Mensajes */
+.message-box {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border-radius: 8px;
+  background-color: #fbeaea;
+  color: #BF2824;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }

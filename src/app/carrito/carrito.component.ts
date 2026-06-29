@@ -40,44 +40,67 @@ export class CarritoComponent {
 
     // 👇 Abrimos el modal con todas las reservas
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-  maxWidth: '95vw',
-  width: '400px',
-  data: { reservas }
-});
+      maxWidth: '95vw',
+      width: '400px',
+      data: {
+        titulo: 'Confirmar reservas',
+        mensaje: 'Estás por confirmar las siguientes reservas:',
+        reservas
+      }
+    });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         // ✅ Confirmó en el modal
         this.carritoService.confirmarCarrito()
           .then(() => {
-            this.mensaje = '✅ Reservas confirmadas';
+            // 👇 Mostramos otro modal con el resultado
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Reservas confirmadas',
+                mensaje: '',
+                resultado: '✅ Las reservas fueron confirmadas correctamente',
+                tipo: 'success'
+              }
+            });
             this.carritoService.clearCarrito();
             this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', fecha } });
           })
           .catch(err => {
-            console.error('Error al confirmar carrito:', err);
-            this.mensaje = err?.message || '❌ Error al confirmar reservas';
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Error',
+                mensaje: '',
+                resultado: err?.message || '❌ Error al confirmar reservas',
+                tipo: 'error'
+              }
+            });
           });
       } else {
-        // ❌ Canceló en el modal → no hacemos nada
-        this.mensaje = 'Reserva cancelada';
+        // ❌ Canceló en el modal
+        this.dialog.open(ConfirmDialogComponent, {
+          data: {
+            titulo: 'Acción cancelada',
+            mensaje: '',
+            resultado: 'La confirmación de reservas fue cancelada',
+            tipo: 'error'
+          }
+        });
       }
     });
   }
-
 
   calcularTotal(carrito: any[]): number {
     return carrito.reduce((acc, item) => acc + (item.costo || 0), 0);
   }
 
   seguirComprando() {
-    // 👇 Igual que confirmar, usamos la última reserva para refrescar
     const ultimaReserva = this.carritoService.getCarrito().slice(-1)[0];
     const fecha = ultimaReserva ? ultimaReserva.fecha : null;
-
     this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', fecha } });
   }
 }
+
 
 
 
