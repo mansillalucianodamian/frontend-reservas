@@ -2,48 +2,168 @@
 .container {
   display: flex;
   justify-content: center;
-  align-items: stretch;   /* 👈 fuerza que ambos hijos tengan el mismo alto */
+  align-items: stretch;   /* 👈 Fuerza a que la tarjeta de la imagen y el calendario midan exactamente el mismo alto */
   gap: 1.5rem;
   margin: 2rem auto;
   max-width: 1100px;
   font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Imagen */
+/* Imagen con overlay dinámico */
 .container-image {
   flex: 1;
+  position: relative;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  overflow: hidden;
   display: flex;
 }
 .image-padel {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;           /* 👈 ocupa todo el alto del contenedor */
-  object-fit: cover;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  height: 100%;
+  object-fit: cover;     /* Se adapta perfectamente a la altura estirada */
+  transition: transform 0.5s ease;
+}
+.container-image:hover .image-padel {
+  transform: scale(1.05); /* Suave efecto de zoom al posarse sobre la tarjeta */
+}
+
+/* Capa de contenido encima de la imagen */
+.image-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Logo arriba, Banner de texto abajo */
+  padding: 1.5rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%);
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+/* Contenedor del logo */
+.overlay-logo-container {
+  display: flex;
+  align-items: flex-start;
+}
+.overlay-logo {
+  max-width: 170px;
+  height: auto;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6)); /* Sombra para resaltar las letras blancas contra el fondo */
+}
+
+/* Banner de Texto */
+.overlay-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+.overlay-title {
+  color: #ffffff;
+  font-size: 1.8rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+}
+
+/* Barra de colores de marca (Rojo, Amarillo, Verde) */
+.brand-colors-bar {
+  display: flex;
+  height: 6px;
+  width: 150px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.brand-colors-bar .color-red {
+  flex: 1;
+  background-color: #BF2824;
+}
+.brand-colors-bar .color-yellow {
+  flex: 1;
+  background-color: #F1B822;
+}
+.brand-colors-bar .color-green {
+  flex: 1;
+  background-color: #3F801F;
 }
 
 /* Tarjeta calendario */
 .container-calendar {
   flex: 1;
   background: #ffffff;
-  padding: 1.5rem;
+  padding: 1rem 1.5rem 1.5rem 1.5rem; /* 👈 padding superior reducido a 1rem */
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* contenido distribuido */
+  justify-content: flex-start; /* alineación al inicio */
+  gap: 1.2rem; /* espacio definido entre las secciones de la columna */
 }
 
-/* Header: título a la izquierda, botones a la derecha */
+/* Header: acciones arriba, título y leyenda abajo */
 .header-reservas {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 0.2rem; /* 👈 gap reducido para acercar el título a los iconos */
+  margin-bottom: 0.4rem; /* 👈 margen inferior para separar la leyenda del calendario */
+}
+.header-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+.icon-action-btn {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+.icon-action-btn:hover {
+  transform: translateY(-2px);
+}
+.icon-action-btn[title="Carrito"]:hover {
+  background-color: #e2f0d9;
+  color: #2e6016;
+}
+.icon-action-btn[title="Mis reservas"]:hover {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+.header-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  align-items: center; /* 👈 Centra horizontalmente */
+  text-align: center;  /* 👈 Alineación de texto central */
 }
 .title {
   font-size: 1.4rem;
   font-weight: 700;
   color: #2c3e50;
+  margin: 0;
+}
+.legend {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #64748b;
+  margin: 0;
 }
 
 /* Subtítulos */
@@ -63,8 +183,11 @@ button {
   font-weight: 600;
   transition: background-color 0.3s, transform 0.2s;
 }
-button:hover {
+button:hover:not(:disabled) {
   transform: translateY(-2px);
+}
+button:disabled {
+  cursor: not-allowed;
 }
 
 /* Botón principal */
@@ -105,29 +228,193 @@ button:hover {
   background-color: #9e1f1c;
 }
 
-/* Botones de días */
-.button-day {
-  background-color: #F1B822;
-  color: #2c3e50;
-  min-width: 120px;
-}
-.button-day:hover {
-  background-color: #d9a51f;
+/* Contenedor del calendario */
+.calendar-container {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  max-width: 458px; /* 👈 Configurado a 458px a petición del usuario */
+  margin: 0 auto;  /* Centrado en su columna */
+  overflow: hidden;
 }
 
-/* Botones de horarios */
-.schedule-list {
+/* Cabecera del calendario: mes y navegación */
+.calendar-header {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #616262; /* gris igual al del fondo */
+  color: #ffffff;            /* letras blancas */
+  padding: 0.5rem 0.8rem;
+  margin: -1rem -1rem 0.8rem -1rem; /* flush con los bordes de la tarjeta */
+  border-top-left-radius: 11px;
+  border-top-right-radius: 11px;
+}
+.month-title {
+  font-size: 0.95rem; /* proporcional */
+  font-weight: 700;
+  color: #ffffff;
+}
+.nav-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+  width: 26px; /* proporcional */
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+  padding: 0;
+  font-size: 0.8rem;
+}
+.nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.4);
+}
+.nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Grilla del calendario */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;                  /* líneas divisorias */
+  background-color: #cbd5e1; /* color de las líneas divisorias */
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Cabeceras de días (Lu, Ma, etc.) */
+.grid-header-day {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  background-color: #f1f5f9; /* fondo de las cabeceras */
+  padding: 0.4rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botones de días individuales */
+.grid-day {
+  background: #ffffff;
+  color: #1e293b;
+  border: none;
+  border-radius: 0;          /* cuadrícula continua */
+  height: 28px;              /* 👈 altura achicada un poco más (de 32px a 28px) */
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+.grid-day:hover:not(:disabled) {
+  background: #f8fafc;
+}
+/* Estilo para los días que no pertenecen al mes actual */
+.grid-day:not(.current-month) {
+  color: #cbd5e1;
+  background: #f8fafc;
+}
+
+/* Días habilitados (verde claro pastel) */
+.grid-day:not(:disabled).current-month {
+  background-color: #e2f0d9;
+  color: #2e6016;
+  font-weight: 600;
+}
+.grid-day:not(:disabled).current-month:hover {
+  background-color: #d2e7c4;
+}
+
+/* Día seleccionado (verde oscuro) */
+.grid-day.selected {
+  background-color: #2e6016 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 6px rgba(46, 96, 22, 0.3);
+}
+
+/* Día deshabilitado */
+.grid-day:disabled {
+  color: #cbd5e1;
+  background: #ffffff;
+  cursor: not-allowed;
+}
+.grid-day:disabled:not(.current-month) {
+  color: #f1f5f9;
+  background: #f8fafc;
+}
+
+/* Contenedor de horarios (mismo estilo que el del calendario) */
+.schedule-container {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  width: 100%;
+  max-width: 458px;          /* 👈 Mismo ancho máximo (458px) que el calendario */
+  margin: 0 auto;            /* Centrado para alinear con el calendario */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Leyenda de instrucción inicial */
+.initial-instruction {
+  text-align: center;
+  width: 100%;
+  max-width: 458px;
+  margin: 0.5rem auto;
+}
+
+/* Botones de horarios en grilla estilo calendario */
+.schedule-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* cuadrícula de 4 columnas */
+  gap: 1px;                  /* líneas divisorias */
+  background-color: #cbd5e1; /* color de las líneas divisorias */
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  width: 100%;
 }
 .button-hour {
-  background-color: #e9ecef; /* gris sobrio */
+  background: #ffffff;
   color: #2c3e50;
-  border: 1px solid #ccc;
+  border: none;
+  border-radius: 0;          /* cuadrícula continua */
+  height: 28px;              /* 👈 Mismo alto de celda que el calendario (28px) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;        /* 👈 Misma fuente que el calendario */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
 }
 .button-hour:hover {
-  background-color: #d6d6d6;
+  background-color: #f1f5f9;
+}
+.button-hour.selected {
+  background-color: #2e6016 !important; /* 👈 verde oscuro de selección */
+  color: #ffffff !important;
+  font-weight: 700;
 }
 
 /* Precio */

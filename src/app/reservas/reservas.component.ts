@@ -17,6 +17,10 @@ import { map, Observable } from 'rxjs';
 })
 export class ReservasComponent {
   diasDisponibles: string[] = [];
+  currentMonth: Date = new Date();
+  diasCalendario: { dateStr: string; dayNum: number; isCurrentMonth: boolean; enabled: boolean }[] = [];
+  nombresDias: string[] = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
+
   horariosDisponibles$!: Observable<string[]>;
   fechaSeleccionada: string | null = null;
   horaSeleccionada: string | null = null;
@@ -33,7 +37,8 @@ export class ReservasComponent {
   ) {}
 
   ngOnInit() {
-    this.generarSemana();
+    this.currentMonth = new Date();
+    this.generarCalendario(this.currentMonth);
     this.route.queryParams.subscribe(params => {
       if (params['refresh'] === 'true' && this.fechaSeleccionada) {
         this.seleccionarDia(this.fechaSeleccionada);
@@ -41,27 +46,120 @@ export class ReservasComponent {
     });
   }
 
-  private generarSemana() {
+  private formatLocalISO(d: Date): string {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  generarCalendario(referencia: Date) {
+    const año = referencia.getFullYear();
+    const mes = referencia.getMonth();
+
+    const primerDiaMes = new Date(año, mes, 1);
+    let diaSemanaPrimerDia = primerDiaMes.getDay();
+    let desfase = diaSemanaPrimerDia === 0 ? 6 : diaSemanaPrimerDia - 1;
+
+    const ultimoDiaMes = new Date(año, mes + 1, 0);
+    const totalDiasMes = ultimoDiaMes.getDate();
+
+    const ultimoDiaMesAnterior = new Date(año, mes, 0);
+    const totalDiasMesAnterior = ultimoDiaMesAnterior.getDate();
+
+    this.diasCalendario = [];
+
+    // Rellenar días del mes anterior
+    for (let i = desfase - 1; i >= 0; i--) {
+      const diaNum = totalDiasMesAnterior - i;
+      const d = new Date(año, mes - 1, diaNum);
+      this.diasCalendario.push({
+        dateStr: this.formatLocalISO(d),
+        dayNum: diaNum,
+        isCurrentMonth: false,
+        enabled: false
+      });
+    }
+
+    // Rellenar días del mes actual
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    const diaSemana = hoy.getDay();
-    const lunes = new Date(hoy);
-    lunes.setDate(hoy.getDate() - (diaSemana === 0 ? 6 : diaSemana - 1));
-    lunes.setHours(0, 0, 0, 0);
+    const finSemanaHabilitada = new Date(hoy);
+    finSemanaHabilitada.setDate(hoy.getDate() + 7);
+    finSemanaHabilitada.setHours(23, 59, 59, 999);
 
-    this.diasDisponibles = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(lunes);
-      d.setDate(lunes.getDate() + i);
+    for (let i = 1; i <= totalDiasMes; i++) {
+      const d = new Date(año, mes, i);
       d.setHours(0, 0, 0, 0);
-      if (d >= hoy) {
-        this.diasDisponibles.push(d.toISOString().split('T')[0]);
-      }
+
+      const dateStr = this.formatLocalISO(d);
+      const enabled = d >= hoy && d <= finSemanaHabilitada;
+
+      this.diasCalendario.push({
+        dateStr,
+        dayNum: i,
+        isCurrentMonth: true,
+        enabled
+      });
+    }
+
+    // Rellenar días del mes siguiente para completar 42 celdas
+    const totalCeldas = 42;
+    const celdasGeneradas = this.diasCalendario.length;
+    for (let i = 1; i <= totalCeldas - celdasGeneradas; i++) {
+      const d = new Date(año, mes + 1, i);
+      this.diasCalendario.push({
+        dateStr: this.formatLocalISO(d),
+        dayNum: i,
+        isCurrentMonth: false,
+        enabled: false
+      });
     }
   }
 
+  mesSiguiente() {
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
+    this.generarCalendario(this.currentMonth);
+  }
+
+  mesAnterior() {
+    const hoy = new Date();
+    if (this.currentMonth.getFullYear() === hoy.getFullYear() && this.currentMonth.getMonth() <= hoy.getMonth()) {
+      return;
+    }
+    this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
+    this.generarCalendario(this.currentMonth);
+  }
+
+  esMesActual(fecha: Date): boolean {
+    const hoy = new Date();
+    return fecha.getFullYear() === hoy.getFullYear() && fecha.getMonth() === hoy.getMonth();
+  }
+
+  esDiaHabilitado(dia: string): boolean {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    const partes = dia.split('-');
+    const año = parseInt(partes[0], 10);
+    const mes = parseInt(partes[1], 10) - 1;
+    const diaNum = parseInt(partes[2], 10);
+
+    const d = new Date(año, mes, diaNum);
+    d.setHours(0, 0, 0, 0);
+
+    const finSemanaHabilitada = new Date(hoy);
+    finSemanaHabilitada.setDate(hoy.getDate() + 7);
+    finSemanaHabilitada.setHours(23, 59, 59, 999);
+
+    return d >= hoy && d <= finSemanaHabilitada;
+  }
+
   seleccionarDia(dia: string) {
+    if (!this.esDiaHabilitado(dia)) {
+      return;
+    }
     this.fechaSeleccionada = dia;
     this.horaSeleccionada = null;
     this.mensaje = null;
@@ -130,7 +228,7 @@ export class ReservasComponent {
   }
 
   irLogin() { this.router.navigate(['/login']); }
-  trackByDia(index: number, item: string) { return item; }
+  trackByDia(index: number, item: any) { return typeof item === 'string' ? item : item.dateStr; }
   verMisReservas() { this.router.navigate(['/mis-reservas']); }
   verCarrito() { this.router.navigate(['/carrito']); }
   abrirConfirmacion(reserva: any) {

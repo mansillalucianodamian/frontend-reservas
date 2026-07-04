@@ -1,34 +1,80 @@
 <div class="container">
   <div class="container-image">
-    <img src="cancha-padel.png" alt="Cancha de pádel" class="image-padel">
+    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <div class="image-card-overlay">
+      <div class="overlay-logo-container">
+        <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
+      </div>
+      <div class="overlay-banner">
+        <h1 class="overlay-title">CANCHA DE PÁDEL</h1>
+        <div class="brand-colors-bar">
+          <div class="color-red"></div>
+          <div class="color-yellow"></div>
+          <div class="color-green"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="container-calendar">
     <div class="header-reservas">
-      <h2 class="title">Reservar cancha de pádel</h2>
-      <button (click)="verMisReservas()" class="button-secondary">Mis reservas</button>
-      <button (click)="verCarrito()" class="button-carrito">Carrito</button>
-    </div>
-
-    <div class="calendar-section">
-      <button *ngFor="let dia of diasDisponibles; trackBy: trackByDia" 
-              (click)="seleccionarDia(dia)" 
-              class="button-day">
-        <div class="day-name">{{ dia | date:'EEEE' }}</div>
-        <div class="day-date">{{ dia | date:'dd-MM-yyyy' }}</div>
-      </button>
-    </div>
-
-    <div *ngIf="fechaSeleccionada" class="schedule-section">
-      <p class="subtitle">Horarios para {{ fechaSeleccionada }}</p>
-
-      <div *ngIf="(horariosDisponibles$ | async) as horarios" class="schedule-list">
-        <button *ngFor="let h of horarios" (click)="seleccionarHorario(h)" class="button-hour">
-          {{ h }}
+      <div class="header-top-actions">
+        <button (click)="verMisReservas()" class="icon-action-btn" title="Mis reservas">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
         </button>
-        <p *ngIf="horarios.length === 0" class="no-schedules">
-          No hay horarios disponibles para este día
-        </p>
+        <button (click)="verCarrito()" class="icon-action-btn" title="Carrito">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        </button>
+      </div>
+      <div class="header-title-section">
+        <h2 class="title">Reservar cancha de pádel</h2>
+        <p class="legend">(Solo se podrán reservar dos turnos por semana)</p>
+      </div>
+    </div>
+
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <button (click)="mesAnterior()" [disabled]="esMesActual(currentMonth)" class="nav-btn">&lt;</button>
+        <span class="month-title">{{ currentMonth | date:'MMMM yyyy' | titlecase }}</span>
+        <button (click)="mesSiguiente()" class="nav-btn">&gt;</button>
+      </div>
+
+      <div class="calendar-grid">
+        <!-- Nombres de los días de la semana -->
+        <div *ngFor="let nombre of nombresDias" class="grid-header-day">
+          {{ nombre }}
+        </div>
+
+        <!-- Días del mes -->
+        <button *ngFor="let dia of diasCalendario; trackBy: trackByDia" 
+                (click)="seleccionarDia(dia.dateStr)" 
+                [disabled]="!dia.enabled"
+                [class.selected]="fechaSeleccionada === dia.dateStr"
+                [class.current-month]="dia.isCurrentMonth"
+                class="grid-day">
+          {{ dia.dayNum }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Leyenda de instrucción inicial antes de elegir fecha -->
+    <div class="initial-instruction" *ngIf="!fechaSeleccionada">
+      <p class="legend">(Elige arriba una fecha para ver los horarios disponibles)</p>
+    </div>
+
+    <div class="schedule-section" *ngIf="fechaSeleccionada">
+      <div class="schedule-container">
+        <div *ngIf="(horariosDisponibles$ | async) as horarios" class="schedule-list">
+          <button *ngFor="let h of horarios" 
+                  (click)="seleccionarHorario(h)" 
+                  [class.selected]="horaSeleccionada === h"
+                  class="button-hour">
+            {{ h }}
+          </button>
+          <p *ngIf="horarios.length === 0" class="no-schedules">
+            No hay horarios disponibles para este día
+          </p>
+        </div>
       </div>
     </div>
 
