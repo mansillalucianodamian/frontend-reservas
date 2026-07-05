@@ -17,6 +17,11 @@ export class LoginComponent implements OnInit {
   errorMessage: string | null = null;
   successMessage: string | null = null;
   isLoading = false;
+  mostrarContrasena = false;
+
+  toggleMostrarContrasena(): void {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
 
   constructor(
     private router: Router,

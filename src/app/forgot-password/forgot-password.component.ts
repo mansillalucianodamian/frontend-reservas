@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { ChangeDetectorRef, Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { UsuariosService } from "../services/usuario.service";
+import { Router } from "@angular/router"; // 👈 Importar Router
 
 @Component({
   selector: 'app-forgot-password',
@@ -17,6 +18,7 @@ export class ForgotPasswordComponent implements OnInit {
   isLoading = false;
 
   constructor(
+    private router: Router, // 👈 Inyectar Router
     private fb: FormBuilder,
     private usuariosService: UsuariosService,
     private cd: ChangeDetectorRef
@@ -42,7 +44,7 @@ export class ForgotPasswordComponent implements OnInit {
 
     this.usuariosService.forgotPassword(email).subscribe({
       next: (res) => {
-        this.successMessage = res.message;
+        this.successMessage = res.message || '✅ Se envió el enlace de recuperación a tu email.';
         this.errorMessage = null;
         this.isLoading = false;
         this.cd.detectChanges();
@@ -57,5 +59,8 @@ export class ForgotPasswordComponent implements OnInit {
       }
     });
   }
-}
 
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+}

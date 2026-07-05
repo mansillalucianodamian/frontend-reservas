@@ -26,6 +26,7 @@ export class ReservasComponent {
   horaSeleccionada: string | null = null;
   costoCancha: number = 5000;
   mensaje: string | null = null;
+  carrito$!: Observable<any[]>;
 
   constructor(
     private reservasService: ReservasService,
@@ -37,6 +38,7 @@ export class ReservasComponent {
   ) {}
 
   ngOnInit() {
+    this.carrito$ = this.carritoService.carrito$;
     this.currentMonth = new Date();
     this.generarCalendario(this.currentMonth);
     this.route.queryParams.subscribe(params => {

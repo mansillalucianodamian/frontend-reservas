@@ -1,110 +1,272 @@
-/* Contenedor principal */
-.container {
-    max-width: 400px;
-    margin: 2rem auto;
-    padding: 2rem;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #1f1f1f, #2c2c2c);
-    /* fondo oscuro moderno */
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-    font-family: 'Segoe UI', sans-serif;
-    color: #f5f5f5;
+/* Envoltorio principal (Tarjeta Partida) */
+.login-wrapper {
+  max-width: 900px;
+  width: 100%;
+  margin: 3rem auto;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  display: flex;
+  overflow: hidden;
+  min-height: 500px;
+  font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Título */
+/* Columna Izquierda: Imagen de Fondo con Overlay */
+.login-image-side {
+  flex: 1.1;
+  position: relative;
+  display: flex;
+  overflow: hidden;
+  background-color: #1e293b;
+}
+.login-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.login-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.75) 100%
+  );
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 2.5rem;
+  box-sizing: border-box;
+  z-index: 2;
+}
+.login-logo {
+  max-width: 200px;
+  height: auto;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.5));
+}
+
+/* Barra de colores corporativos del logo */
+.brand-colors-bar {
+  display: flex;
+  height: 6px;
+  width: 130px;
+  border-radius: 3px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.brand-colors-bar .color-red {
+  flex: 1;
+  background-color: #BF2824;
+}
+.brand-colors-bar .color-yellow {
+  flex: 1;
+  background-color: #F1B822;
+}
+.brand-colors-bar .color-green {
+  flex: 1;
+  background-color: #3F801F;
+}
+
+/* Columna Derecha: Formulario */
+.login-form-side {
+  flex: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2.5rem;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+.login-box {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* Título Iniciar Sesión */
 .content-title {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    color: #fff;
-    font-weight: 600;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
-/* Formularios */
+/* Inputs y Contenedores */
 .content-form {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
-
-.form-label {
-    margin-top: 1rem;
-    font-weight: 600;
-    color: #ccc;
+.input-group {
+  margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
 }
-
 .form-input {
-    padding: 0.6rem;
-    border: 1px solid #444;
-    border-radius: 8px;
-    background: #333;
-    color: #f5f5f5;
-    transition: border-color 0.3s, background 0.3s;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #334155;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
 }
-
 .form-input:focus {
-    border-color: #009688;
-    /* verde del logo */
-    background: #444;
-    outline: none;
+  border-color: #3F801F; /* Verde de la marca */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(63, 128, 31, 0.15);
+}
+.form-input::placeholder {
+  color: #94a3b8;
 }
 
-/* Mensajes */
+/* Contenedor password con ojito */
+.password-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.password-container .form-input {
+  padding-right: 2.5rem; /* 👈 espacio para que el ojo no tape el texto */
+  width: 100%;
+}
+.toggle-password-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none !important;
+  border: none !important;
+  color: #64748b !important;
+  cursor: pointer;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  height: 24px;
+  width: 24px;
+  box-shadow: none !important; /* remueve sombra por defecto */
+  margin: 0 !important;
+  transition: color 0.2s ease, transform 0.2s ease !important;
+}
+.toggle-password-btn:hover {
+  color: #334155 !important;
+  transform: translateY(-50%) scale(1.08) !important;
+}
+
+/* Mensajes de Validación */
+.error-msg {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
 .message {
-    padding: 0.6rem;
-    border-radius: 6px;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.88rem;
+  text-align: center;
+  font-weight: 500;
 }
-
 .message-error {
-    background: rgba(229, 57, 53, 0.2);
-    color: #ff8a80;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fee2e2;
 }
-
 .message-success {
-    background: rgba(0, 150, 136, 0.2);
-    color: #80cbc4;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #dcfce7;
 }
 
-/* Botones */
-.button {
-    width: 100%;
-    padding: 0.8rem;
-    margin-top: 1rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.2s;
+/* Enlace: Olvidaste tu contraseña (Amarillo) */
+.forgot-password-link-container {
+  text-align: right;
+  margin-bottom: 1.8rem;
+  margin-top: -0.3rem;
+}
+.forgot-link {
+  color: #F1B822; /* Amarillo oficial de la marca */
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.forgot-link:hover {
+  color: #d9a51f;
+  text-decoration: underline;
 }
 
-.button:hover {
-    transform: translateY(-2px);
+/* Botón Iniciar Sesión (Verde) */
+.button-login-submit {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3F801F; /* Verde oficial de la marca */
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(63, 128, 31, 0.15);
+  margin-bottom: 1.8rem;
+}
+.button-login-submit:hover:not(:disabled) {
+  background-color: #2e6016;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 12px rgba(63, 128, 31, 0.25);
+}
+.button-login-submit:disabled {
+  background-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* Variantes */
-.button-ok {
-    background: #e53935;
-    /* rojo */
-    color: #fff;
+/* Enlace: Registrarse */
+.register-link-container {
+  text-align: center;
+}
+.register-text {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0;
+}
+.register-link {
+  color: #3F801F; /* Verde corporativo */
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.register-link:hover {
+  color: #2e6016;
+  text-decoration: underline;
 }
 
-.button-ok:hover {
-    background: #c62828;
-}
-.button-warning {
-  background: #fbc02d; /* amarillo del logo */
-  color: #333;
-}
-
-.button-warning:hover {
-  background: #f9a825;
-}
-
-.button-cancel {
-  background: #009688; /* verde del logo */
-  color: #fff;
-}
-
-.button-cancel:hover {
-  background: #00796b;
+/* Responsividad para móviles */
+@media (max-width: 768px) {
+  .login-wrapper {
+    flex-direction: column;
+    max-width: 420px;
+    margin: 1.5rem auto;
+    min-height: auto;
+  }
+  .login-image-side {
+    display: none; /* Oculta la imagen en móviles para ahorrar espacio */
+  }
+  .login-form-side {
+    padding: 2.5rem 1.5rem;
+  }
 }

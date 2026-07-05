@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Usuario } from '../models/usuario.model';
 import { UsuariosService } from '../services/usuario.service';
 
@@ -15,9 +16,15 @@ export class RegistroComponent implements OnInit {
   registroForm!: FormGroup;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-  isLoading = false; // 🔹 nuevo flag
+  isLoading = false;
+  mostrarContrasena = false;
+
+  toggleMostrarContrasena(): void {
+    this.mostrarContrasena = !this.mostrarContrasena;
+  }
 
   constructor(
+    private router: Router,
     private fb: FormBuilder,
     private usuariosService: UsuariosService,
     private cd: ChangeDetectorRef
@@ -42,26 +49,29 @@ export class RegistroComponent implements OnInit {
 
     this.errorMessage = null;
     this.successMessage = null;
-    this.isLoading = true; // 🔹 empieza la carga
+    this.isLoading = true;
 
     const usuario: Usuario = { ...this.registroForm.value };
 
     this.usuariosService.registrar(usuario).subscribe({
       next: (res) => {
-        this.successMessage = res.message;
+        this.successMessage = res.message || '✅ Registro completado. Ya puedes iniciar sesión.';
         this.errorMessage = null;
-        this.isLoading = false; // 🔹 termina la carga
+        this.isLoading = false;
         this.cd.detectChanges();
-        this.registroForm.reset(); // 🔹 limpiar al tener éxito
+        this.registroForm.reset();
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'Error inesperado al registrar';
         this.successMessage = null;
-        this.isLoading = false; // 🔹 termina la carga
+        this.isLoading = false;
         this.cd.detectChanges();
         this.registroForm.markAllAsTouched();
       }
     });
   }
-}
 
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+}

@@ -5,9 +5,7 @@
     </div>
 
     <nav class="navbar-links">
-        <!-- Si NO está logueado -->
-        <a *ngIf="!(isLoggedIn$ | async)" routerLink="/login" class="nav-link">Iniciar Sesión</a>
-        <a *ngIf="!(isLoggedIn$ | async)" routerLink="/registro" class="nav-link">Registrarse</a>
+
 
         <!-- Si está logueado -->
         <a *ngIf="isLoggedIn$ | async" routerLink="/reservas" class="nav-link">Reservar cancha</a>

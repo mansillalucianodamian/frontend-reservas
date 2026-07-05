@@ -15,26 +15,46 @@ body {
     align-items: center;
     background: linear-gradient(135deg, #1f1f1f, #2c2c2c);
     /* gris oscuro degradado */
-    padding: 1rem 2rem;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    position: relative;
+    overflow: visible; /* 👈 Permite que el logo sobresalga */
+    height: 60px;       /* 👈 Alto fijo para controlar el desborde */
+    box-sizing: border-box;
+    z-index: 1000;
 }
 
 .navbar-left {
     display: flex;
-    align-items: flex-end;
-    gap: 0.8rem;
+    align-items: center;
+    position: relative;
+    height: 100%;
 }
 
 .navbar-logo {
-    height: 40px;
+    height: 78px;      /* 👈 Más alto que la barra (60px) para el desborde */
     width: auto;
+    position: absolute;
+    top: -10px;        /* 👈 Hace que sobresalga hacia arriba y hacia abajo */
+    left: 0;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4)); /* Sombra 3D flotante */
+    z-index: 1010;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.navbar-logo:hover {
+    transform: scale(1.08) translateY(2px);
 }
 
 .navbar-title {
-    color: #fff;
-    font-size: 1.4rem;
-    font-weight: bold;
+    color: #ffffff;
+    font-size: 1.15rem;   /* Más elegante y limpio */
+    font-weight: 500;     /* Menos grueso, más estético */
+    letter-spacing: 1.2px;/* Espaciado moderno */
+    text-transform: uppercase; /* Mayúsculas estéticas */
+    font-family: 'Segoe UI', system-ui, sans-serif;
     margin: 0;
+    margin-left: 3.5rem;  /* 👈 Espacio a la izquierda para no pisarse con el logo flotante */
 }
 
 .navbar-links {
