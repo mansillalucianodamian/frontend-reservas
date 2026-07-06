@@ -1,38 +1,116 @@
-<h3 class="recep-title">📋 Panel Recepcionista</h3>
-
-<div *ngIf="(reservas$ | async) as reservas; else cargando" class="recep-container">
-    <!-- Barra de búsqueda -->
-    <div class="search-bar">
-        <input type="text" placeholder=" Buscar por usuario..." [(ngModel)]="filtroUsuario" class="search-input">
-    </div>
-
-    <div *ngIf="reservas.length; else vacio">
-        <div *ngFor="let r of reservas | userFilter:filtroUsuario" class="reserva-card"
-            [ngClass]="r.estado.toLowerCase()">
-            <div class="reserva-info">
-                <p><span class="label">👤 Usuario:</span> {{ r.usuario }}</p>
-                <p><span class="label">📅 Fecha y hora:</span> {{ r.fecha | date:'dd/MM/yyyy' }} - {{ r.hora }}</p>
-                <p><span class="label">📌 Estado: </span> <span class="estado" [ngClass]="r.estado.toLowerCase()">{{
-                        r.estado }}</span></p>
-
-            </div>
-            <div class="card-actions">
-                <button (click)="aprobarReserva(r.id)" [disabled]="r.estado !== 'Pendiente'" class="button-approve">
-                     Aprobar Pago
-                </button>
-            </div>
+<div class="container">
+  <!-- Columna Izquierda: Imagen y Logo Municipal -->
+  <div class="container-image">
+    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <div class="image-card-overlay">
+      <div class="overlay-logo-container">
+        <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
+      </div>
+      <div class="overlay-banner">
+        <h1 class="overlay-title">RECEPCIÓN</h1>
+        <div class="brand-colors-bar">
+          <div class="color-red"></div>
+          <div class="color-yellow"></div>
+          <div class="color-green"></div>
         </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Columna Derecha: Panel de Trabajo -->
+  <div class="container-work-card">
+    <div class="header-recep-section">
+      <h2 class="title">Control de Reservas</h2>
+      <p class="legend">(Gestión y acreditación de cobros para habilitar el uso de canchas)</p>
+    </div>
+
+    <!-- Si cargan las reservas -->
+    <div *ngIf="(reservas$ | async) as reservas; else cargando" class="recep-content">
+      <!-- Buscador superior -->
+      <div class="search-box">
+        <div class="search-input-wrapper">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" placeholder="Buscar por usuario o apellido..." [(ngModel)]="filtroUsuario" class="search-input">
+        </div>
+      </div>
+
+      <div *ngIf="reservas.length > 0; else vacio" class="recep-items-list">
+        <div *ngFor="let r of reservas | userFilter:filtroUsuario" class="reserva-item-row" [ngClass]="r.estado.toLowerCase()">
+          <!-- Icono identificador -->
+          <div class="reserva-status-icon-wrapper" [ngClass]="r.estado.toLowerCase()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+
+          <!-- Detalles del turno -->
+          <div class="reserva-details">
+            <div class="reserva-username">
+              <span class="user-label">Usuario:</span>
+              <span class="user-value">{{ r.usuario }}</span>
+            </div>
+            <div class="reserva-datetime">
+              <span class="reserva-date">{{ formatFechaLocal(r.fecha) }}</span>
+              <span class="reserva-separator">•</span>
+              <span class="reserva-time">{{ r.hora }} hs</span>
+            </div>
+            <div class="reserva-meta">
+              <span class="reserva-court">Cancha de Pádel</span>
+              <span class="reserva-code">Ref: #{{ r.id }}</span>
+              <span class="reserva-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
+            </div>
+            <!-- Motivo si existe -->
+            <div *ngIf="r.motivo" class="reserva-motivo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Nota: {{ r.motivo }}</span>
+            </div>
+          </div>
+
+          <!-- Acciones de validación -->
+          <div class="reserva-action">
+            <button (click)="aprobarReserva(r.id)" [disabled]="r.estado !== 'Pendiente'" class="btn-approve-payment" title="Aprobar pago de reserva">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Aprobar Pago</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates cargando y vacío -->
+    <ng-template #cargando>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando grilla de reservas...</p>
+      </div>
+    </ng-template>
+
+    <ng-template #vacio>
+      <div class="empty-recep-state">
+        <div class="empty-icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <p class="empty-title">Sin tareas pendientes</p>
+        <p class="empty-description">No hay reservas pendientes de validación de pago en este momento.</p>
+      </div>
+    </ng-template>
+
+    <!-- Mensajes Toast -->
+    <div *ngIf="mensaje" class="recep-message-toast success">{{ mensaje }}</div>
+    <div *ngIf="errorMessage" class="recep-message-toast error">{{ errorMessage }}</div>
+  </div>
 </div>
-
-<ng-template #cargando>
-    <p class="loading">⏳ Cargando reservas...</p>
-</ng-template>
-
-<ng-template #vacio>
-    <p class="empty">⚠️ No hay reservas registradas</p>
-</ng-template>
-
-<!-- Mensajes -->
-<div *ngIf="mensaje" class="success-message">{{ mensaje }}</div>
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>

@@ -59,6 +59,9 @@ export class LoginComponent implements OnInit {
           // ✅ Guardar datos de usuario
           localStorage.setItem('usuarioId', res.user?.id?.toString() || '');
           localStorage.setItem('rol', res.user?.rol || '');
+          if (res.user) {
+            this.authService.setUser(res.user);
+          }
 
           // ✅ Actualizar AuthService (si usás BehaviorSubject)
           this.authService.setToken(res.token);

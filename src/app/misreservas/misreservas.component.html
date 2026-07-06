@@ -1,32 +1,111 @@
-<h3 class="reservas-title">Mis reservas</h3>
-
-<div *ngIf="(reservas$ | async) as reservas; else cargando" class="reservas-container">
-  <div *ngIf="reservas.length; else vacio">
-    <div *ngFor="let r of reservas.slice().reverse()" class="reserva-card" [ngClass]="r.estado.toLowerCase()">
-      <div class="reserva-info">
-        <p class="reserva-text">{{ r.fecha }} - {{ r.hora }}</p>
-        <p class="reserva-estado">Estado: {{ r.estado }}</p>
+<div class="container">
+  <!-- Columna Izquierda: Imagen y Logo Municipal -->
+  <div class="container-image">
+    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <div class="image-card-overlay">
+      <div class="overlay-logo-container">
+        <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
       </div>
-      <button (click)="cancelarReserva(r.id)" [disabled]="r.estado !== 'Pendiente'" class="button-cancel">
-        Cancelar
-      </button>
+      <div class="overlay-banner">
+        <h1 class="overlay-title">MIS TURNOS</h1>
+        <div class="brand-colors-bar">
+          <div class="color-red"></div>
+          <div class="color-yellow"></div>
+          <div class="color-green"></div>
+        </div>
+      </div>
     </div>
   </div>
-</div>
 
-<ng-template #cargando>
-  <p class="loading">Cargando reservas...</p>
-</ng-template>
+  <!-- Columna Derecha: Tarjeta de Contenido -->
+  <div class="container-reservas-card">
+    <div class="header-reservas-section">
+      <h2 class="title">Turnos Habilitados</h2>
+      <p class="legend">(Se muestran solo tus turnos pendientes de pago o aprobados vigentes)</p>
+    </div>
 
-<ng-template #vacio>
-  <p class="empty">No tienes reservas registradas</p>
-</ng-template>
+    <!-- Si cargan las reservas -->
+    <div *ngIf="(reservas$ | async) as reservas; else cargando" class="reservas-content">
+      <div *ngIf="reservas.length > 0; else vacio" class="reservas-items-list">
+        <div *ngFor="let r of reservas.slice().reverse()" class="reserva-item-row" [ngClass]="r.estado.toLowerCase()">
+          <!-- Indicador visual del estado con icono -->
+          <div class="reserva-status-icon-wrapper" [ngClass]="r.estado.toLowerCase()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
 
-<!-- Mensajes -->
-<div *ngIf="mensaje" class="success-message">
-  {{ mensaje }}
-</div>
+          <!-- Información del turno -->
+          <div class="reserva-details">
+            <div class="reserva-datetime">
+              <span class="reserva-date">{{ formatFechaLocal(r.fecha) }}</span>
+              <span class="reserva-separator">•</span>
+              <span class="reserva-time">{{ r.hora }} hs</span>
+            </div>
+            <div class="reserva-meta">
+              <span class="reserva-court">Cancha de Pádel</span>
+              <span class="reserva-code">Ref: #{{ r.codigo || r.id }}</span>
+              <span class="reserva-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
+            </div>
+            <!-- Detalle / Motivo de reserva si existe -->
+            <div *ngIf="r.motivo" class="reserva-motivo">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+              <span>Detalle: {{ r.motivo }}</span>
+            </div>
+          </div>
 
-<div *ngIf="errorMessage" class="error-message">
-  {{ errorMessage }}
+          <!-- Botón de cancelación -->
+          <div class="reserva-action">
+            <button *ngIf="r.estado.toLowerCase().startsWith('pendiente')" (click)="cancelarReserva(r.id)" class="btn-cancel-reserva" title="Cancelar reserva" aria-label="Cancelar reserva">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Cancelar</span>
+            </button>
+            <span *ngIf="!r.estado.toLowerCase().startsWith('pendiente')" class="reserva-no-action-text" title="No cancelable desde la web">Confirmada</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Templates cargando y vacío -->
+    <ng-template #cargando>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Buscando tus turnos...</p>
+      </div>
+    </ng-template>
+
+    <ng-template #vacio>
+      <div class="empty-reservas-state">
+        <div class="empty-icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+        </div>
+        <p class="empty-title">Sin reservas vigentes</p>
+        <p class="empty-description">No tienes reservas activas de cancha de pádel en este momento.</p>
+        <button routerLink="/reservas" class="btn-reservas-primary">
+          <span>Reservar una cancha</span>
+        </button>
+      </div>
+    </ng-template>
+
+    <!-- Mensajes Toast -->
+    <div *ngIf="mensaje" class="reserva-message-toast success">{{ mensaje }}</div>
+    <div *ngIf="errorMessage" class="reserva-message-toast error">{{ errorMessage }}</div>
+  </div>
 </div>

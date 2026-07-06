@@ -1,29 +1,123 @@
-<h3 class="cart-title">Carrito de reservas</h3>
-
-<div *ngIf="(carrito$ | async) as carrito; else vacio" class="cart-container">
-    <div *ngFor="let r of carrito" class="cart-item">
-        <img src="cancha-padel.png" alt="Cancha de pádel" class="cart-image">
-        <div class="cart-details">
-            <p class="cart-text">{{ r.fecha }} - {{ r.hora }}</p>
-            <p class="cart-price">{{ r.costo | currency:'ARS' }}</p>
-            <button (click)="eliminar(r)" class="button-remove">Eliminar</button>
+<div class="container">
+  <!-- Columna Izquierda: Imagen y Logo de la Municipalidad -->
+  <div class="container-image">
+    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <div class="image-card-overlay">
+      <div class="overlay-logo-container">
+        <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
+      </div>
+      <div class="overlay-banner">
+        <h1 class="overlay-title">TU CARRITO</h1>
+        <div class="brand-colors-bar">
+          <div class="color-red"></div>
+          <div class="color-yellow"></div>
+          <div class="color-green"></div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Columna Derecha: Tarjeta de Contenido -->
+  <div class="container-cart-card">
+    <div class="header-cart">
+      <h2 class="title">Reservas Seleccionadas</h2>
+      <p class="legend">(Revisa los detalles antes de confirmar los turnos)</p>
     </div>
 
-    <!-- Total -->
-    <div class="cart-total">
-        <p>Total: {{ calcularTotal(carrito) | currency:'ARS' }}</p>
+    <!-- Si el carrito tiene elementos -->
+    <div *ngIf="(carrito$ | async) as carrito; else vacio" class="cart-content">
+      <div class="cart-items-list">
+        <div *ngFor="let r of carrito" class="cart-item-row">
+          <div class="item-icon-wrapper">
+            <!-- Icono SVG de calendario -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="item-icon">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="item-info">
+            <div class="item-datetime">
+              <span class="item-date">{{ r.fecha }}</span>
+              <span class="item-separator">•</span>
+              <span class="item-time">{{ r.hora }} hs</span>
+            </div>
+            <span class="item-court-type">Cancha de Pádel</span>
+          </div>
+          <div class="item-price-action">
+            <span class="item-price">{{ r.costo | currency:'ARS' }}</span>
+            <button (click)="eliminar(r)" class="btn-delete-item" title="Eliminar del carrito" aria-label="Eliminar del carrito">
+              <!-- Icono de tacho de basura en SVG -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de totales -->
+      <div class="cart-summary-box">
+        <div class="summary-row">
+          <span>Cantidad de turnos:</span>
+          <strong>{{ carrito.length }}</strong>
+        </div>
+        <div class="summary-row total-row">
+          <span>Total a pagar:</span>
+          <span class="total-amount">{{ calcularTotal(carrito) | currency:'ARS' }}</span>
+        </div>
+      </div>
+
+      <!-- Acciones de confirmación / retorno -->
+      <div class="cart-actions-group">
+        <button (click)="confirmar()" class="btn-checkout-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Confirmar y Reservar</span>
+        </button>
+        <button (click)="seguirComprando()" class="btn-checkout-secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Volver al Calendario</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Acciones -->
-    <div class="cart-actions">
-        <button (click)="confirmar()" class="button-primary">Confirmar y pagar</button>
-        <button (click)="seguirComprando()" class="button-secondary">Seguir comprando</button>
-    </div>
+    <!-- Estado vacío interactivo -->
+    <ng-template #vacio>
+      <div class="empty-cart-state">
+        <div class="empty-icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="21" r="1"></circle>
+            <circle cx="19" cy="21" r="1"></circle>
+            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+          </svg>
+        </div>
+        <p class="empty-title">Tu carrito está vacío</p>
+        <p class="empty-description">Aún no has seleccionado ningún turno de cancha para reservar.</p>
+        <button (click)="seguirComprando()" class="btn-checkout-primary btn-empty-action">
+          <span>Buscar turnos disponibles</span>
+        </button>
+      </div>
+    </ng-template>
+
+    <div *ngIf="mensaje" class="cart-message-toast">{{ mensaje }}</div>
+  </div>
 </div>
 
-<ng-template #vacio>
-    <p class="cart-empty">No hay reservas en el carrito</p>
-</ng-template>
-
-<div *ngIf="mensaje" class="cart-message">{{ mensaje }}</div>
+<!-- Overlay de Carga (Spinner) -->
+<div class="loading-overlay" *ngIf="isProcessing">
+  <div class="loading-spinner-container">
+    <div class="spinner"></div>
+    <h3 class="loading-text">Procesando reservas...</h3>
+    <p class="loading-subtext">Por favor, no cierres esta ventana.</p>
+  </div>
+</div>

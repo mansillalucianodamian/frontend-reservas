@@ -59,36 +59,145 @@ body {
 
 .navbar-links {
     display: flex;
-    gap: 1rem;
+    align-items: center;
+    gap: 0.85rem;
 }
 
-/* Links */
-.nav-link {
-    color: #f5f5f5;
+/* Saludo de usuario */
+.user-greeting {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 0.5rem;
+    color: #ffffff;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.95rem;
+    user-select: none;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    /* Gradiente con Amarillo brand #F1B822 y Verde brand #3F801F */
+    background: linear-gradient(135deg, #F1B822, #3F801F);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    transition: transform 0.25s ease;
+}
+
+.user-greeting:hover .user-avatar {
+    transform: scale(1.1);
+}
+
+.user-welcome-text {
+    font-weight: 400;
+    letter-spacing: 0.3px;
+}
+
+.user-name {
+    color: #F1B822; /* Amarillo de marca */
+    font-weight: 600;
+}
+
+/* Nuevos botones tipo Pill */
+.nav-btn-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.3s;
-}
-
-.nav-link:hover {
-    color: #fbc02d;
-    /* amarillo del logo */
-}
-
-/* Botón cerrar sesión */
-.button-cancel {
-    background: #e53935;
-    /* rojo del logo */
-    color: #fff;
-    border: none;
-    padding: 0.6rem 1rem;
-    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-sizing: border-box;
+    outline: none;
+    
+    /* Estilo glassmorphism sutil */
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
 }
 
-.button-cancel:hover {
-    background: #c62828;
+/* Iconos dentro de los botones */
+.nav-icon {
+    width: 18px;
+    height: 18px;
+    stroke: currentColor;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
+}
+
+/* Efecto hover general de reservar (con verde marca #3F801F) */
+.nav-btn-pill:not(.btn-logout):hover {
+    background: rgba(63, 128, 31, 0.18);
+    border-color: #3F801F;
+    color: #F1B822; /* Amarillo marca en hover */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(63, 128, 31, 0.45);
+}
+
+/* Estilo y hover específico de Cerrar Sesión (con rojo marca #BF2824) */
+.btn-logout {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.btn-logout:hover {
+    background: rgba(191, 40, 36, 0.18);
+    border-color: #BF2824;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(191, 40, 36, 0.45);
+}
+
+/* Micro-animación en el icono de logout */
+.btn-logout:hover .logout-icon {
+    transform: translateX(3px);
+}
+
+/* Adaptabilidad para móviles (Responsive) */
+@media (max-width: 600px) {
+    /* Ocultar texto del saludo en pantallas chicas, dejando solo el avatar circular */
+    .user-welcome-text {
+        display: none;
+    }
+    
+    .user-greeting {
+        margin-right: 0.25rem;
+    }
+
+    .nav-btn-pill {
+        padding: 0;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+    }
+    
+    .nav-btn-text {
+        display: none;
+    }
+    
+    .navbar-title {
+        font-size: 0.95rem;
+        margin-left: 3.2rem;
+        letter-spacing: 0.8px;
+    }
+    
+    .navbar {
+        padding: 0.5rem 1rem;
+    }
 }
 
 /* Contenido principal */

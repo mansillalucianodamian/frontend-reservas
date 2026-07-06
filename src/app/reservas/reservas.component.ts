@@ -203,6 +203,23 @@ export class ReservasComponent {
       this.mensaje = '⚠️ Debes iniciar sesión antes de reservar';
       return;
     }
+    
+    // Validar si el usuario está bloqueado por administración
+    const user = this.authService.getUser();
+    if (user && user.rol === 'bloqueado') {
+      this.dialog.open(ConfirmDialogComponent, {
+        maxWidth: '95vw',
+        width: '420px',
+        data: {
+          titulo: 'Acceso Restringido',
+          mensaje: 'Tu usuario se encuentra bloqueado por la administración de la Municipalidad de Aldea San Antonio. No tienes permisos para realizar reservas de canchas.',
+          resultado: 'No se puede continuar con la operación',
+          tipo: 'error',
+          bloqueado: true
+        }
+      });
+      return;
+    }
     if (!this.fechaSeleccionada || !this.horaSeleccionada) {
       this.mensaje = 'Debes seleccionar fecha y hora';
       return;

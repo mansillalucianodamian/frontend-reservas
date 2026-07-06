@@ -1,140 +1,502 @@
-/* Título */
-.recep-title {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 1.5rem;
-    font-size: 1.8rem;
-    font-weight: bold;
+/* Contenedor principal de dos columnas */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 1.5rem;
+    margin: 2rem auto;
+    max-width: 1100px;
+    font-family: 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Contenedor */
-.recep-container {
-    max-width: 900px;
-    margin: 0 auto;
+/* Columna Izquierda: Imagen con overlay de marca */
+.container-image {
+    flex: 1;
+    position: relative;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow: hidden;
+    display: flex;
+    min-height: 480px;
+}
+
+.image-padel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.container-image:hover .image-padel {
+    transform: scale(1.05);
+}
+
+.image-card-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
-}
-
-/* Tarjeta de reserva */
-.reserva-card {
-    display: flex;
     justify-content: space-between;
-    align-items: center;
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 1rem;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    transition: transform 0.2s ease;
+    padding: 1.5rem;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.65) 100%);
+    z-index: 2;
+    box-sizing: border-box;
 }
 
-.reserva-card:hover {
-    transform: translateY(-3px);
-}
-
-/* Info */
-.reserva-info p {
-    margin: 0.3rem 0;
-    font-size: 1rem;
-    color: #2c3e50;
-}
-
-.label {
-    font-weight: 600;
-    color: #34495e;
-}
-
-/* Estado con colores */
-.estado.pendiente {
-    color: #f39c12;
-    font-style: italic; 
-}
-
-.estado.aprobado {
-    color: #27ae60;
-    font-weight: bold;
-}
-
-.estado.cancelado {
-    color: #e74c3c;
-    font-weight: bold;
-}
-
-/* Acciones */
-.card-actions {
+.overlay-logo-container {
     display: flex;
+    align-items: flex-start;
+}
+
+.overlay-logo {
+    max-width: 170px;
+    height: auto;
+    filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.6));
+}
+
+.overlay-banner {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
+    padding-bottom: 0.5rem;
 }
 
-/* Botón aprobar */
-.button-approve {
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 0.6rem 1.2rem;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s;
+.overlay-title {
+    color: #ffffff;
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    margin: 0;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.7);
 }
 
-.button-approve:disabled {
-    background-color: #bdc3c7;
-    cursor: not-allowed;
-}
-
-.button-approve:hover:enabled {
-    background-color: #1e8449;
-}
-
-/* Mensajes */
-.success-message {
-    margin-top: 1rem;
-    padding: 0.8rem;
-    border-radius: 6px;
-    background-color: #d4efdf;
-    color: #1e8449;
-    text-align: center;
-    font-weight: 600;
-}
-
-.error-message {
-    margin-top: 1rem;
-    padding: 0.8rem;
-    border-radius: 6px;
-    background-color: #f5b7b1;
-    color: #922b21;
-    text-align: center;
-    font-weight: 600;
-}
-
-/* Estados vacíos y cargando */
-.loading,
-.empty {
-    text-align: center;
-    color: #7f8c8d;
-    font-style: italic;
-    font-size: 1.1rem;
-}
-
-/* Barra de búsqueda */
-.search-bar {
+/* Barra tricolor identitaria */
+.brand-colors-bar {
     display: flex;
+    height: 6px;
+    width: 150px;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.brand-colors-bar .color-red {
+    flex: 1;
+    background-color: #BF2824;
+}
+
+.brand-colors-bar .color-yellow {
+    flex: 1;
+    background-color: #F1B822;
+}
+
+.brand-colors-bar .color-green {
+    flex: 1;
+    background-color: #3F801F;
+}
+
+/* Columna Derecha: Tarjeta de recepcionista */
+.container-work-card {
+    flex: 1.3;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    display: flex;
+    flex-direction: column;
     justify-content: flex-start;
+    gap: 1.2rem;
+}
+
+.header-recep-section {
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.header-recep-section .title {
+    color: #0f172a;
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.header-recep-section .legend {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin: 4px 0 0 0;
+}
+
+/* Barra de Búsqueda */
+.search-box {
     margin-bottom: 1rem;
 }
 
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    color: #94a3b8;
+    pointer-events: none;
+}
+
 .search-input {
-    flex: 1;
-    padding: 0.6rem 1rem;
-    border: 1px solid #bdc3c7;
-    border-radius: 6px;
-    font-size: 1rem;
-    background-color: #f9f9f9;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%;
+    padding: 10px 14px 10px 40px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1e293b;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
 .search-input:focus {
     outline: none;
-    border-color:  #3498db;
-    box-shadow: 0 0 6px rgba(52, 152, 219, 0.5);
+    border-color: #3F801F;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(63, 128, 31, 0.15);
+}
+
+/* Lista de Reservas */
+.recep-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.recep-items-list {
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+/* Scrollbar personalizado */
+.recep-items-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.recep-items-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.recep-items-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+/* Fila de la reserva */
+.reserva-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 0.75rem;
+    transition: all 0.22s ease;
+}
+
+.reserva-item-row:hover {
+    background: #f1f5f9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+/* Icono identificador de usuario */
+.reserva-status-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.reserva-status-icon-wrapper.pendiente {
+    background: rgba(241, 184, 34, 0.1);
+    color: #d97706;
+}
+
+.reserva-status-icon-wrapper.aprobada,
+.reserva-status-icon-wrapper.aprobado,
+.reserva-status-icon-wrapper.confirmada,
+.reserva-status-icon-wrapper.confirmado {
+    background: rgba(63, 128, 31, 0.1);
+    color: #3F801F;
+}
+
+.reserva-details {
+    flex: 1;
+    margin-left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.reserva-username {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.95rem;
+}
+
+.user-label {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.user-value {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.reserva-datetime {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.reserva-date {
+    font-weight: 600;
+    color: #334155;
+    font-size: 0.85rem;
+}
+
+.reserva-separator {
+    color: #cbd5e1;
+}
+
+.reserva-time {
+    color: #475569;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.reserva-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.reserva-court {
+    font-size: 0.72rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.reserva-code {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Badge de estado en pill */
+.reserva-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 50px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.reserva-badge.pendiente {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.reserva-badge.aprobada,
+.reserva-badge.aprobado,
+.reserva-badge.confirmada,
+.reserva-badge.confirmado {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.reserva-motivo {
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    color: #475569;
+    background: #f8fafc;
+    border-left: 3px solid #cbd5e1;
+    padding: 4px 8px;
+    border-radius: 0 4px 4px 0;
+    max-width: 90%;
+    align-self: flex-start;
+}
+
+.reserva-motivo svg {
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.reserva-action {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+}
+
+/* Botón aprobar */
+.btn-approve-payment {
+    background-color: #3F801F;
+    border: 1.5px solid #2f6016;
+    color: #ffffff;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 5px rgba(63, 128, 31, 0.15);
+    transition: all 0.2s ease;
+}
+
+.btn-approve-payment:hover:enabled {
+    background-color: #2f6016;
+    box-shadow: 0 4px 10px rgba(63, 128, 31, 0.25);
+    transform: scale(1.02);
+}
+
+.btn-approve-payment:disabled {
+    background-color: #cbd5e1;
+    border-color: #cbd5e1;
+    color: #94a3b8;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* Estado de carga */
+.loading-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.loading-spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid #f1f5f9;
+    border-top: 3px solid #3F801F;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+.loading-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+/* Estado vacío */
+.empty-recep-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-icon-wrapper {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.empty-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0 0 0.4rem 0;
+}
+
+.empty-description {
+    font-size: 0.85rem;
+    color: #64748b;
+    max-width: 280px;
+    margin: 0;
+    line-height: 1.45;
+}
+
+/* Toasts de mensaje */
+.recep-message-toast {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    text-align: center;
+    font-weight: 500;
+}
+
+.recep-message-toast.success {
+    background-color: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+}
+
+.recep-message-toast.error {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+/* Spinner Animación */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 850px) {
+    .container {
+        flex-direction: column;
+        padding: 1rem;
+        margin: 1rem auto;
+        gap: 1rem;
+    }
+    
+    .container-image {
+        min-height: 180px;
+        height: 180px;
+    }
+    
+    .container-work-card {
+        padding: 1.5rem;
+    }
 }

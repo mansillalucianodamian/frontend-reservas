@@ -12,13 +12,29 @@ import { AuthService } from './services/auth.service';
 })
 export class App {
   isLoggedIn$;
+  userFirstName = '';
+  userInitials = '';
 
   constructor(private authService: AuthService, private router: Router) {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
 
-    // 👇 suscribite para ver qué valores llegan
     this.isLoggedIn$.subscribe(status => {
       console.log('📡 Navbar recibió estado:', status);
+      if (status) {
+        const user = this.authService.getUser();
+        if (user) {
+          // Extraer primer nombre
+          this.userFirstName = user.nombre ? user.nombre.split(' ')[0] : '';
+          
+          // Generar iniciales (ej: "LM")
+          const firstN = user.nombre ? user.nombre.charAt(0).toUpperCase() : '';
+          const firstA = user.apellido ? user.apellido.charAt(0).toUpperCase() : '';
+          this.userInitials = `${firstN}${firstA}`;
+        }
+      } else {
+        this.userFirstName = '';
+        this.userInitials = '';
+      }
     });
   }
 

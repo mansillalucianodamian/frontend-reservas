@@ -1,44 +1,277 @@
-<h3 class="admin-title">Panel Super Admin</h3>
-
-<!-- Gestión de usuarios -->
-<section class="admin-section">
-    <h4 class="section-title">Usuarios</h4>
-    <div *ngIf="(usuarios$ | async) as usuarios" class="list-container">
-        <div *ngFor="let u of usuarios" class="card user-card">
-            <p class="user-info">
-                {{ u.apellido || '' }}, {{ u.nombre || '' }}
-                <span class="user-role">Rol: {{ u.rol || '' }}</span>
-            </p>
-            <div class="card-actions">
-                <button (click)="asignarRol(u.id, 'usuario')" class="button-role usuario">Usuario</button>
-                <button (click)="asignarRol(u.id, 'recepcionista')"
-                    class="button-role recepcionista">Recepcionista</button>
-                <button (click)="asignarRol(u.id, 'super_admin')" class="button-role superadmin">Super Admin</button>
-                <button (click)="eliminarUsuario(u.id)" class="button-remove">Eliminar</button>
-            </div>
-        </div>
+<div class="container-admin">
+  <!-- Cabecera de Administración -->
+  <div class="admin-header">
+    <div class="header-logo-section">
+      <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="admin-logo">
+      <h1 class="admin-title">PANEL SUPER ADMINISTRADOR</h1>
     </div>
-</section>
-
-<!-- Gestión de reservas -->
-<section class="admin-section">
-    <h4 class="section-title">Reservas</h4>
-    <div *ngIf="(reservas$ | async) as reservas" class="list-container">
-        <div *ngFor="let r of reservas" class="card reserva-card" [ngClass]="r.estado.toLowerCase()">
-            <p class="reserva-info">
-                Código: {{ r.codigo || r.id }} |
-                Usuario ID: {{ r.usuario_id }} |
-                Fecha: {{ r.fecha | date:'shortDate' }} {{ r.hora }} |
-                Estado: {{ r.estado }}
-            </p>
-            <div class="card-actions">
-                <button (click)="cancelarReserva(r.id)" class="button-cancel">Cancelar</button>
-                <button (click)="bloquearReserva(r.fecha, r.hora, 'Uso interno')" class="button-block">Bloquear</button>
-            </div>
-        </div>
+    <div class="brand-colors-bar">
+      <div class="color-red"></div>
+      <div class="color-yellow"></div>
+      <div class="color-green"></div>
     </div>
-</section>
+  </div>
 
-<!-- Mensajes -->
-<div *ngIf="mensaje" class="success-message">{{ mensaje }}</div>
-<div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+  <!-- Contenido de Solapas -->
+  <mat-tab-group class="custom-tabs-group" dynamicHeight>
+    
+    <!-- Pestaña 1: Bloqueos de Cancha -->
+    <mat-tab label="⚽ Bloqueos de Cancha">
+      <div class="tab-layout">
+        <!-- Columna Calendario -->
+        <div class="col-calendar">
+          <div class="calendar-card">
+            <div class="calendar-card-header">
+              <h3 class="card-title">Calendario de Bloqueos</h3>
+              <p class="card-subtitle">Selecciona una fecha para restringir slots</p>
+            </div>
+            
+            <div class="calendar-wrapper">
+              <div class="calendar-controls">
+                <button (click)="mesAnterior()" [disabled]="esMesActual(currentMonth)" class="nav-btn">&lt;</button>
+                <span class="month-title">{{ currentMonth | date:'MMMM yyyy' | titlecase }}</span>
+                <button (click)="mesSiguiente()" class="nav-btn">&gt;</button>
+              </div>
+
+              <div class="calendar-grid">
+                <div *ngFor="let nombre of nombresDias" class="grid-header-day">{{ nombre }}</div>
+                <button *ngFor="let dia of diasCalendario; trackBy: trackByDia" 
+                        (click)="seleccionarDia(dia.dateStr)" 
+                        [disabled]="!dia.enabled"
+                        [class.selected]="fechaSeleccionada === dia.dateStr"
+                        [class.current-month]="dia.isCurrentMonth"
+                        class="grid-day">
+                  {{ dia.dayNum }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Columna Horarios -->
+        <div class="col-hours">
+          <div class="hours-card">
+            <div class="hours-card-header" *ngIf="fechaSeleccionada">
+              <h3 class="card-title">Slots para el {{ formatFechaLocal(fechaSeleccionada) }}</h3>
+              <p class="card-subtitle">Administra bloqueos sobre turnos libres, reservados o bloqueados</p>
+            </div>
+            <div class="hours-card-header" *ngIf="!fechaSeleccionada">
+              <h3 class="card-title">Horarios del Turno</h3>
+              <p class="card-subtitle">Elige una fecha del calendario para cargar la grilla</p>
+            </div>
+
+            <!-- Listado de horarios -->
+            <div *ngIf="fechaSeleccionada && (horariosDisponibles$ | async) as horarios; else instructivo" class="hours-list-container">
+              <div *ngFor="let h of horarios" class="hour-row">
+                <ng-container *ngIf="obtenerEstadoSlot(h.hora) as slot">
+                  <div class="hour-info">
+                    <span class="hour-time">{{ h.hora }} hs</span>
+                    <span class="hour-status-badge" [ngClass]="slot.estado">
+                      {{ slot.label }}
+                    </span>
+                    <!-- Mostrar detalles del bloqueo o reserva -->
+                    <span *ngIf="slot.estado === 'bloqueado'" class="slot-extra-info block-desc">
+                      (Motivo: {{ slot.motivo }})
+                    </span>
+                    <span *ngIf="slot.estado === 'reservado'" class="slot-extra-info user-desc">
+                      (Por: {{ slot.usuario }})
+                    </span>
+                  </div>
+                  
+                  <div class="hour-action">
+                    <!-- Botón para bloquear (se muestra si está disponible o reservado) -->
+                    <button *ngIf="slot.estado !== 'bloqueado'" 
+                            (click)="solicitarBloqueo(h.hora, slot.estado === 'reservado')" 
+                            class="btn-block-hour" 
+                            title="Bloquear horario">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                      </svg>
+                      <span>Bloquear</span>
+                    </button>
+
+                    <!-- Botón para liberar / desbloquear (se muestra si está bloqueado) -->
+                    <button *ngIf="slot.estado === 'bloqueado'" 
+                            (click)="solicitarDesbloqueo(slot.reservaId!, h.hora)" 
+                            class="btn-unblock-hour" 
+                            title="Liberar / Desbloquear horario">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                      </svg>
+                      <span>Liberar</span>
+                    </button>
+                  </div>
+                </ng-container>
+              </div>
+              <p *ngIf="horarios.length === 0" class="no-hours-text">No hay horarios definidos para esta fecha.</p>
+            </div>
+
+            <ng-template #instructivo>
+              <div class="hours-empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                <p>Elige un día activo en el calendario para gestionar bloqueos.</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Pestaña 2: Control de Usuarios -->
+    <mat-tab label="👥 Gestión de Usuarios">
+      <div class="users-tab-layout">
+        <!-- Buscador -->
+        <div class="search-box">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Buscar por Nombre, DNI, Email o Rol..." [(ngModel)]="filtroUsuario" class="search-input">
+          </div>
+        </div>
+
+        <!-- Tabla/Listado de Usuarios -->
+        <div *ngIf="usuarios$ | async as usuarios; else cargandoUsuarios" class="users-list">
+          <div *ngFor="let u of filtrarUsuariosList(usuarios)" class="user-row-card" [class.bloqueado]="u.rol === 'bloqueado'">
+            <div class="user-main-info">
+              <div class="user-avatar-circle" [class.bloqueado]="u.rol === 'bloqueado'">
+                <span>{{ u.nombre ? u.nombre.substring(0,1).toUpperCase() : '' }}{{ u.apellido ? u.apellido.substring(0,1).toUpperCase() : '' }}</span>
+              </div>
+              <div class="user-text-details">
+                <h4 class="user-name">
+                  {{ u.apellido }}, {{ u.nombre }}
+                  <span class="user-role-badge" [ngClass]="u.rol || 'usuario'">{{ u.rol || 'usuario' }}</span>
+                </h4>
+                <p class="user-meta-sub">
+                  <span>📧 {{ u.email }}</span>
+                  <span class="meta-sep">•</span>
+                  <span>🪪 DNI: {{ u.dni }}</span>
+                  <span class="meta-sep">•</span>
+                  <span>📞 Tel: {{ u.telefono || 'N/A' }}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="user-actions">
+              <!-- Cambios de Roles -->
+              <div class="role-selector-pills">
+                <button (click)="asignarRol(u.id, 'usuario')" [class.active]="u.rol === 'usuario'" class="pill-btn role-usr">Usuario</button>
+                <button (click)="asignarRol(u.id, 'recepcionista')" [class.active]="u.rol === 'recepcionista'" class="pill-btn role-rcp">Recepcionista</button>
+                <button (click)="asignarRol(u.id, 'super_admin')" [class.active]="u.rol === 'super_admin'" class="pill-btn role-sadm">Super Admin</button>
+              </div>
+
+              <!-- Bloquear / Desbloquear -->
+              <button *ngIf="u.rol !== 'bloqueado'" (click)="asignarRol(u.id, 'bloqueado')" class="action-btn btn-usr-block" title="Bloquear reservas del usuario">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Bloquear</span>
+              </button>
+              <button *ngIf="u.rol === 'bloqueado'" (click)="asignarRol(u.id, 'usuario')" class="action-btn btn-usr-unblock" title="Desbloquear reservas del usuario">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 9.9-1"></path>
+                </svg>
+                <span>Desbloquear</span>
+              </button>
+
+              <!-- Eliminar -->
+              <button (click)="eliminarUsuario(u.id)" class="action-btn btn-usr-delete" title="Eliminar usuario permanentemente">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <p *ngIf="filtrarUsuariosList(usuarios).length === 0" class="no-results-text">No se encontraron usuarios coincidentes.</p>
+        </div>
+        <ng-template #cargandoUsuarios>
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Cargando lista de usuarios...</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+
+    <!-- Pestaña 3: Historial y Control de Reservas -->
+    <mat-tab label="📋 Historial de Reservas">
+      <div class="history-tab-layout">
+        <!-- Buscador -->
+        <div class="search-box">
+          <div class="search-input-wrapper">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" placeholder="Buscar por DNI, Usuario, Fecha o Estado..." [(ngModel)]="filtroReservas" class="search-input">
+          </div>
+        </div>
+
+        <!-- Tabla/Listado de Reservas -->
+        <div *ngIf="reservas$ | async as reservas; else cargandoReservas" class="reservas-list">
+          <div *ngFor="let r of filtrarReservasList(reservas).slice().reverse()" class="reserva-row-card" [ngClass]="r.estado.toLowerCase()">
+            <div class="reserva-main-details">
+              <div class="reserva-avatar-badge" [ngClass]="r.estado.toLowerCase()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+              </div>
+
+              <div class="reserva-text-details">
+                <h4 class="reserva-info-title">
+                  {{ formatFechaLocal(r.fecha) }} • {{ r.hora }} hs
+                  <span class="reserva-status-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
+                </h4>
+                <p class="reserva-meta-sub">
+                  <span>👤 Usuario ID: {{ r.usuario_id }}</span>
+                  <span class="meta-sep">•</span>
+                  <span>Ref: #{{ r.id }}</span>
+                  <span class="meta-sep" *ngIf="r.motivo">•</span>
+                  <span *ngIf="r.motivo" class="reserva-note-label">📝 Motivo: {{ r.motivo }}</span>
+                </p>
+              </div>
+            </div>
+
+            <div class="reserva-actions">
+              <button (click)="cancelarReserva(r.id)" [disabled]="r.estado.toLowerCase() === 'cancelada' || r.estado.toLowerCase() === 'cancelado'" class="btn-cancel-booking" title="Cancelar reserva">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Cancelar</span>
+              </button>
+            </div>
+          </div>
+          <p *ngIf="filtrarReservasList(reservas).length === 0" class="no-results-text">No se encontraron reservas coincidentes.</p>
+        </div>
+        <ng-template #cargandoReservas>
+          <div class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Cargando historial de reservas...</p>
+          </div>
+        </ng-template>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+  <!-- Mensajes Toast (Fallback) -->
+  <div *ngIf="mensaje" class="admin-toast success">{{ mensaje }}</div>
+  <div *ngIf="errorMessage" class="admin-toast error">{{ errorMessage }}</div>
+</div>
