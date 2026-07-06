@@ -11,7 +11,7 @@ export class ReservasService {
   constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
@@ -37,7 +37,7 @@ export class ReservasService {
 
   // 🔹 Crear una nueva reserva
   crearReserva(fecha: string, hora: string): Observable<{ ok: boolean, message: string, reserva?: any }> {
-    const usuarioId = localStorage.getItem('usuarioId'); // 👈 importante incluir usuario_id
+    const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId'); // 👈 importante incluir usuario_id
     return this.http.post<{ ok: boolean, message: string, reserva?: any }>(
       this.apiUrl,
       { usuario_id: usuarioId, fecha, hora },

@@ -34,7 +34,8 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      password: ['', Validators.required],
+      rememberMe: [true] // 👈 Control para "Recuérdame" iniciado en true
     });
   }
 
@@ -48,23 +49,36 @@ export class LoginComponent implements OnInit {
     this.successMessage = null;
     this.isLoading = true;
 
-    const credentials = { ...this.loginForm.value };
+    const credentials = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    };
+    const rememberMe = this.loginForm.value.rememberMe;
 
     this.usuariosService.login(credentials).subscribe({
       next: (res) => {
         if (res.token) {
-          // ✅ Guardar token en localStorage
-          localStorage.setItem('token', res.token);
+          // Primero, limpiamos sesiones anteriores de ambos lados
+          localStorage.removeItem('token');
+          localStorage.removeItem('usuarioId');
+          localStorage.removeItem('rol');
+          sessionStorage.removeItem('token');
+          sessionStorage.removeItem('usuarioId');
+          sessionStorage.removeItem('rol');
 
-          // ✅ Guardar datos de usuario
-          localStorage.setItem('usuarioId', res.user?.id?.toString() || '');
-          localStorage.setItem('rol', res.user?.rol || '');
+          const storage = rememberMe ? localStorage : sessionStorage;
+
+          // ✅ Guardar datos de sesión localmente
+          storage.setItem('token', res.token);
+          storage.setItem('usuarioId', res.user?.id?.toString() || '');
+          storage.setItem('rol', res.user?.rol || '');
+
           if (res.user) {
-            this.authService.setUser(res.user);
+            this.authService.setUser(res.user, rememberMe);
           }
 
-          // ✅ Actualizar AuthService (si usás BehaviorSubject)
-          this.authService.setToken(res.token);
+          // ✅ Actualizar AuthService
+          this.authService.setToken(res.token, rememberMe);
         } else {
           console.error('❌ No se recibió token en la respuesta');
         }

@@ -30,12 +30,13 @@ export class MisReservasComponent implements OnInit {
     this.reservas$ = this.reservasService.getReservas().pipe(
       map(reservas => {
         return reservas.filter(r => {
-          // 1. Filtrar solo estados activos (excluyendo cancelados/rechazados)
+          // 1. Filtrar solo estados activos (excluyendo cancelados/rechazados/bloqueados)
           const estadoLower = r.estado ? r.estado.toLowerCase().trim() : '';
           const esInactivo = estadoLower === 'cancelada' || 
                              estadoLower === 'cancelado' || 
                              estadoLower === 'rechazada' || 
-                             estadoLower === 'rechazado';
+                             estadoLower === 'rechazado' ||
+                             estadoLower.startsWith('bloquead');
           
           if (esInactivo) return false;
 

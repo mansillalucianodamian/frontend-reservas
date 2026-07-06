@@ -189,10 +189,29 @@
 }
 
 /* Enlace: Olvidaste tu contraseña (Amarillo) */
-.forgot-password-link-container {
-  text-align: right;
+.login-options-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.8rem;
   margin-top: -0.3rem;
+}
+.remember-me-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+}
+.remember-me-checkbox input {
+  cursor: pointer;
+  accent-color: #3F801F; /* Verde de la marca */
+  margin: 0;
+  width: 14px;
+  height: 14px;
 }
 .forgot-link {
   color: #F1B822; /* Amarillo oficial de la marca */

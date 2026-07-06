@@ -276,29 +276,45 @@ export class SuperAdminComponent implements OnInit {
   }
 
   solicitarBloqueo(hora: string, yaReservado: boolean) {
-    let warningMsg = '¿Estás seguro de bloquear este horario?';
-    if (yaReservado) {
-      warningMsg = '⚠️ ATENCIÓN: Este horario ya se encuentra reservado por un usuario. ' +
-                   'Si lo bloqueas, se cancelará su reserva y se le notificará automáticamente por email para reprogramar. ' +
-                   '¿Deseas continuar con el bloqueo?';
-    }
+    const defaultReason = 'Uso interno municipal';
 
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      data: {
-        titulo: 'Bloquear Horario',
-        mensaje: warningMsg,
-        tipo: 'confirm'
-      }
-    });
+    const mostrarPromptMotivo = () => {
+      const promptRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Motivo del Bloqueo',
+          mensaje: 'Por favor, ingresa el motivo del bloqueo de este horario:',
+          tipo: 'prompt',
+          defaultText: defaultReason
+        }
+      });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        const motivo = prompt('Por favor, ingresa el motivo del bloqueo:', 'Uso interno municipal');
-        if (motivo !== null) {
+      promptRef.afterClosed().subscribe(motivo => {
+        if (typeof motivo === 'string') {
           this.bloquearReserva(this.fechaSeleccionada!, hora, motivo);
         }
-      }
-    });
+      });
+    };
+
+    if (yaReservado) {
+      const warningMsg = '⚠️ ATENCIÓN: Este horario ya se encuentra reservado por un usuario. ' +
+                         'Si lo bloqueas, se cancelará su reserva y se le notificará automáticamente por email para reprogramar. ' +
+                         '¿Deseas continuar con el bloqueo?';
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Bloquear Horario Reservado',
+          mensaje: warningMsg,
+          tipo: 'confirm'
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          mostrarPromptMotivo();
+        }
+      });
+    } else {
+      mostrarPromptMotivo();
+    }
   }
 
   bloquearReserva(fecha: string, hora: string, motivo: string): void {

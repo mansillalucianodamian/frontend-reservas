@@ -482,3 +482,18 @@ button:disabled {
   font-weight: 600;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    padding: 1rem;
+    margin: 1rem auto;
+    gap: 1rem;
+  }
+  
+  .container-image {
+    display: none !important;
+  }
+}
+

@@ -114,3 +114,12 @@
     <div *ngIf="errorMessage" class="recep-message-toast error">{{ errorMessage }}</div>
   </div>
 </div>
+
+<!-- Overlay de Carga (Spinner de Aprobación) -->
+<div class="loading-overlay" *ngIf="isProcessing">
+  <div class="loading-spinner-container">
+    <div class="spinner"></div>
+    <h3 class="loading-text">Confirmando pago...</h3>
+    <p class="loading-subtext">Por favor, no cierres esta ventana.</p>
+  </div>
+</div>

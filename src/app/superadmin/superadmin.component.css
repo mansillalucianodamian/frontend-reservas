@@ -701,6 +701,11 @@
     color: #ef4444;
 }
 
+.reserva-avatar-badge.bloqueado {
+    background: rgba(185, 28, 28, 0.1);
+    color: #b91c1c;
+}
+
 .reserva-main-details {
     display: flex;
     align-items: center;
@@ -741,6 +746,11 @@
 
 .reserva-status-badge.cancelada,
 .reserva-status-badge.cancelado {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.reserva-status-badge.bloqueado {
     background: #fee2e2;
     color: #b91c1c;
 }

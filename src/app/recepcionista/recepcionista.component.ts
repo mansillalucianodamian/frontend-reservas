@@ -19,6 +19,7 @@ export class RecepcionistaComponent implements OnInit {
   filtroUsuario: string = '';
   mensaje: string | null = null;
   errorMessage: string | null = null;
+  isProcessing: boolean = false;
 
   constructor(
     private reservasService: ReservasService,
@@ -46,8 +47,12 @@ export class RecepcionistaComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === true) {
+        this.isProcessing = true;
+        this.cdr.detectChanges();
         this.reservasService.aprobarReserva(id).subscribe({
           next: (res) => {
+            this.isProcessing = false;
+            this.cdr.detectChanges();
             if (res.ok) {
               this.dialog.open(ConfirmDialogComponent, {
                 data: {
@@ -70,6 +75,8 @@ export class RecepcionistaComponent implements OnInit {
             }
           },
           error: (err) => {
+            this.isProcessing = false;
+            this.cdr.detectChanges();
             this.dialog.open(ConfirmDialogComponent, {
               data: {
                 titulo: 'Error',

@@ -60,8 +60,15 @@ export class CarritoComponent implements OnInit {
         const reservasPorSemana: { [semana: string]: number } = {};
         
         reservasConfirmadas.forEach(r => {
-          // Filtrar reservas que no estén canceladas
-          if (r.estado !== 'cancelada') {
+          // Filtrar reservas que no estén canceladas, rechazadas o bloqueadas
+          const estadoLower = r.estado ? r.estado.toLowerCase().trim() : '';
+          const esInactivo = estadoLower === 'cancelada' || 
+                             estadoLower === 'cancelado' || 
+                             estadoLower === 'rechazada' || 
+                             estadoLower === 'rechazado' ||
+                             estadoLower.startsWith('bloquead');
+          
+          if (!esInactivo) {
             const semId = this.getSemanaId(r.fecha);
             reservasPorSemana[semId] = (reservasPorSemana[semId] || 0) + 1;
           }

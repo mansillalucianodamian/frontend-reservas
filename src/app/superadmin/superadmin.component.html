@@ -222,9 +222,9 @@
 
         <!-- Tabla/Listado de Reservas -->
         <div *ngIf="reservas$ | async as reservas; else cargandoReservas" class="reservas-list">
-          <div *ngFor="let r of filtrarReservasList(reservas).slice().reverse()" class="reserva-row-card" [ngClass]="r.estado.toLowerCase()">
+          <div *ngFor="let r of filtrarReservasList(reservas).slice().reverse()" class="reserva-row-card" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">
             <div class="reserva-main-details">
-              <div class="reserva-avatar-badge" [ngClass]="r.estado.toLowerCase()">
+              <div class="reserva-avatar-badge" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                   <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -236,10 +236,11 @@
               <div class="reserva-text-details">
                 <h4 class="reserva-info-title">
                   {{ formatFechaLocal(r.fecha) }} • {{ r.hora }} hs
-                  <span class="reserva-status-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
+                  <span class="reserva-status-badge" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">{{ r.estado }}</span>
                 </h4>
                 <p class="reserva-meta-sub">
-                  <span>👤 Usuario ID: {{ r.usuario_id }}</span>
+                  <span *ngIf="r.usuario_id">👤 Usuario: {{ r.usuario }} (ID: {{ r.usuario_id }})</span>
+                  <span *ngIf="!r.usuario_id">🚫 Bloqueo Administrativo</span>
                   <span class="meta-sep">•</span>
                   <span>Ref: #{{ r.id }}</span>
                   <span class="meta-sep" *ngIf="r.motivo">•</span>
@@ -249,7 +250,7 @@
             </div>
 
             <div class="reserva-actions">
-              <button (click)="cancelarReserva(r.id)" [disabled]="r.estado.toLowerCase() === 'cancelada' || r.estado.toLowerCase() === 'cancelado'" class="btn-cancel-booking" title="Cancelar reserva">
+              <button (click)="cancelarReserva(r.id)" [disabled]="r.estado && (r.estado.toLowerCase() === 'cancelada' || r.estado.toLowerCase() === 'cancelado')" class="btn-cancel-booking" title="Cancelar reserva">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <line x1="18" y1="6" x2="6" y2="18"></line>
                   <line x1="6" y1="6" x2="18" y2="18"></line>

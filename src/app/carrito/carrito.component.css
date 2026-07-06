@@ -406,7 +406,7 @@
 }
 
 /* Responsive */
-@media (max-width: 850px) {
+@media (max-width: 1024px) {
     .container {
         flex-direction: column;
         padding: 1rem;
@@ -415,8 +415,7 @@
     }
     
     .container-image {
-        min-height: 180px;
-        height: 180px;
+        display: none !important;
     }
     
     .container-cart-card {

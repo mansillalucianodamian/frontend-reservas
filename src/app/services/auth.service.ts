@@ -12,25 +12,42 @@ export class AuthService {
     private loggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
     isLoggedIn$ = this.loggedInSubject.asObservable();
 
+    private getStorage(): Storage {
+        if (typeof window !== 'undefined') {
+            if (sessionStorage.getItem(this.tokenKey)) {
+                return sessionStorage;
+            }
+        }
+        return localStorage;
+    }
+
     // 🔹 Guardar token
-    setToken(token: string): void {
-        localStorage.setItem(this.tokenKey, token);
+    setToken(token: string, rememberMe: boolean = true): void {
+        const storage = rememberMe ? localStorage : sessionStorage;
+        const otherStorage = rememberMe ? sessionStorage : localStorage;
+        
+        otherStorage.removeItem(this.tokenKey);
+        storage.setItem(this.tokenKey, token);
         this.loggedInSubject.next(true);
     }
 
     // 🔹 Obtener token
     getToken(): string | null {
-        return localStorage.getItem(this.tokenKey);
+        return this.getStorage().getItem(this.tokenKey);
     }
 
     // 🔹 Guardar datos de usuario
-    setUser(user: any): void {
-        localStorage.setItem(this.userKey, JSON.stringify(user));
+    setUser(user: any, rememberMe: boolean = true): void {
+        const storage = rememberMe ? localStorage : sessionStorage;
+        const otherStorage = rememberMe ? sessionStorage : localStorage;
+        
+        otherStorage.removeItem(this.userKey);
+        storage.setItem(this.userKey, JSON.stringify(user));
     }
 
     // 🔹 Obtener datos de usuario
     getUser(): any | null {
-        const user = localStorage.getItem(this.userKey);
+        const user = this.getStorage().getItem(this.userKey);
         return user ? JSON.parse(user) : null;
     }
 
@@ -38,12 +55,14 @@ export class AuthService {
     logout(): void {
         localStorage.removeItem(this.tokenKey);
         localStorage.removeItem(this.userKey);
+        sessionStorage.removeItem(this.tokenKey);
+        sessionStorage.removeItem(this.userKey);
         this.loggedInSubject.next(false);
     }
 
     // 🔹 Helper privado
     private hasToken(): boolean {
-        return !!localStorage.getItem(this.tokenKey);
+        return !!this.getToken();
     }
 
     // 🔹 Verificar sesión

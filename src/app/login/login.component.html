@@ -55,8 +55,12 @@
           </div>
         </div>
 
-        <!-- Enlace: Olvidaste tu contraseña -->
-        <div class="forgot-password-link-container">
+        <!-- Checkbox Recuérdame & Link Olvidaste tu contraseña -->
+        <div class="login-options-container">
+          <label class="remember-me-checkbox">
+            <input type="checkbox" formControlName="rememberMe" />
+            <span>Recuérdame</span>
+          </label>
           <a (click)="goToForgotPassword()" class="forgot-link">¿Olvidaste tu contraseña?</a>
         </div>
 
