@@ -6,8 +6,8 @@ import { LoginResponse, RegistroResponse } from '../models/auth-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsuariosService {
-  private apiUrl = 'http://localhost:8080/api/auth';
-  private apiAdminUrl = 'http://localhost:8080/api/users';
+  private apiUrl = 'http://45.7.251.99/api/auth';
+  private apiAdminUrl = 'http://45.7.251.99/api/users';
 
   constructor(private http: HttpClient) { }
 

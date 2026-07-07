@@ -6,7 +6,7 @@ import { Observable, catchError, map, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class ReservasService {
-  private apiUrl = 'http://localhost:8080/api/reservas';
+  private apiUrl = 'http://45.7.251.99/api/reservas';
 
   constructor(private http: HttpClient) { }
 
@@ -29,7 +29,7 @@ export class ReservasService {
   // 🔹 Obtener horarios disponibles para un día
   getHorariosDisponibles(fecha: string): Observable<{ hora: string, disponible: boolean }[]> {
     return this.http.get<{ ok: boolean, horarios: { hora: string, disponible: boolean }[] }>(
-      `http://localhost:8080/api/reservas/disponibles/${fecha}`
+      `${this.apiUrl}/disponibles/${fecha}`
     ).pipe(
       map(res => res.horarios)
     );
@@ -92,14 +92,14 @@ export class ReservasService {
   }
   bloquearReserva(fecha: string, hora: string, motivo: string): Observable<{ ok: boolean, message: string }> {
     return this.http.post<{ ok: boolean, message: string }>(
-      `http://localhost:8080/api/reservas/bloquear`,
+      `${this.apiUrl}/bloquear`,
       { fecha, hora, motivo },
       { headers: this.getHeaders() }
     );
   }
   getReservasPendientes(): Observable<any[]> {
     return this.http.get<{ ok: boolean, reservas: any[] }>(
-      'http://localhost:8080/api/reservas/pendientes',
+      `${this.apiUrl}/pendientes`,
       { headers: this.getHeaders() }
     ).pipe(
       map(response => response.reservas) // 👈 devolvemos directamente el array
