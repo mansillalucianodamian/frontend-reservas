@@ -431,6 +431,53 @@ export class SuperAdminComponent implements OnInit {
     });
   }
 
+  onRolSelectChange(event: Event, user: any): void {
+    const selectEl = event.target as HTMLSelectElement;
+    const oldRol = user.rol || 'usuario';
+    const newRol = selectEl.value;
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titulo: 'Actualizar Rol',
+        mensaje: `¿Estás seguro de cambiar el rol del usuario a "${newRol.toUpperCase()}"?`,
+        tipo: 'confirm'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.usuariosService.asignarRol(user.id, newRol).subscribe({
+          next: (res) => {
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Rol Actualizado',
+                mensaje: '',
+                resultado: `El rol se actualizó correctamente a "${newRol}".`,
+                tipo: 'success'
+              }
+            });
+            this.loadUsuarios();
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Error',
+                mensaje: err.error?.message || 'Ocurrió un error al actualizar el rol.',
+                tipo: 'error'
+              }
+            });
+            selectEl.value = oldRol;
+            this.cdr.detectChanges();
+          }
+        });
+      } else {
+        selectEl.value = oldRol;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   eliminarUsuario(id: number): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
