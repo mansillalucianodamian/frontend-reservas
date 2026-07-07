@@ -151,11 +151,11 @@
                   <span class="user-role-badge" [ngClass]="u.rol || 'usuario'">{{ u.rol || 'usuario' }}</span>
                 </h4>
                 <p class="user-meta-sub">
-                  <span>📧 {{ u.email }}</span>
+                  <span><strong>Email:</strong> {{ u.email }}</span>
                   <span class="meta-sep">•</span>
-                  <span>🪪 DNI: {{ u.dni }}</span>
+                  <span><strong>DNI:</strong> {{ u.dni }}</span>
                   <span class="meta-sep">•</span>
-                  <span>📞 Tel: {{ u.telefono || 'N/A' }}</span>
+                  <span><strong>Tel:</strong> {{ u.telefono || 'N/A' }}</span>
                 </p>
               </div>
             </div>
@@ -239,12 +239,12 @@
                   <span class="reserva-status-badge" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">{{ r.estado }}</span>
                 </h4>
                 <p class="reserva-meta-sub">
-                  <span *ngIf="r.usuario_id">👤 Usuario: {{ r.usuario }} (ID: {{ r.usuario_id }})</span>
-                  <span *ngIf="!r.usuario_id">🚫 Bloqueo Administrativo</span>
+                  <span *ngIf="r.usuario_id"><strong>Usuario:</strong> {{ r.usuario }} (ID: {{ r.usuario_id }})</span>
+                  <span *ngIf="!r.usuario_id"><strong>Bloqueo Administrativo</strong></span>
                   <span class="meta-sep">•</span>
                   <span>Ref: #{{ r.id }}</span>
                   <span class="meta-sep" *ngIf="r.motivo">•</span>
-                  <span *ngIf="r.motivo" class="reserva-note-label">📝 Motivo: {{ r.motivo }}</span>
+                  <span *ngIf="r.motivo" class="reserva-note-label"><strong>Motivo:</strong> {{ r.motivo }}</span>
                 </p>
               </div>
             </div>
