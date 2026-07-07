@@ -2,8 +2,10 @@
 .confirm-modal-wrapper {
     font-family: 'Segoe UI', Roboto, sans-serif;
     color: #1e293b;
-    padding: 0.5rem 0.25rem;
+    padding: 1.5rem;
     box-sizing: border-box;
+    background-color: #ffffff;
+    border-radius: 8px;
 }
 
 /* Cabecera */
