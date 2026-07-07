@@ -22,6 +22,20 @@
     <div class="header-recep-section">
       <h2 class="title">Control de Reservas</h2>
       <p class="legend">(Gestión y acreditación de cobros para habilitar el uso de canchas)</p>
+      
+      <!-- 🔹 Sección para editar el precio de la cancha -->
+      <div class="price-edit-container">
+        <div class="price-edit-card">
+          <span class="price-edit-title">Valor de Cancha:</span>
+          <div class="price-input-wrapper">
+            <span class="currency-prefix">$</span>
+            <input type="number" [(ngModel)]="precioCancha" class="price-edit-input" [disabled]="isUpdatingPrice" min="0">
+            <button (click)="guardarPrecio()" class="btn-price-save" [disabled]="isUpdatingPrice">
+              <span>{{ isUpdatingPrice ? 'Guardando...' : 'Actualizar' }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Si cargan las reservas -->

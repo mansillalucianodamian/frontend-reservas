@@ -46,6 +46,16 @@ export class ReservasComponent {
         this.seleccionarDia(this.fechaSeleccionada);
       }
     });
+
+    // 🔹 Obtener el precio dinámico de la cancha
+    this.reservasService.getPrecioCancha().subscribe({
+      next: (res) => {
+        if (res && res.ok) {
+          this.costoCancha = res.precio;
+        }
+      },
+      error: (err) => console.error('Error al cargar el precio de la cancha:', err)
+    });
   }
 
   private formatLocalISO(d: Date): string {

@@ -105,4 +105,18 @@ export class ReservasService {
       map(response => response.reservas) // 👈 devolvemos directamente el array
     );
   }
+
+  getPrecioCancha(): Observable<{ ok: boolean, precio: number }> {
+    return this.http.get<{ ok: boolean, precio: number }>(
+      '/api/configuracion/precio'
+    );
+  }
+
+  updatePrecioCancha(precio: number): Observable<{ ok: boolean, message: string }> {
+    return this.http.put<{ ok: boolean, message: string }>(
+      '/api/configuracion/precio',
+      { precio },
+      { headers: this.getHeaders() }
+    );
+  }
 }

@@ -20,6 +20,10 @@ export class RecepcionistaComponent implements OnInit {
   mensaje: string | null = null;
   errorMessage: string | null = null;
   isProcessing: boolean = false;
+  
+  // 🔹 Gestión del precio de la cancha
+  precioCancha: number = 5000;
+  isUpdatingPrice: boolean = false;
 
   constructor(
     private reservasService: ReservasService,
@@ -29,6 +33,52 @@ export class RecepcionistaComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadReservas();
+    this.cargarPrecioCancha();
+  }
+
+  cargarPrecioCancha(): void {
+    this.reservasService.getPrecioCancha().subscribe({
+      next: (res) => {
+        if (res && res.ok) {
+          this.precioCancha = res.precio;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => console.error('Error al cargar precio de cancha:', err)
+    });
+  }
+
+  guardarPrecio(): void {
+    if (this.precioCancha <= 0) {
+      this.errorMessage = 'El precio debe ser un número entero positivo';
+      this.mensaje = null;
+      return;
+    }
+
+    this.isUpdatingPrice = true;
+    this.errorMessage = null;
+    this.mensaje = null;
+
+    this.reservasService.updatePrecioCancha(this.precioCancha).subscribe({
+      next: (res) => {
+        this.isUpdatingPrice = false;
+        this.mensaje = 'Precio de la cancha actualizado con éxito';
+        this.errorMessage = null;
+        this.cdr.detectChanges();
+
+        // Limpiar el mensaje de éxito tras 4 segundos
+        setTimeout(() => {
+          this.mensaje = null;
+          this.cdr.detectChanges();
+        }, 4000);
+      },
+      error: (err) => {
+        this.isUpdatingPrice = false;
+        this.errorMessage = err.error?.message || 'Error al actualizar el precio';
+        this.mensaje = null;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   loadReservas(): void {

@@ -19,8 +19,20 @@ export class ConfirmDialogComponent {
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    if (this.data && this.data.tipo === 'prompt') {
-      this.motivoText = this.data.defaultText || '';
+    if (this.data) {
+      if (this.data.tipo === 'prompt') {
+        this.motivoText = this.data.defaultText || '';
+      }
+      
+      // 🔹 Limpiar emojis problemáticos que se ven como cuadraditos en Windows viejos
+      const cleanText = (txt: string) => {
+        if (!txt) return txt;
+        return txt.replace(/[✅❌⚠️]/g, '').trim();
+      };
+
+      if (this.data.titulo) this.data.titulo = cleanText(this.data.titulo);
+      if (this.data.mensaje) this.data.mensaje = cleanText(this.data.mensaje);
+      if (this.data.resultado) this.data.resultado = cleanText(this.data.resultado);
     }
   }
 

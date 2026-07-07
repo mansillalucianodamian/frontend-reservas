@@ -565,3 +565,81 @@
     from { transform: scale(0.95); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+/* 🔹 Estilos para la edición del precio de la cancha */
+.price-edit-container {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.price-edit-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.price-edit-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.price-input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    gap: 8px;
+}
+
+.currency-prefix {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #3F801F;
+}
+
+.price-edit-input {
+    width: 110px;
+    padding: 6px 8px;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    text-align: center;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+}
+
+.price-edit-input:focus {
+    outline: none;
+    border-color: #3F801F;
+    box-shadow: 0 0 0 3px rgba(63, 128, 31, 0.15);
+}
+
+.btn-price-save {
+    background-color: #3F801F;
+    color: #ffffff;
+    border: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-price-save:hover:not(:disabled) {
+    background-color: #2e6016;
+}
+
+.btn-price-save:disabled {
+    background-color: #cbd5e1;
+    cursor: not-allowed;
+}
