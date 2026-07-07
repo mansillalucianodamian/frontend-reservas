@@ -846,6 +846,218 @@
     100% { transform: rotate(360deg); }
 }
 
+/* 📊 Estilos del Dashboard de Estadísticas */
+.stats-dashboard {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    gap: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+}
+
+.stat-icon-wrapper {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon-wrapper.blue {
+    background: rgba(30, 58, 138, 0.1);
+    color: #1e3a8a;
+}
+
+.stat-icon-wrapper.green {
+    background: rgba(63, 128, 31, 0.1);
+    color: #3F801F;
+}
+
+.stat-icon-wrapper.yellow {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+}
+
+.stat-icon-wrapper.gray {
+    background: rgba(71, 85, 105, 0.1);
+    color: #475569;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.stat-value {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+}
+
+/* Grilla de Análisis */
+.analysis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    border-top: 1px dashed #e2e8f0;
+    padding-top: 1.5rem;
+}
+
+.analysis-card {
+    background: #ffffff;
+    border: 1px solid #f1f5f9;
+    border-radius: 10px;
+    padding: 1.25rem;
+}
+
+.analysis-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #334155;
+    margin: 0 0 1rem 0;
+    border-left: 3px solid #3F801F;
+    padding-left: 8px;
+}
+
+.empty-analysis-text {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+/* Horario Favorito Box */
+.hot-schedule-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.schedule-badge-large {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #3F801F;
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 800;
+    padding: 0.6rem 1.25rem;
+    border-radius: 20px;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 3px 6px rgba(63, 128, 31, 0.15);
+}
+
+.schedule-meta-text {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Ranking de Usuarios */
+.top-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.top-user-item {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    gap: 10px;
+}
+
+.user-rank-badge {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.user-rank-badge.rank-1 {
+    background: #fef08a;
+    color: #854d0e;
+}
+
+.user-rank-badge.rank-2 {
+    background: #cbd5e1;
+    color: #475569;
+}
+
+.user-rank-badge.rank-3 {
+    background: #ffedd5;
+    color: #c2410c;
+}
+
+.top-user-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1e293b;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.top-user-count {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #3F801F;
+    background: rgba(63, 128, 31, 0.08);
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
 /* Responsive */
 @media (max-width: 850px) {
     .tab-layout {

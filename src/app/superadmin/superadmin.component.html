@@ -208,7 +208,112 @@
 
     <!-- Pestaña 3: Historial y Control de Reservas -->
     <mat-tab label="Historial de Reservas">
-      <div class="history-tab-layout">
+      <div *ngIf="reservas$ | async as reservas; else cargandoReservas" class="history-tab-layout">
+        
+        <!-- 📊 Panel de Estadísticas (Dashboard) -->
+        <div class="stats-dashboard" *ngIf="reservas.length > 0">
+          <div class="stats-grid">
+            <!-- Reservas Totales -->
+            <div class="stat-card">
+              <div class="stat-icon-wrapper blue">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Reservas Totales</span>
+                <strong class="stat-value">{{ totalReservas }}</strong>
+              </div>
+            </div>
+
+            <!-- Pagos Acreditados -->
+            <div class="stat-card">
+              <div class="stat-icon-wrapper green">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                  <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Pagos Acreditados</span>
+                <strong class="stat-value">{{ totalAprobadas }}</strong>
+              </div>
+            </div>
+
+            <!-- Pendientes / Canceladas -->
+            <div class="stat-card">
+              <div class="stat-icon-wrapper yellow">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Pendientes / Canceladas</span>
+                <strong class="stat-value">{{ totalPendientes }} / {{ totalCanceladas }}</strong>
+              </div>
+            </div>
+
+            <!-- Bloqueos Administrativos -->
+            <div class="stat-card">
+              <div class="stat-icon-wrapper gray">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+              </div>
+              <div class="stat-info">
+                <span class="stat-label">Bloqueos de Cancha</span>
+                <strong class="stat-value">{{ totalBloqueos }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grilla de análisis detallado -->
+          <div class="analysis-grid">
+            <!-- Horario Favorito -->
+            <div class="analysis-card">
+              <h4 class="analysis-title">Horario más Solicitado</h4>
+              <div class="hot-schedule-box" *ngIf="horarioMasReservado; else sinDatosHorario">
+                <div class="schedule-badge-large">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>{{ horarioMasReservado.hora }} hs</span>
+                </div>
+                <p class="schedule-meta-text">
+                  Este horario se ha seleccionado un total de <strong>{{ horarioMasReservado.count }}</strong> veces por los usuarios.
+                </p>
+              </div>
+              <ng-template #sinDatosHorario>
+                <p class="empty-analysis-text">Aún no hay suficientes reservas de usuarios.</p>
+              </ng-template>
+            </div>
+
+            <!-- Ranking de Usuarios -->
+            <div class="analysis-card">
+              <h4 class="analysis-title">Usuarios más Activos (Top 5)</h4>
+              <div class="top-users-list" *ngIf="topUsuarios.length > 0; else sinDatosUsuarios">
+                <div class="top-user-item" *ngFor="let tu of topUsuarios; let idx = index">
+                  <div class="user-rank-badge" [class.rank-1]="idx === 0" [class.rank-2]="idx === 1" [class.rank-3]="idx === 2">
+                    {{ idx + 1 }}
+                  </div>
+                  <span class="top-user-name">{{ tu.usuario }}</span>
+                  <span class="top-user-count">{{ tu.count }} {{ tu.count === 1 ? 'reserva' : 'reservas' }}</span>
+                </div>
+              </div>
+              <ng-template #sinDatosUsuarios>
+                <p class="empty-analysis-text">Aún no hay usuarios con reservas.</p>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
         <!-- Buscador -->
         <div class="search-box">
           <div class="search-input-wrapper">
@@ -221,7 +326,7 @@
         </div>
 
         <!-- Tabla/Listado de Reservas -->
-        <div *ngIf="reservas$ | async as reservas; else cargandoReservas" class="reservas-list">
+        <div class="reservas-list">
           <div *ngFor="let r of filtrarReservasList(reservas).slice().reverse()" class="reserva-row-card" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">
             <div class="reserva-main-details">
               <div class="reserva-avatar-badge" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">
@@ -261,13 +366,13 @@
           </div>
           <p *ngIf="filtrarReservasList(reservas).length === 0" class="no-results-text">No se encontraron reservas coincidentes.</p>
         </div>
-        <ng-template #cargandoReservas>
-          <div class="loading-state">
-            <div class="loading-spinner"></div>
-            <p>Cargando historial de reservas...</p>
-          </div>
-        </ng-template>
       </div>
+      <ng-template #cargandoReservas>
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Cargando historial de reservas...</p>
+        </div>
+      </ng-template>
     </mat-tab>
 
   </mat-tab-group>

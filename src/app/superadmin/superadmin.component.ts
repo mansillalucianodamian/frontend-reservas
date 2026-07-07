@@ -574,4 +574,65 @@ export class SuperAdminComponent implements OnInit {
       return fechaStr;
     }
   }
+
+  // 📊 Getter properties for reservation statistics
+  get totalReservas(): number {
+    return this.reservas.filter(r => r.usuario_id).length;
+  }
+
+  get totalAprobadas(): number {
+    return this.reservas.filter(r => r.usuario_id && (r.estado?.toLowerCase() === 'aprobada' || r.estado?.toLowerCase() === 'aprobado' || r.estado?.toLowerCase() === 'confirmada' || r.estado?.toLowerCase() === 'confirmado')).length;
+  }
+
+  get totalPendientes(): number {
+    return this.reservas.filter(r => r.usuario_id && r.estado?.toLowerCase() === 'pendiente').length;
+  }
+
+  get totalCanceladas(): number {
+    return this.reservas.filter(r => r.usuario_id && (r.estado?.toLowerCase() === 'cancelada' || r.estado?.toLowerCase() === 'cancelado')).length;
+  }
+
+  get totalBloqueos(): number {
+    return this.reservas.filter(r => !r.usuario_id).length;
+  }
+
+  get horarioMasReservado(): { hora: string, count: number } | null {
+    const validReservas = this.reservas.filter(r => r.usuario_id);
+    if (validReservas.length === 0) return null;
+
+    const counts: { [key: string]: number } = {};
+    validReservas.forEach(r => {
+      if (r.hora) {
+        counts[r.hora] = (counts[r.hora] || 0) + 1;
+      }
+    });
+
+    let maxHora = '';
+    let maxCount = 0;
+    Object.keys(counts).forEach(hora => {
+      if (counts[hora] > maxCount) {
+        maxCount = counts[hora];
+        maxHora = hora;
+      }
+    });
+
+    return maxCount > 0 ? { hora: maxHora, count: maxCount } : null;
+  }
+
+  get topUsuarios(): { usuario: string, count: number }[] {
+    const validReservas = this.reservas.filter(r => r.usuario_id && r.usuario);
+    if (validReservas.length === 0) return [];
+
+    const counts: { [key: string]: number } = {};
+    validReservas.forEach(r => {
+      counts[r.usuario] = (counts[r.usuario] || 0) + 1;
+    });
+
+    const list = Object.keys(counts).map(usuario => ({
+      usuario,
+      count: counts[usuario]
+    }));
+
+    return list.sort((a, b) => b.count - a.count).slice(0, 5);
+  }
 }
