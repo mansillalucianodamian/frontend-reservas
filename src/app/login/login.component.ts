@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { UsuariosService } from '../services/usuario.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service'; // 👈 Importar AuthService
 
 @Component({
@@ -25,6 +25,7 @@ export class LoginComponent implements OnInit {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute, // 👈 Inyectar ActivatedRoute
     private fb: FormBuilder,
     private usuariosService: UsuariosService,
     private authService: AuthService, // 👈 Inyectar AuthService
@@ -36,6 +37,19 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
       rememberMe: [true] // 👈 Control para "Recuérdame" iniciado en true
+    });
+
+    // 🔹 Escuchar parámetros de consulta (ej. email verificado)
+    this.route.queryParams.subscribe(params => {
+      if (params['verified'] === 'true') {
+        this.successMessage = '¡Email verificado con éxito! Ya puedes iniciar sesión.';
+        this.errorMessage = null;
+        this.cd.detectChanges();
+      } else if (params['verified'] === 'false') {
+        this.errorMessage = params['error'] || 'Error al verificar el correo electrónico.';
+        this.successMessage = null;
+        this.cd.detectChanges();
+      }
     });
   }
 
