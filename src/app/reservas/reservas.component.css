@@ -497,3 +497,43 @@ button:disabled {
   }
 }
 
+@media (max-width: 480px) {
+  .container {
+    padding: 0.25rem;
+  }
+  
+  .container-calendar {
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+  }
+  
+  .calendar-container {
+    padding: 0.5rem;
+  }
+  
+  .schedule-container {
+    padding: 0.5rem;
+  }
+  
+  .calendar-header {
+    margin: -0.5rem -0.5rem 0.6rem -0.5rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .schedule-list {
+    gap: 1px;
+  }
+  
+  .button-hour {
+    font-size: 0.78rem;
+  }
+  
+  .grid-day {
+    font-size: 0.8rem;
+    height: 26px;
+  }
+  
+  .grid-header-day {
+    font-size: 0.7rem;
+  }
+}
+
