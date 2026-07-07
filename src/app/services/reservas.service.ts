@@ -6,7 +6,7 @@ import { Observable, catchError, map, throwError } from 'rxjs';
   providedIn: 'root'
 })
 export class ReservasService {
-  private apiUrl = 'http://45.7.251.99/api/reservas';
+  private apiUrl = '/api/reservas';
 
   constructor(private http: HttpClient) { }
 
