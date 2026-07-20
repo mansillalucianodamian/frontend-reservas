@@ -1,0 +1,91 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <div class="header-logo-brand">
+      <span class="muni-badge">POLIDEPORTIVO MUNICIPAL</span>
+      <h2 class="dialog-title">Solicitud de Uso de Quincho</h2>
+    </div>
+    <div class="brand-colors-bar">
+      <div class="color-red"></div>
+      <div class="color-yellow"></div>
+      <div class="color-green"></div>
+    </div>
+  </div>
+
+  <form [formGroup]="solicitudForm" (ngSubmit)="onSubmit()" class="dialog-form">
+    <div class="form-grid">
+      <!-- Fila 1: Solicitante (Solo Lectura) -->
+      <div class="form-group full-width">
+        <label class="form-label">Nombre y Apellido del Solicitante</label>
+        <input type="text" formControlName="nombre" class="form-input read-only" />
+      </div>
+
+      <!-- Fila 2: Fecha y Hora (Solo Lectura) -->
+      <div class="form-group">
+        <label class="form-label">Fecha de Uso</label>
+        <div class="static-value-box">{{ data.fecha }}</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Horario</label>
+        <div class="static-value-box">{{ data.hora }} hs</div>
+      </div>
+
+      <!-- Fila 3: Asistentes y Actividad (Inputs) -->
+      <div class="form-group">
+        <label class="form-label">Número de Asistentes *</label>
+        <input type="number" formControlName="asistentes" class="form-input" placeholder="Ej. 25" min="1" max="500" />
+        <div *ngIf="solicitudForm.get('asistentes')?.invalid && solicitudForm.get('asistentes')?.touched" class="error-msg">
+          <small *ngIf="solicitudForm.get('asistentes')?.errors?.['required']">El número de asistentes es requerido.</small>
+          <small *ngIf="solicitudForm.get('asistentes')?.errors?.['min']">Debe ser al menos 1 asistente.</small>
+          <small *ngIf="solicitudForm.get('asistentes')?.errors?.['max']">El máximo permitido es 500 asistentes.</small>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Actividad o Evento *</label>
+        <input type="text" formControlName="actividad" class="form-input" placeholder="Ej. Almuerzo familiar, Cumpleaños" />
+        <div *ngIf="solicitudForm.get('actividad')?.invalid && solicitudForm.get('actividad')?.touched" class="error-msg">
+          <small *ngIf="solicitudForm.get('actividad')?.errors?.['required']">La actividad es requerida.</small>
+          <small *ngIf="solicitudForm.get('actividad')?.errors?.['minlength']">Debe tener al menos 3 caracteres.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reglamento -->
+    <div class="reglamento-section">
+      <span class="reglamento-title">Reglamento de uso del quincho</span>
+      <div class="reglamento-scroll-box">
+        <ol class="reglamento-list">
+          <li><strong>Solicitud de reserva:</strong> La solicitud del quincho deberá realizarse completando esta declaración digital de forma personal. En caso de utilizar inflables, solo se permitirá el uso de modelos comunes, quedando prohibidos el Toro Mecánico y los inflables con agua.</li>
+          <li><strong>Entrega de llaves:</strong> Las llaves serán entregadas en la oficina de Rentas Municipal el día anterior al evento. Se otorgarán tres llaves: una para los sanitarios de damas, otra para los de caballeros y una para la parrilla interna del quincho. Todas deberán ser devueltas al día siguiente del evento.</li>
+          <li><strong>Responsabilidad del Solicitante:</strong> El solicitante será responsable del correcto uso del quincho y sus instalaciones, así como de la conducta de sus familiares e invitados.</li>
+          <li><strong>Cuidado de menores:</strong> Los menores deberán permanecer siempre bajo la vigilancia y cuidado de su familia y/o responsable del evento, no pudiendo permanecer solos en las instalaciones del Polideportivo Municipal.</li>
+          <li><strong>Exención de responsabilidad por entretenimientos:</strong> El Polideportivo Municipal no se responsabiliza por ningún tipo de daño que pueda derivarse del uso de inflables u otros entretenimientos, ya sea a familiares, invitados o terceros ocasionales.</li>
+          <li><strong>Conservación del lugar:</strong> Se debe garantizar el correcto uso y conservación del lugar, así como de todos sus elementos y bienes. Está estrictamente prohibido pegar cintas adhesivas (Scotch, de papel, etc.) o clavar cualquier objeto en las paredes.</li>
+          <li><strong>Daños materiales y perjuicios:</strong> Los solicitantes del quincho serán responsables por cualquier daño ocasionado a los bienes del Polideportivo. El Municipio quedará exento de toda responsabilidad por daños o perjuicios que puedan sufrir el solicitante, sus familiares, invitados, sus bienes o terceros, incluso si estos fueran accidentales.</li>
+          <li><strong>Dispositivos de audio:</strong> Parlantes o aparatos de audio deben mantenerse en un volumen moderado para no generar molestias.</li>
+          <li><strong>Residuos:</strong> Los residuos deben ser depositados únicamente en los contenedores habilitados para tal fin.</li>
+          <li><strong>Seguridad y fuego:</strong> Está prohibido hacer fogatas en el césped o en áreas no autorizadas, así como utilizar materiales que representen un riesgo para la seguridad propia o de terceros.</li>
+        </ol>
+        <p class="reglamento-footer">El Polideportivo Municipal se reserva el derecho de admisión y permanencia en todas las circunstancias.</p>
+      </div>
+    </div>
+
+    <!-- Aceptación e Ingreso -->
+    <div class="acceptance-box">
+      <label class="checkbox-label">
+        <input type="checkbox" formControlName="aceptoReglamento" class="checkbox-input" />
+        <span class="checkbox-text">
+          He leído, acepto el Reglamento de Uso y firmo digitalmente asumiendo la responsabilidad civil y penal de las instalaciones.
+        </span>
+      </label>
+      <div *ngIf="solicitudForm.get('aceptoReglamento')?.invalid && solicitudForm.get('aceptoReglamento')?.touched" class="error-msg">
+        <small>Debe aceptar el reglamento para continuar.</small>
+      </div>
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="dialog-actions">
+      <button type="button" (click)="onCancelar()" class="btn-secondary">Cancelar</button>
+      <button type="submit" [disabled]="solicitudForm.invalid" class="btn-primary">Confirmar Solicitud</button>
+    </div>
+  </form>
+</div>

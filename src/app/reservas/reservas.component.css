@@ -143,9 +143,51 @@
   background-color: #e2f0d9;
   color: #2e6016;
 }
-.icon-action-btn[title="Mis reservas"]:hover {
+.btn-mis-reservas {
+  background-color: #cbd5e1;
+  color: #334155;
+  border: none;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  height: 38px;
+  box-sizing: border-box;
+}
+.btn-mis-reservas:hover {
+  transform: translateY(-2px);
   background-color: #fef3c7;
   color: #d97706;
+}
+.btn-mis-reservas svg {
+  flex-shrink: 0;
+}
+
+.btn-back-landing {
+  background-color: #cbd5e1;
+  color: #334155;
+  border: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.btn-back-landing:hover {
+  transform: translateY(-2px);
+  background-color: #e2e8f0;
+  color: #0f172a;
 }
 
 /* Insignia del carrito (Mercado Libre style) */

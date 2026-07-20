@@ -15,15 +15,24 @@
   <!-- Contenido de Solapas -->
   <mat-tab-group class="custom-tabs-group" dynamicHeight>
     
-    <!-- Pestaña 1: Bloqueos de Cancha -->
-    <mat-tab label="Bloqueos de Cancha">
+    <!-- Pestaña 1: Gestión de Bloqueos -->
+    <mat-tab label="Gestión de Bloqueos">
+      <div class="resource-selector-bar">
+        <button [class.active]="tipoRecurso === 'cancha'" (click)="cambiarTipoRecurso('cancha')" class="btn-resource-toggle">
+          Cancha de Pádel
+        </button>
+        <button [class.active]="tipoRecurso === 'quincho'" (click)="cambiarTipoRecurso('quincho')" class="btn-resource-toggle">
+          Quincho Municipal
+        </button>
+      </div>
+
       <div class="tab-layout">
         <!-- Columna Calendario -->
         <div class="col-calendar">
           <div class="calendar-card">
             <div class="calendar-card-header">
-              <h3 class="card-title">Calendario de Bloqueos</h3>
-              <p class="card-subtitle">Selecciona una fecha para restringir slots</p>
+              <h3 class="card-title">Calendario de Bloqueos ({{ tipoRecurso === 'quincho' ? 'Quincho' : 'Cancha' }})</h3>
+              <p class="card-subtitle">Selecciona una fecha para restringir slots de {{ tipoRecurso === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</p>
             </div>
             
             <div class="calendar-wrapper">
@@ -198,6 +207,19 @@
     <mat-tab label="Historial de Reservas">
       <div *ngIf="reservas$ | async as reservas; else cargandoReservas" class="history-tab-layout">
         
+        <!-- 🔹 Filtro por tipo de recurso para Historial -->
+        <div class="history-filter-bar">
+          <button [class.active]="filtroTipoHistorial === 'todos'" (click)="filtroTipoHistorial = 'todos'" class="btn-history-filter">
+            Todos
+          </button>
+          <button [class.active]="filtroTipoHistorial === 'cancha'" (click)="filtroTipoHistorial = 'cancha'" class="btn-history-filter">
+            Canchas de Pádel
+          </button>
+          <button [class.active]="filtroTipoHistorial === 'quincho'" (click)="filtroTipoHistorial = 'quincho'" class="btn-history-filter">
+            Quincho Municipal
+          </button>
+        </div>
+
         <!-- 📊 Panel de Estadísticas (Dashboard) -->
         <div class="stats-dashboard" *ngIf="reservas.length > 0">
           <div class="stats-grid">
@@ -255,7 +277,7 @@
                 </svg>
               </div>
               <div class="stat-info">
-                <span class="stat-label">Bloqueos de Cancha</span>
+                <span class="stat-label">Bloqueos Registrados</span>
                 <strong class="stat-value">{{ totalBloqueos }}</strong>
               </div>
             </div>
@@ -279,7 +301,7 @@
                 </p>
               </div>
               <ng-template #sinDatosHorario>
-                <p class="empty-analysis-text">Aún no hay suficientes reservas de usuarios.</p>
+                <p class="empty-analysis-text">Aún no hay suficientes reservas registradas.</p>
               </ng-template>
             </div>
 
@@ -329,6 +351,9 @@
               <div class="reserva-text-details">
                 <h4 class="reserva-info-title">
                   {{ formatFechaLocal(r.fecha) }} • {{ r.hora }} hs
+                  <span class="reserva-type-badge" [ngClass]="(r.tipo || 'cancha').toLowerCase()">
+                    {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Cancha' }}
+                  </span>
                   <span class="reserva-status-badge" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">{{ r.estado }}</span>
                 </h4>
                 <p class="reserva-meta-sub">

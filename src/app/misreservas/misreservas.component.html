@@ -1,7 +1,7 @@
 <div class="container">
   <!-- Columna Izquierda: Imagen y Logo Municipal -->
   <div class="container-image">
-    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <img src="portal_reservas_bg.png" alt="Portal de Reservas Municipales" class="image-padel">
     <div class="image-card-overlay">
       <div class="overlay-logo-container">
         <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
@@ -20,7 +20,15 @@
   <!-- Columna Derecha: Tarjeta de Contenido -->
   <div class="container-reservas-card">
     <div class="header-reservas-section">
-      <h2 class="title">Turnos Habilitados</h2>
+      <div class="title-with-back">
+        <a (click)="volver()" class="btn-back" title="Volver al calendario" style="cursor: pointer;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </a>
+        <h2 class="title">Turnos Habilitados</h2>
+      </div>
       <p class="legend">(Se muestran solo tus turnos pendientes de pago o aprobados vigentes)</p>
     </div>
 
@@ -46,7 +54,7 @@
               <span class="reserva-time">{{ r.hora }} hs</span>
             </div>
             <div class="reserva-meta">
-              <span class="reserva-court">Cancha de Pádel</span>
+              <span class="reserva-court">{{ r.tipo === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</span>
               <span class="reserva-code">Ref: #{{ r.codigo || r.id }}</span>
               <span class="reserva-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
             </div>
@@ -97,9 +105,9 @@
           </svg>
         </div>
         <p class="empty-title">Sin reservas vigentes</p>
-        <p class="empty-description">No tienes reservas activas de cancha de pádel en este momento.</p>
-        <button routerLink="/reservas" class="btn-reservas-primary">
-          <span>Reservar una cancha</span>
+        <p class="empty-description">No tienes reservas activas en este momento.</p>
+        <button routerLink="/inicio" class="btn-reservas-primary">
+          <span>Realizar una reserva</span>
         </button>
       </div>
     </ng-template>

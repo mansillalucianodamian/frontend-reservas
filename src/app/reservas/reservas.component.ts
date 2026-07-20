@@ -1,21 +1,25 @@
 import { Component } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ReservasService } from '../services/reservas.service';
 import { AuthService } from '../services/auth.service';
 import { CarritoService } from '../services/carrito.service';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { SolicitudQuinchoDialogComponent } from '../solicitud-quincho-dialog/solicitud-quincho-dialog.component';
 import { map, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-reservas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './reservas.component.html',
   styleUrls: ['./reservas.component.css']
 })
 export class ReservasComponent {
+  tipoRecurso: string = 'cancha';
+  costoTotalQuincho: number = 21500;
+
   diasDisponibles: string[] = [];
   currentMonth: Date = new Date();
   diasCalendario: { dateStr: string; dayNum: number; isCurrentMonth: boolean; enabled: boolean }[] = [];
@@ -40,21 +44,37 @@ export class ReservasComponent {
   ngOnInit() {
     this.carrito$ = this.carritoService.carrito$;
     this.currentMonth = new Date();
-    this.generarCalendario(this.currentMonth);
+
     this.route.queryParams.subscribe(params => {
+      this.tipoRecurso = params['tipo'] || 'cancha';
+      
+      // Volver a generar calendario con las reglas del nuevo tipo
+      this.generarCalendario(this.currentMonth);
+      
       if (params['refresh'] === 'true' && this.fechaSeleccionada) {
         this.seleccionarDia(this.fechaSeleccionada);
       }
-    });
 
-    // 🔹 Obtener el precio dinámico de la cancha
-    this.reservasService.getPrecioCancha().subscribe({
-      next: (res) => {
-        if (res && res.ok) {
-          this.costoCancha = res.precio;
-        }
-      },
-      error: (err) => console.error('Error al cargar el precio de la cancha:', err)
+      // Cargar precio/seña según tipo
+      if (this.tipoRecurso === 'quincho') {
+        this.reservasService.getPrecioQuincho().subscribe({
+          next: (res) => {
+            if (res && res.ok) {
+              this.costoTotalQuincho = res.precio;
+            }
+          },
+          error: (err) => console.error('Error al cargar tarifas de quincho:', err)
+        });
+      } else {
+        this.reservasService.getPrecioCancha().subscribe({
+          next: (res) => {
+            if (res && res.ok) {
+              this.costoCancha = res.precio;
+            }
+          },
+          error: (err) => console.error('Error al cargar el precio de la cancha:', err)
+        });
+      }
     });
   }
 
@@ -106,7 +126,7 @@ export class ReservasComponent {
       d.setHours(0, 0, 0, 0);
 
       const dateStr = this.formatLocalISO(d);
-      const enabled = d >= hoy && d <= finSemanaHabilitada;
+      const enabled = this.esDiaHabilitado(dateStr);
 
       this.diasCalendario.push({
         dateStr,
@@ -161,11 +181,16 @@ export class ReservasComponent {
     const d = new Date(año, mes, diaNum);
     d.setHours(0, 0, 0, 0);
 
-    const finSemanaHabilitada = new Date(hoy);
-    finSemanaHabilitada.setDate(hoy.getDate() + 7);
-    finSemanaHabilitada.setHours(23, 59, 59, 999);
-
-    return d >= hoy && d <= finSemanaHabilitada;
+    if (this.tipoRecurso === 'quincho') {
+      // Habilitar todo el mes actual y el mes siguiente
+      const finMesSiguiente = new Date(hoy.getFullYear(), hoy.getMonth() + 2, 0); // último día del mes siguiente
+      return d >= hoy && d <= finMesSiguiente;
+    } else {
+      const finSemanaHabilitada = new Date(hoy);
+      finSemanaHabilitada.setDate(hoy.getDate() + 7);
+      finSemanaHabilitada.setHours(23, 59, 59, 999);
+      return d >= hoy && d <= finSemanaHabilitada;
+    }
   }
 
   seleccionarDia(dia: string) {
@@ -176,7 +201,7 @@ export class ReservasComponent {
     this.horaSeleccionada = null;
     this.mensaje = null;
 
-    this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia).pipe(
+    this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso).pipe(
       map((horarios: { hora: string, disponible: boolean }[]) => {
         let libres = horarios.filter(h => h.disponible).map(h => h.hora);
 
@@ -210,7 +235,7 @@ export class ReservasComponent {
 
   agregarAlCarrito() {
     if (!this.authService.isLoggedIn()) {
-      this.mensaje = '⚠️ Debes iniciar sesión antes de reservar';
+      this.mensaje = 'Debes iniciar sesión antes de reservar';
       return;
     }
     
@@ -235,37 +260,69 @@ export class ReservasComponent {
       return;
     }
     const existe = this.carritoService.getCarrito().some(r =>
-      r.fecha === this.fechaSeleccionada && r.hora === this.horaSeleccionada
+      r.fecha === this.fechaSeleccionada && r.hora === this.horaSeleccionada && r.tipo === this.tipoRecurso
     );
     if (existe) {
-      this.mensaje = '⚠️ Ese horario ya está en el carrito';
+      this.mensaje = 'Ese horario ya está en el carrito';
       return;
     }
-    const reserva = {
-      fecha: this.fechaSeleccionada,
-      hora: this.horaSeleccionada,
-      costo: this.costoCancha
-    };
+    if (this.tipoRecurso === 'quincho') {
+      const dialogRef = this.dialog.open(SolicitudQuinchoDialogComponent, {
+        width: '600px',
+        maxWidth: '95vw',
+        data: {
+          fecha: this.fechaSeleccionada!,
+          hora: this.horaSeleccionada!
+        }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          const motivoFormatted = `Actividad: ${result.actividad} | Asistentes: ${result.asistentes} (Reglamento Aceptado)`;
+          const reserva = {
+            fecha: this.fechaSeleccionada!,
+            hora: this.horaSeleccionada!,
+            costo: 0,
+            costoTotal: this.costoTotalQuincho,
+            tipo: this.tipoRecurso,
+            motivo: motivoFormatted
+          };
+          this.realizarAgregarAlCarrito(reserva);
+        }
+      });
+    } else {
+      const reserva = {
+        fecha: this.fechaSeleccionada!,
+        hora: this.horaSeleccionada!,
+        costo: this.costoCancha,
+        costoTotal: this.costoCancha,
+        tipo: this.tipoRecurso
+      };
+      this.realizarAgregarAlCarrito(reserva);
+    }
+  }
+
+  realizarAgregarAlCarrito(reserva: any) {
     try {
       this.carritoService.addReserva(reserva);
-      this.mensaje = '✅ Reserva agregada al carrito';
-      this.router.navigate(['/carrito']);
+      this.mensaje = 'Reserva agregada al carrito';
+      this.router.navigate(['/carrito'], { queryParams: { tipo: this.tipoRecurso } });
     } catch (err: any) {
       console.error('Error al agregar reserva:', err);
-      this.mensaje = err.message || '❌ No se pudo agregar la reserva';
+      this.mensaje = err.message || 'No se pudo agregar la reserva';
     }
   }
 
   irLogin() { this.router.navigate(['/login']); }
   trackByDia(index: number, item: any) { return typeof item === 'string' ? item : item.dateStr; }
-  verMisReservas() { this.router.navigate(['/mis-reservas']); }
-  verCarrito() { this.router.navigate(['/carrito']); }
+  verMisReservas() { this.router.navigate(['/mis-reservas'], { queryParams: { tipo: this.tipoRecurso } }); }
+  verCarrito() { this.router.navigate(['/carrito'], { queryParams: { tipo: this.tipoRecurso } }); }
   abrirConfirmacion(reserva: any) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, { width: '350px', data: reserva });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.carritoService.addReserva(reserva);
-        this.router.navigate(['/reservas'], { queryParams: { refresh: 'true' } });
+        this.carritoService.addReserva({ ...reserva, tipo: this.tipoRecurso });
+        this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', tipo: this.tipoRecurso } });
       }
     });
   }

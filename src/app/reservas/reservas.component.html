@@ -1,12 +1,12 @@
 <div class="container">
   <div class="container-image">
-    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <img [src]="tipoRecurso === 'quincho' ? 'quincho_municipal.png' : 'cancha-padel-vertical.png'" [alt]="tipoRecurso === 'quincho' ? 'Quincho municipal' : 'Cancha de pádel'" class="image-padel">
     <div class="image-card-overlay">
       <div class="overlay-logo-container">
         <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
       </div>
       <div class="overlay-banner">
-        <h1 class="overlay-title">CANCHA DE PÁDEL</h1>
+        <h1 class="overlay-title">{{ tipoRecurso === 'quincho' ? 'QUINCHO MUNICIPAL' : 'CANCHA DE PÁDEL' }}</h1>
         <div class="brand-colors-bar">
           <div class="color-red"></div>
           <div class="color-yellow"></div>
@@ -19,8 +19,16 @@
   <div class="container-calendar">
     <div class="header-reservas">
       <div class="header-top-actions">
-        <button (click)="verMisReservas()" class="icon-action-btn" title="Mis reservas">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+        <!-- Botón para volver al menú de inicio -->
+        <a routerLink="/inicio" class="btn-back-landing" title="Volver al menú principal">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </a>
+        <button (click)="verMisReservas()" class="btn-mis-reservas" title="Mis reservas">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+          <span>Mis reservas</span>
         </button>
         <button (click)="verCarrito()" class="icon-action-btn" title="Carrito">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
@@ -28,8 +36,9 @@
         </button>
       </div>
       <div class="header-title-section">
-        <h2 class="title">Reservar cancha de pádel</h2>
-        <p class="legend">(Solo se podrán reservar dos turnos por semana)</p>
+        <h2 class="title">Reservar {{ tipoRecurso === 'quincho' ? 'quincho municipal' : 'cancha de pádel' }}</h2>
+        <p class="legend" *ngIf="tipoRecurso === 'cancha'">(Solo se podrán reservar dos turnos por semana)</p>
+        <p class="legend" *ngIf="tipoRecurso === 'quincho'">(Costo total: {{ costoTotalQuincho | currency:'ARS' }} - Se abona luego de su uso)</p>
       </div>
     </div>
 
@@ -79,8 +88,14 @@
       </div>
     </div>
 
-    <div *ngIf="horaSeleccionada" class="action-section">
-      <p class="price">Costo de la cancha: {{ costoCancha | currency:'ARS' }}</p>
+    <div class="action-section" *ngIf="horaSeleccionada">
+      <p class="price" *ngIf="tipoRecurso === 'cancha'">Costo de la cancha: {{ costoCancha | currency:'ARS' }}</p>
+      <p class="price" *ngIf="tipoRecurso === 'quincho'">
+        Costo total: {{ costoTotalQuincho | currency:'ARS' }} <br>
+        <span style="font-size: 0.85em; font-weight: normal; color: #64748b;">
+          (Se abona luego de su uso - A pagar hoy: <strong>$0</strong>)
+        </span>
+      </p>
       <button (click)="agregarAlCarrito()" class="button-primary">Reservar AHORA</button>
     </div>
 

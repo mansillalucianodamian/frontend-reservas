@@ -21,12 +21,13 @@ export class SuperAdminComponent implements OnInit {
   reservas: any[] = []; // 👈 Copia de reservas en grilla local
   
   // Para el calendario de bloqueos
+  tipoRecurso: 'cancha' | 'quincho' = 'cancha';
   currentMonth: Date = new Date();
   diasCalendario: { dateStr: string; dayNum: number; isCurrentMonth: boolean; enabled: boolean }[] = [];
   nombresDias: string[] = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
   fechaSeleccionada: string | null = null;
   horariosDisponibles$: Observable<{ hora: string, disponible: boolean }[]> | null = null;
-  
+
   // Para los buscadores
   filtroUsuario: string = '';
   filtroReservas: string = '';
@@ -160,9 +161,16 @@ export class SuperAdminComponent implements OnInit {
     return typeof item === 'string' ? item : item.dateStr;
   }
 
+  cambiarTipoRecurso(nuevoTipo: 'cancha' | 'quincho') {
+    this.tipoRecurso = nuevoTipo;
+    if (this.fechaSeleccionada) {
+      this.seleccionarDia(this.fechaSeleccionada);
+    }
+  }
+
   seleccionarDia(dia: string) {
     this.fechaSeleccionada = dia;
-    this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia);
+    this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso);
   }
 
   private datesMatchLocal(dbFecha: any, selectedFechaStr: string): boolean {
@@ -241,6 +249,7 @@ export class SuperAdminComponent implements OnInit {
     
     // Buscar si hay alguna reserva activa para esa fecha y hora utilizando comparadores locales robustos
     const res = this.reservas.find(r => {
+      const tipoMatch = (r.tipo || 'cancha').toLowerCase() === this.tipoRecurso.toLowerCase();
       const fechaMatch = this.datesMatchLocal(r.fecha, this.fechaSeleccionada!);
       const horaMatch = this.hoursMatch(r.hora, hora);
       
@@ -250,7 +259,7 @@ export class SuperAdminComponent implements OnInit {
                        estadoLower !== 'rechazada' && 
                        estadoLower !== 'rechazado';
                        
-      return fechaMatch && horaMatch && esActivo;
+      return tipoMatch && fechaMatch && horaMatch && esActivo;
     });
     
     if (!res) {
@@ -296,7 +305,7 @@ export class SuperAdminComponent implements OnInit {
     };
 
     if (yaReservado) {
-      const warningMsg = '⚠️ ATENCIÓN: Este horario ya se encuentra reservado por un usuario. ' +
+      const warningMsg = 'ATENCIÓN: Este horario ya se encuentra reservado por un usuario. ' +
                          'Si lo bloqueas, se cancelará su reserva y se le notificará automáticamente por email para reprogramar. ' +
                          '¿Deseas continuar con el bloqueo?';
       const dialogRef = this.dialog.open(ConfirmDialogComponent, {
@@ -318,13 +327,14 @@ export class SuperAdminComponent implements OnInit {
   }
 
   bloquearReserva(fecha: string, hora: string, motivo: string): void {
-    this.reservasService.bloquearReserva(fecha, hora, motivo).subscribe({
+    this.reservasService.bloquearReserva(fecha, hora, motivo, this.tipoRecurso).subscribe({
       next: (res) => {
+        const nombreRecurso = this.tipoRecurso === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel';
         this.dialog.open(ConfirmDialogComponent, {
           data: {
             titulo: 'Horario Bloqueado',
             mensaje: '',
-            resultado: `✅ El horario de las ${hora} hs para el día ${this.formatFechaLocal(fecha)} fue bloqueado exitosamente.`,
+            resultado: `El horario de las ${hora} hs (${nombreRecurso}) para el día ${this.formatFechaLocal(fecha)} fue bloqueado exitosamente.`,
             tipo: 'success'
           }
         });
@@ -339,7 +349,7 @@ export class SuperAdminComponent implements OnInit {
           data: {
             titulo: 'Error al Bloquear',
             mensaje: '',
-            resultado: err?.message || '❌ Ocurrió un error al bloquear el horario.',
+            resultado: err?.message || 'Ocurrió un error al bloquear el horario.',
             tipo: 'error'
           }
         });
@@ -365,7 +375,7 @@ export class SuperAdminComponent implements OnInit {
               data: {
                 titulo: 'Horario Liberado',
                 mensaje: '',
-                resultado: `✅ El horario de las ${hora} hs fue liberado con éxito.`,
+                resultado: `El horario de las ${hora} hs fue liberado con éxito.`,
                 tipo: 'success'
               }
             });
@@ -380,7 +390,7 @@ export class SuperAdminComponent implements OnInit {
               data: {
                 titulo: 'Error al Liberar',
                 mensaje: '',
-                resultado: err?.message || '❌ Ocurrió un error al liberar el horario.',
+                resultado: err?.message || 'Ocurrió un error al liberar el horario.',
                 tipo: 'error'
               }
             });
@@ -408,7 +418,7 @@ export class SuperAdminComponent implements OnInit {
               data: {
                 titulo: 'Rol Actualizado',
                 mensaje: '',
-                resultado: `✅ El rol se actualizó correctamente a "${nuevoRol}".`,
+                resultado: `El rol se actualizó correctamente a "${nuevoRol}".`,
                 tipo: 'success'
               }
             });
@@ -451,8 +461,7 @@ export class SuperAdminComponent implements OnInit {
             this.dialog.open(ConfirmDialogComponent, {
               data: {
                 titulo: 'Rol Actualizado',
-                mensaje: '',
-                resultado: `El rol se actualizó correctamente a "${newRol}".`,
+                mensaje: `El rol se actualizó correctamente a "${newRol}".`,
                 tipo: 'success'
               }
             });
@@ -482,7 +491,7 @@ export class SuperAdminComponent implements OnInit {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
         titulo: 'Eliminar Usuario',
-        mensaje: '⚠️ ¿Estás seguro de eliminar este usuario de forma permanente? Esta acción no se puede deshacer.',
+        mensaje: '¿Estás seguro de eliminar este usuario de forma permanente? Esta acción no se puede deshacer.',
         tipo: 'confirm'
       }
     });
@@ -495,7 +504,7 @@ export class SuperAdminComponent implements OnInit {
               data: {
                 titulo: 'Usuario Eliminado',
                 mensaje: '',
-                resultado: '✅ El usuario fue removido correctamente.',
+                resultado: 'El usuario fue removido correctamente.',
                 tipo: 'success'
               }
             });
@@ -535,7 +544,7 @@ export class SuperAdminComponent implements OnInit {
               data: {
                 titulo: 'Reserva Cancelada',
                 mensaje: '',
-                resultado: '✅ La reserva se canceló correctamente.',
+                resultado: 'La reserva se canceló correctamente.',
                 tipo: 'success'
               }
             });
@@ -623,28 +632,37 @@ export class SuperAdminComponent implements OnInit {
   }
 
   // 📊 Getter properties for reservation statistics
+  filtroTipoHistorial: 'todos' | 'cancha' | 'quincho' = 'todos';
+
+  get reservasFiltradasHistorial(): any[] {
+    if (this.filtroTipoHistorial === 'todos') {
+      return this.reservas;
+    }
+    return this.reservas.filter(r => (r.tipo || 'cancha').toLowerCase() === this.filtroTipoHistorial.toLowerCase());
+  }
+
   get totalReservas(): number {
-    return this.reservas.filter(r => r.usuario_id).length;
+    return this.reservasFiltradasHistorial.filter(r => r.usuario_id).length;
   }
 
   get totalAprobadas(): number {
-    return this.reservas.filter(r => r.usuario_id && (r.estado?.toLowerCase() === 'aprobada' || r.estado?.toLowerCase() === 'aprobado' || r.estado?.toLowerCase() === 'confirmada' || r.estado?.toLowerCase() === 'confirmado')).length;
+    return this.reservasFiltradasHistorial.filter(r => r.usuario_id && (r.estado?.toLowerCase() === 'aprobada' || r.estado?.toLowerCase() === 'aprobado' || r.estado?.toLowerCase() === 'confirmada' || r.estado?.toLowerCase() === 'confirmado')).length;
   }
 
   get totalPendientes(): number {
-    return this.reservas.filter(r => r.usuario_id && r.estado?.toLowerCase() === 'pendiente').length;
+    return this.reservasFiltradasHistorial.filter(r => r.usuario_id && r.estado?.toLowerCase() === 'pendiente').length;
   }
 
   get totalCanceladas(): number {
-    return this.reservas.filter(r => r.usuario_id && (r.estado?.toLowerCase() === 'cancelada' || r.estado?.toLowerCase() === 'cancelado')).length;
+    return this.reservasFiltradasHistorial.filter(r => r.usuario_id && (r.estado?.toLowerCase() === 'cancelada' || r.estado?.toLowerCase() === 'cancelado')).length;
   }
 
   get totalBloqueos(): number {
-    return this.reservas.filter(r => !r.usuario_id).length;
+    return this.reservasFiltradasHistorial.filter(r => !r.usuario_id).length;
   }
 
   get horarioMasReservado(): { hora: string, count: number } | null {
-    const validReservas = this.reservas.filter(r => r.usuario_id);
+    const validReservas = this.reservasFiltradasHistorial.filter(r => r.usuario_id);
     if (validReservas.length === 0) return null;
 
     const counts: { [key: string]: number } = {};
@@ -667,7 +685,7 @@ export class SuperAdminComponent implements OnInit {
   }
 
   get topUsuarios(): { usuario: string, count: number }[] {
-    const validReservas = this.reservas.filter(r => r.usuario_id && r.usuario);
+    const validReservas = this.reservasFiltradasHistorial.filter(r => r.usuario_id && r.usuario);
     if (validReservas.length === 0) return [];
 
     const counts: { [key: string]: number } = {};

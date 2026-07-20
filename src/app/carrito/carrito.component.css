@@ -120,6 +120,30 @@
     margin-bottom: 0.5rem;
 }
 
+.title-with-back {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.2rem;
+}
+
+.btn-back {
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    transform: translateX(-2px);
+}
+
 .header-cart .title {
     color: #0f172a;
     font-size: 1.35rem;
@@ -212,26 +236,26 @@
 }
 
 .item-date {
-    font-weight: 600;
-    color: #1e293b;
-    font-size: 0.9rem;
+    font-weight: 500;
+    color: #828fa3;
+    font-size: 0.82rem;
 }
 
 .item-separator {
-    color: #94a3b8;
+    color: #cbd5e1;
 }
 
 .item-time {
-    color: #334155;
+    color: #828fa3;
     font-weight: 500;
-    font-size: 0.9rem;
+    font-size: 0.82rem;
 }
 
 .item-court-type {
-    font-size: 0.75rem;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.2px;
 }
 
 .item-price-action {

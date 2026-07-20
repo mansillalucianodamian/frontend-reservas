@@ -23,7 +23,7 @@
       <h2 class="title">Control de Reservas</h2>
       <p class="legend">(Gestión y acreditación de cobros para habilitar el uso de canchas)</p>
       
-      <!-- 🔹 Sección para editar el precio de la cancha -->
+      <!-- 🔹 Sección para editar tarifas -->
       <div class="price-edit-container">
         <div class="price-edit-card">
           <span class="price-edit-title">Valor de Cancha:</span>
@@ -32,6 +32,17 @@
             <input type="number" [(ngModel)]="precioCancha" class="price-edit-input" [disabled]="isUpdatingPrice" min="0">
             <button (click)="guardarPrecio()" class="btn-price-save" [disabled]="isUpdatingPrice">
               <span>{{ isUpdatingPrice ? 'Guardando...' : 'Actualizar' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="price-edit-card">
+          <span class="price-edit-title">Valor de Quincho:</span>
+          <div class="price-input-wrapper">
+            <span class="currency-prefix">$</span>
+            <input type="number" [(ngModel)]="precioQuincho" class="price-edit-input" [disabled]="isUpdatingQuinchoPrice" min="0">
+            <button (click)="guardarPrecioQuincho()" class="btn-price-save" [disabled]="isUpdatingQuinchoPrice">
+              <span>{{ isUpdatingQuinchoPrice ? 'Guardando...' : 'Actualizar' }}</span>
             </button>
           </div>
         </div>
@@ -63,9 +74,12 @@
 
           <!-- Detalles del turno -->
           <div class="reserva-details">
-            <div class="reserva-username">
+            <div class="reserva-username" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
               <span class="user-label">Usuario:</span>
               <span class="user-value">{{ r.usuario }}</span>
+              <span class="badge-recurso" [ngClass]="r.tipo || 'cancha'">
+                {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Cancha' }}
+              </span>
             </div>
             <div class="reserva-datetime">
               <span class="reserva-date">{{ formatFechaLocal(r.fecha) }}</span>
@@ -73,7 +87,7 @@
               <span class="reserva-time">{{ r.hora }} hs</span>
             </div>
             <div class="reserva-meta">
-              <span class="reserva-court">Cancha de Pádel</span>
+              <span class="reserva-court">{{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</span>
               <span class="reserva-code">Ref: #{{ r.id }}</span>
               <span class="reserva-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
             </div>

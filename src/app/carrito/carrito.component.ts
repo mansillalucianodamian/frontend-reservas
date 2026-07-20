@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { CarritoService } from '../services/carrito.service';
 import { ReservasService } from '../services/reservas.service'; // 👈 Importar ReservasService
 import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-carrito',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './carrito.component.html',
   styleUrls: ['./carrito.component.css']
 })
@@ -18,17 +18,22 @@ export class CarritoComponent implements OnInit {
   carrito$!: Observable<any[]>;
   mensaje: string | null = null;
   isProcessing = false; // 👈 Estado de carga para el overlay
+  tipoRecurso: string = 'cancha';
 
   constructor(
     private carritoService: CarritoService,
     private reservasService: ReservasService, // 👈 Inyectar ReservasService
     private router: Router,
+    private route: ActivatedRoute, // 👈 Inyectar ActivatedRoute
     private cd: ChangeDetectorRef,
     private dialog: MatDialog
   ) { }
 
   ngOnInit() {
     this.carrito$ = this.carritoService.carrito$;
+    this.route.queryParams.subscribe(params => {
+      this.tipoRecurso = params['tipo'] || 'cancha';
+    });
   }
 
   eliminar(reserva: any) {
@@ -60,7 +65,7 @@ export class CarritoComponent implements OnInit {
         const reservasPorSemana: { [semana: string]: number } = {};
         
         reservasConfirmadas.forEach(r => {
-          // Filtrar reservas que no estén canceladas, rechazadas o bloqueadas
+          // Filtrar reservas que no estén canceladas, rechazadas o bloqueadas y que sean del tipo cancha
           const estadoLower = r.estado ? r.estado.toLowerCase().trim() : '';
           const esInactivo = estadoLower === 'cancelada' || 
                              estadoLower === 'cancelado' || 
@@ -68,7 +73,7 @@ export class CarritoComponent implements OnInit {
                              estadoLower === 'rechazado' ||
                              estadoLower.startsWith('bloquead');
           
-          if (!esInactivo) {
+          if (!esInactivo && (r.tipo || 'cancha') === 'cancha') {
             const semId = this.getSemanaId(r.fecha);
             reservasPorSemana[semId] = (reservasPorSemana[semId] || 0) + 1;
           }
@@ -80,6 +85,9 @@ export class CarritoComponent implements OnInit {
         let detalleError = '';
 
         for (const r of reservasCart) {
+          // Las reservas de quincho no suman para el límite de la cancha
+          if ((r.tipo || 'cancha') !== 'cancha') continue;
+          
           const semId = this.getSemanaId(r.fecha);
           const yaConfirmadas = reservasPorSemana[semId] || 0;
           const enCarrito = cartPorSemana[semId] || 0;
@@ -155,14 +163,14 @@ export class CarritoComponent implements OnInit {
           data: {
             titulo: 'Reservas Confirmadas',
             mensaje: '',
-            resultado: '✅ Las reservas fueron confirmadas correctamente',
+            resultado: 'Las reservas fueron confirmadas correctamente',
             tipo: 'success'
           }
         });
         this.carritoService.clearCarrito();
         const ultimaReserva = this.carritoService.getCarrito().slice(-1)[0];
         const fecha = ultimaReserva ? ultimaReserva.fecha : null;
-        this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', fecha } });
+        this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', fecha, tipo: this.tipoRecurso } });
       })
       .catch(err => {
         this.isProcessing = false; // 👈 Desactivar bloqueo en caso de error
@@ -172,7 +180,7 @@ export class CarritoComponent implements OnInit {
           data: {
             titulo: 'Error al Confirmar',
             mensaje: '',
-            resultado: err?.message || '❌ Ocurrió un error al procesar las reservas',
+            resultado: err?.message || 'Ocurrió un error al procesar las reservas',
             tipo: 'error'
           }
         });
@@ -205,6 +213,6 @@ export class CarritoComponent implements OnInit {
   seguirComprando() {
     const ultimaReserva = this.carritoService.getCarrito().slice(-1)[0];
     const fecha = ultimaReserva ? ultimaReserva.fecha : null;
-    this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', fecha } });
+    this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', fecha, tipo: this.tipoRecurso } });
   }
 }

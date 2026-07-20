@@ -2,11 +2,12 @@ import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReservasService } from '../services/reservas.service';
 import { Observable, map } from 'rxjs'; // 👈 Importamos map desde rxjs
+import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-misreservas',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './misreservas.component.html',
   styleUrls: ['./misreservas.component.css']
 })
@@ -14,14 +15,24 @@ export class MisReservasComponent implements OnInit {
   reservas$!: Observable<any[]>;
   mensaje: string | null = null;
   errorMessage: string | null = null;
+  tipoRecurso: string = 'cancha';
 
   constructor(
     private reservasService: ReservasService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
     this.loadReservas();
+    this.route.queryParams.subscribe(params => {
+      this.tipoRecurso = params['tipo'] || 'cancha';
+    });
+  }
+
+  volver(): void {
+    this.router.navigate(['/reservas'], { queryParams: { tipo: this.tipoRecurso } });
   }
 
   loadReservas(): void {
@@ -87,7 +98,7 @@ export class MisReservasComponent implements OnInit {
     this.reservasService.cancelarReserva(id).subscribe({
       next: (res) => {
         if (res.ok) {
-          this.mensaje = '✅ Reserva cancelada';
+          this.mensaje = 'Reserva cancelada';
           this.errorMessage = null;
           this.loadReservas(); // Refresca observable con el filtro activo
 

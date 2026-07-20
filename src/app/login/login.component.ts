@@ -100,7 +100,7 @@ export class LoginComponent implements OnInit {
         // Redirigir según rol
         switch (res.user?.rol) {
           case 'usuario':
-            this.router.navigate(['/reservas']);
+            this.router.navigate(['/inicio']);
             break;
           case 'recepcionista':
             this.router.navigate(['/recepcionista']);

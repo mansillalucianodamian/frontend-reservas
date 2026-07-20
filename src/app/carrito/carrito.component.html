@@ -1,7 +1,7 @@
 <div class="container">
   <!-- Columna Izquierda: Imagen y Logo de la Municipalidad -->
   <div class="container-image">
-    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
+    <img src="portal_reservas_bg.png" alt="Portal de Reservas Municipales" class="image-padel">
     <div class="image-card-overlay">
       <div class="overlay-logo-container">
         <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
@@ -20,7 +20,15 @@
   <!-- Columna Derecha: Tarjeta de Contenido -->
   <div class="container-cart-card">
     <div class="header-cart">
-      <h2 class="title">Reservas Seleccionadas</h2>
+      <div class="title-with-back">
+        <a (click)="seguirComprando()" class="btn-back" title="Volver al calendario" style="cursor: pointer;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </a>
+        <h2 class="title">Reservas Seleccionadas</h2>
+      </div>
       <p class="legend">(Revisa los detalles antes de confirmar los turnos)</p>
     </div>
 
@@ -38,15 +46,21 @@
             </svg>
           </div>
           <div class="item-info">
+            <span class="item-court-type">{{ r.tipo === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</span>
             <div class="item-datetime">
               <span class="item-date">{{ r.fecha }}</span>
               <span class="item-separator">•</span>
               <span class="item-time">{{ r.hora }} hs</span>
             </div>
-            <span class="item-court-type">Cancha de Pádel</span>
           </div>
           <div class="item-price-action">
-            <span class="item-price">{{ r.costo | currency:'ARS' }}</span>
+            <span class="item-price" *ngIf="r.tipo !== 'quincho'">
+              {{ r.costo | currency:'ARS' }}
+            </span>
+            <span class="item-price" *ngIf="r.tipo === 'quincho'">
+              $0
+              <span style="display: block; font-size: 0.7em; color: #64748b; font-weight: normal; line-height: 1.2; text-align: right;">(Se abona luego)</span>
+            </span>
             <button (click)="eliminar(r)" class="btn-delete-item" title="Eliminar del carrito" aria-label="Eliminar del carrito">
               <!-- Icono de tacho de basura en SVG -->
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

@@ -11,21 +11,15 @@
             <span class="user-welcome-text">Hola, <strong class="user-name">{{ userFirstName }}</strong></span>
         </div>
 
-        <!-- Reservar Cancha (Pill link con ícono SVG de calendario) -->
-        <a routerLink="/reservas" class="nav-btn-pill" title="Reservar cancha" aria-label="Reservar cancha">
+        <!-- Reservar (Pill link con ícono SVG de grid) -->
+        <a routerLink="/inicio" class="nav-btn-pill" title="Reservar" aria-label="Reservar">
             <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-                <path d="M8 14h.01"></path>
-                <path d="M12 14h.01"></path>
-                <path d="M16 14h.01"></path>
-                <path d="M8 18h.01"></path>
-                <path d="M12 18h.01"></path>
-                <path d="M16 18h.01"></path>
+                <rect x="3" y="3" width="7" height="9"></rect>
+                <rect x="14" y="3" width="7" height="5"></rect>
+                <rect x="14" y="12" width="7" height="9"></rect>
+                <rect x="3" y="16" width="7" height="5"></rect>
             </svg>
-            <span class="nav-btn-text">Reservar Cancha</span>
+            <span class="nav-btn-text">Reservar</span>
         </a>
 
         <!-- Cerrar Sesión (Pill button con ícono SVG de logout) -->

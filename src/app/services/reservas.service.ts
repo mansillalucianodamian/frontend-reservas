@@ -27,20 +27,20 @@ export class ReservasService {
   }
 
   // 🔹 Obtener horarios disponibles para un día
-  getHorariosDisponibles(fecha: string): Observable<{ hora: string, disponible: boolean }[]> {
+  getHorariosDisponibles(fecha: string, tipo: string = 'cancha'): Observable<{ hora: string, disponible: boolean }[]> {
     return this.http.get<{ ok: boolean, horarios: { hora: string, disponible: boolean }[] }>(
-      `${this.apiUrl}/disponibles/${fecha}`
+      `${this.apiUrl}/disponibles/${fecha}?tipo=${tipo}`
     ).pipe(
       map(res => res.horarios)
     );
   }
 
   // 🔹 Crear una nueva reserva
-  crearReserva(fecha: string, hora: string): Observable<{ ok: boolean, message: string, reserva?: any }> {
+  crearReserva(fecha: string, hora: string, tipo: string = 'cancha', motivo: string | null = null): Observable<{ ok: boolean, message: string, reserva?: any }> {
     const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId'); // 👈 importante incluir usuario_id
     return this.http.post<{ ok: boolean, message: string, reserva?: any }>(
       this.apiUrl,
-      { usuario_id: usuarioId, fecha, hora },
+      { usuario_id: usuarioId, fecha, hora, tipo, motivo },
       { headers: this.getHeaders() }
     ).pipe(
       map(res => ({
@@ -50,7 +50,7 @@ export class ReservasService {
       })),
       catchError(err => throwError(() => ({
         ok: false,
-        message: err.error?.message || 'Error al crear reserva'
+        message: err.message || 'Error al crear reserva'
       })))
     );
   }
@@ -90,10 +90,10 @@ export class ReservasService {
       })))
     );
   }
-  bloquearReserva(fecha: string, hora: string, motivo: string): Observable<{ ok: boolean, message: string }> {
+  bloquearReserva(fecha: string, hora: string, motivo: string, tipo: string = 'cancha'): Observable<{ ok: boolean, message: string }> {
     return this.http.post<{ ok: boolean, message: string }>(
       `${this.apiUrl}/bloquear`,
-      { fecha, hora, motivo },
+      { fecha, hora, motivo, tipo },
       { headers: this.getHeaders() }
     );
   }
@@ -116,6 +116,20 @@ export class ReservasService {
     return this.http.put<{ ok: boolean, message: string }>(
       '/api/configuracion/precio',
       { precio },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  getPrecioQuincho(): Observable<{ ok: boolean, precio: number, sena: number }> {
+    return this.http.get<{ ok: boolean, precio: number, sena: number }>(
+      '/api/configuracion/precio-quincho'
+    );
+  }
+
+  updatePrecioQuincho(precio: number, sena: number): Observable<{ ok: boolean, message: string }> {
+    return this.http.put<{ ok: boolean, message: string }>(
+      '/api/configuracion/precio-quincho',
+      { precio, sena },
       { headers: this.getHeaders() }
     );
   }

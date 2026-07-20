@@ -120,6 +120,30 @@
     margin-bottom: 0.5rem;
 }
 
+.title-with-back {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 0.2rem;
+}
+
+.btn-back {
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    transform: translateX(-2px);
+}
+
 .header-reservas-section .title {
     color: #0f172a;
     font-size: 1.35rem;

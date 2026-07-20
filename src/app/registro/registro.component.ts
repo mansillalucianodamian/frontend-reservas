@@ -55,7 +55,7 @@ export class RegistroComponent implements OnInit {
 
     this.usuariosService.registrar(usuario).subscribe({
       next: (res) => {
-        this.successMessage = '✅ Registro exitoso. Se ha enviado un correo de verificación. Por favor, revisa tu correo para activar tu cuenta antes de iniciar sesión.';
+        this.successMessage = 'Registro exitoso. Se ha enviado un correo de verificación. Por favor, revisa tu correo para activar tu cuenta antes de iniciar sesión.';
         this.errorMessage = null;
         this.isLoading = false;
         this.cd.detectChanges();

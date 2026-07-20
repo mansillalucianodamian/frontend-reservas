@@ -25,6 +25,10 @@ export class RecepcionistaComponent implements OnInit {
   precioCancha: number = 5000;
   isUpdatingPrice: boolean = false;
 
+  // 🔹 Gestión de las tarifas del quincho
+  precioQuincho: number = 21500;
+  isUpdatingQuinchoPrice: boolean = false;
+
   constructor(
     private reservasService: ReservasService,
     private cdr: ChangeDetectorRef,
@@ -34,6 +38,7 @@ export class RecepcionistaComponent implements OnInit {
   ngOnInit(): void {
     this.loadReservas();
     this.cargarPrecioCancha();
+    this.cargarPrecioQuincho();
   }
 
   cargarPrecioCancha(): void {
@@ -45,6 +50,18 @@ export class RecepcionistaComponent implements OnInit {
         }
       },
       error: (err) => console.error('Error al cargar precio de cancha:', err)
+    });
+  }
+
+  cargarPrecioQuincho(): void {
+    this.reservasService.getPrecioQuincho().subscribe({
+      next: (res) => {
+        if (res && res.ok) {
+          this.precioQuincho = res.precio;
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => console.error('Error al cargar precio de quincho:', err)
     });
   }
 
@@ -81,6 +98,39 @@ export class RecepcionistaComponent implements OnInit {
     });
   }
 
+  guardarPrecioQuincho(): void {
+    if (this.precioQuincho <= 0) {
+      this.errorMessage = 'El precio debe ser un número entero positivo';
+      this.mensaje = null;
+      return;
+    }
+
+    this.isUpdatingQuinchoPrice = true;
+    this.errorMessage = null;
+    this.mensaje = null;
+
+    this.reservasService.updatePrecioQuincho(this.precioQuincho, 0).subscribe({
+      next: (res) => {
+        this.isUpdatingQuinchoPrice = false;
+        this.mensaje = 'Tarifas del quincho actualizadas con éxito';
+        this.errorMessage = null;
+        this.cdr.detectChanges();
+
+        // Limpiar el mensaje de éxito tras 4 segundos
+        setTimeout(() => {
+          this.mensaje = null;
+          this.cdr.detectChanges();
+        }, 4000);
+      },
+      error: (err) => {
+        this.isUpdatingQuinchoPrice = false;
+        this.errorMessage = err.error?.message || 'Error al actualizar las tarifas del quincho';
+        this.mensaje = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
   loadReservas(): void {
     this.reservas$ = this.reservasService.getReservasPendientes();
   }
@@ -108,7 +158,7 @@ export class RecepcionistaComponent implements OnInit {
                 data: {
                   titulo: 'Reserva Aprobada',
                   mensaje: '',
-                  resultado: '✅ La reserva fue aprobada correctamente',
+                  resultado: 'La reserva fue aprobada correctamente',
                   tipo: 'success'
                 }
               });

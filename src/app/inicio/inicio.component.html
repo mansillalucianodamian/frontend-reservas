@@ -1,0 +1,48 @@
+<div class="landing-container">
+  <div class="landing-welcome">
+    <h1 class="welcome-title">Portal de Reservas Municipales</h1>
+    <div class="brand-colors-bar landing-brand-bar">
+      <div class="color-red"></div>
+      <div class="color-yellow"></div>
+      <div class="color-green"></div>
+    </div>
+  </div>
+
+  <div class="cards-grid">
+    <!-- Card Cancha de Padel -->
+    <div class="service-card" routerLink="/reservas" [queryParams]="{tipo: 'cancha'}">
+      <img src="padel-playing.png" alt="Cancha de Pádel" class="card-bg-image">
+      <div class="card-overlay">
+        <div class="card-top-info">
+          <span class="card-header-badge padel-badge">Deportes</span>
+        </div>
+        <div class="card-bottom-info">
+          <h2 class="card-title">Cancha de Pádel</h2>
+          <p class="card-description">Reserva turnos de una hora para jugar en nuestra cancha de pádel y disfrutar con amigos.</p>
+          <span class="btn-card-action">
+            <span>Reservar Turno</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="arrow-icon"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card Quincho Municipal -->
+    <div class="service-card" routerLink="/reservas" [queryParams]="{tipo: 'quincho'}">
+      <img src="quincho_municipal.png" alt="Quincho Municipal" class="card-bg-image">
+      <div class="card-overlay">
+        <div class="card-top-info">
+          <span class="card-header-badge quincho-badge">Recreativo</span>
+        </div>
+        <div class="card-bottom-info">
+          <h2 class="card-title">Quincho Municipal</h2>
+          <p class="card-description">Reserva el quincho para reuniones y asados con familiares o amigos.</p>
+          <span class="btn-card-action">
+            <span>Reservar Quincho</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="arrow-icon"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
