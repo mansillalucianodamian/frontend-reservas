@@ -278,14 +278,16 @@ export class ReservasComponent {
 
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          const motivoFormatted = `Actividad: ${result.actividad} | Asistentes: ${result.asistentes} (Reglamento Aceptado)`;
+          const conAireLabel = result.conAire ? 'SÍ' : 'NO';
+          const motivoFormatted = `Actividad: ${result.actividad} | Asistentes: ${result.asistentes} | Aire Acondicionado: ${conAireLabel} (Reglamento Aceptado)`;
           const reserva = {
             fecha: this.fechaSeleccionada!,
             hora: this.horaSeleccionada!,
             costo: 0,
-            costoTotal: this.costoTotalQuincho,
+            costoTotal: result.conAire ? this.costoTotalQuincho * 2 : this.costoTotalQuincho,
             tipo: this.tipoRecurso,
-            motivo: motivoFormatted
+            motivo: motivoFormatted,
+            conAire: !!result.conAire
           };
           this.realizarAgregarAlCarrito(reserva);
         }

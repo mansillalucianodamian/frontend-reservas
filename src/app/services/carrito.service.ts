@@ -53,7 +53,7 @@ export class CarritoService {
     async confirmarCarrito() {
         const results = [];
         for (const r of this.carritoSubject.value) {
-            const res = await this.reservasService.crearReserva(r.fecha, r.hora, r.tipo || 'cancha', r.motivo || null).toPromise();
+            const res = await this.reservasService.crearReserva(r.fecha, r.hora, r.tipo || 'cancha', r.motivo || null, r.conAire || false).toPromise();
             results.push(res);
         }
         this.clearCarrito(); // 👈 vacía y emite nuevo valor

@@ -52,13 +52,20 @@
               <span class="item-separator">•</span>
               <span class="item-time">{{ r.hora }} hs</span>
             </div>
+            <!-- Detalle de aire acondicionado para Quincho -->
+            <div *ngIf="r.tipo === 'quincho'" class="item-ac-badge" style="font-size: 0.82em; color: #475569; margin-top: 4px; display: flex; align-items: center; gap: 4px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #3F801F;">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>{{ r.conAire ? 'Con Aire Acondicionado (Tarifa doble)' : 'Sin Aire Acondicionado' }}</span>
+            </div>
           </div>
           <div class="item-price-action">
             <span class="item-price" *ngIf="r.tipo !== 'quincho'">
               {{ r.costo | currency:'ARS' }}
             </span>
             <span class="item-price" *ngIf="r.tipo === 'quincho'">
-              $0
+              {{ r.costoTotal | currency:'ARS' }}
               <span style="display: block; font-size: 0.7em; color: #64748b; font-weight: normal; line-height: 1.2; text-align: right;">(Se abona luego)</span>
             </span>
             <button (click)="eliminar(r)" class="btn-delete-item" title="Eliminar del carrito" aria-label="Eliminar del carrito">

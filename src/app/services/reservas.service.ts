@@ -36,11 +36,11 @@ export class ReservasService {
   }
 
   // 🔹 Crear una nueva reserva
-  crearReserva(fecha: string, hora: string, tipo: string = 'cancha', motivo: string | null = null): Observable<{ ok: boolean, message: string, reserva?: any }> {
+  crearReserva(fecha: string, hora: string, tipo: string = 'cancha', motivo: string | null = null, conAire: boolean = false): Observable<{ ok: boolean, message: string, reserva?: any }> {
     const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId'); // 👈 importante incluir usuario_id
     return this.http.post<{ ok: boolean, message: string, reserva?: any }>(
       this.apiUrl,
-      { usuario_id: usuarioId, fecha, hora, tipo, motivo },
+      { usuario_id: usuarioId, fecha, hora, tipo, motivo, con_aire: conAire },
       { headers: this.getHeaders() }
     ).pipe(
       map(res => ({

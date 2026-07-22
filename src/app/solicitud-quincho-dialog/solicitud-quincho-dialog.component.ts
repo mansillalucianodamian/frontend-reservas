@@ -34,6 +34,7 @@ export class SolicitudQuinchoDialogComponent implements OnInit {
       nombre: [{ value: this.nombreCompleto, disabled: true }],
       asistentes: ['', [Validators.required, Validators.min(1), Validators.max(500)]],
       actividad: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      conAire: [false],
       aceptoReglamento: [false, Validators.requiredTrue]
     });
   }
@@ -44,10 +45,11 @@ export class SolicitudQuinchoDialogComponent implements OnInit {
       return;
     }
 
-    const { asistentes, actividad } = this.solicitudForm.value;
+    const { asistentes, actividad, conAire } = this.solicitudForm.value;
     this.dialogRef.close({
       asistentes,
-      actividad
+      actividad,
+      conAire: !!conAire
     });
   }
 
