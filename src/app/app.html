@@ -1,5 +1,5 @@
 <header class="navbar">
-    <div class="navbar-left">
+    <div class="navbar-left" routerLink="/inicio" style="cursor: pointer;">
         <img src="/Aldea-San-Antonio.png" alt="Logo Aldea San Antonio" class="navbar-logo">
         <h2 class="navbar-title">Sistema de Reservas</h2>
     </div>
@@ -10,17 +10,6 @@
             <div class="user-avatar">{{ userInitials }}</div>
             <span class="user-welcome-text">Hola, <strong class="user-name">{{ userFirstName }}</strong></span>
         </div>
-
-        <!-- Reservar (Pill link con ícono SVG de grid) -->
-        <a routerLink="/inicio" class="nav-btn-pill" title="Reservar" aria-label="Reservar">
-            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="9"></rect>
-                <rect x="14" y="3" width="7" height="5"></rect>
-                <rect x="14" y="12" width="7" height="9"></rect>
-                <rect x="3" y="16" width="7" height="5"></rect>
-            </svg>
-            <span class="nav-btn-text">Reservar</span>
-        </a>
 
         <!-- Cerrar Sesión (Pill button con ícono SVG de logout) -->
         <button (click)="cerrarSesion()" class="nav-btn-pill btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
