@@ -354,7 +354,7 @@
                   <span class="reserva-type-badge" [ngClass]="(r.tipo || 'cancha').toLowerCase()">
                     {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Cancha' }}
                   </span>
-                  <span *ngIf="(r.tipo || 'cancha') === 'quincho' && r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')" class="reserva-ac-badge" style="font-size: 0.72rem; font-weight: 700; color: #b45309; padding: 2px 6px; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 4px; margin-left: 6px; display: inline-flex; align-items: center; gap: 2px; vertical-align: middle;">
+                  <span *ngIf="(r.tipo || 'cancha') === 'quincho' && (r.con_aire || (r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')))" class="reserva-ac-badge" style="font-size: 0.72rem; font-weight: 700; color: #b45309; padding: 2px 6px; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 4px; margin-left: 6px; display: inline-flex; align-items: center; gap: 2px; vertical-align: middle;">
                     AA
                   </span>
                   <span class="reserva-status-badge" [ngClass]="r.estado ? r.estado.toLowerCase() : ''">{{ r.estado }}</span>
@@ -364,8 +364,8 @@
                   <span *ngIf="!r.usuario_id"><strong>Bloqueo Administrativo</strong></span>
                   <span class="meta-sep">•</span>
                   <span>Ref: #{{ r.id }}</span>
-                  <span class="meta-sep" *ngIf="(r.tipo || 'cancha') === 'quincho' && r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')">•</span>
-                  <span *ngIf="(r.tipo || 'cancha') === 'quincho' && r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')" style="color: #d97706; font-weight: 600;">Con Aire</span>
+                  <span class="meta-sep" *ngIf="(r.tipo || 'cancha') === 'quincho' && (r.con_aire || (r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')))">•</span>
+                  <span *ngIf="(r.tipo || 'cancha') === 'quincho' && (r.con_aire || (r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')))" style="color: #d97706; font-weight: 600;">Con Aire</span>
                   <span class="meta-sep" *ngIf="r.motivo">•</span>
                   <span *ngIf="r.motivo" class="reserva-note-label"><strong>Motivo:</strong> {{ r.motivo }}</span>
                 </p>
