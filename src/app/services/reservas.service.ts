@@ -90,10 +90,10 @@ export class ReservasService {
       })))
     );
   }
-  bloquearReserva(fecha: string, hora: string, motivo: string, tipo: string = 'cancha'): Observable<{ ok: boolean, message: string }> {
+  bloquearReserva(fecha: string, hora: string, motivo: string, tipo: string = 'cancha', conLuz: boolean = false): Observable<{ ok: boolean, message: string }> {
     return this.http.post<{ ok: boolean, message: string }>(
       `${this.apiUrl}/bloquear`,
-      { fecha, hora, motivo, tipo },
+      { fecha, hora, motivo, tipo, con_luz: conLuz },
       { headers: this.getHeaders() }
     );
   }

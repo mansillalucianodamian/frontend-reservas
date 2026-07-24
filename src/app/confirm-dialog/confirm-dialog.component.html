@@ -43,6 +43,19 @@
         [(ngModel)]="motivoText" 
         placeholder="Escribe el motivo aquí..."
       />
+      
+      <!-- Checkbox opcional -->
+      <div *ngIf="data.showCheckbox" class="modal-checkbox-container">
+        <input 
+          id="promptCheckbox" 
+          type="checkbox" 
+          class="modal-checkbox-input" 
+          [(ngModel)]="checkboxValue"
+        />
+        <label for="promptCheckbox" class="modal-checkbox-label">
+          {{ data.checkboxLabel || 'Seleccionar opción' }}
+        </label>
+      </div>
     </div>
 
     <!-- Lista de Reservas (Estilo filas individuales) -->

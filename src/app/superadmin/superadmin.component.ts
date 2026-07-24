@@ -170,7 +170,28 @@ export class SuperAdminComponent implements OnInit {
 
   seleccionarDia(dia: string) {
     this.fechaSeleccionada = dia;
-    this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso);
+    this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso).pipe(
+      map((horarios: { hora: string, disponible: boolean }[]) => {
+        const hoyLocal = this.formatLocalISO(new Date());
+        if (dia === hoyLocal) {
+          const ahora = new Date();
+          return horarios.filter(h => {
+            let [hh, mm] = h.hora.split(':').map(Number);
+            const partes = dia.split('-');
+            const año = parseInt(partes[0], 10);
+            const mes = parseInt(partes[1], 10) - 1;
+            const diaNum = parseInt(partes[2], 10);
+
+            const horaSlot = new Date(año, mes, diaNum, hh, mm, 0, 0);
+            if (hh === 0 && mm === 0) {
+              horaSlot.setHours(24, 0, 0, 0);
+            }
+            return horaSlot >= ahora;
+          });
+        }
+        return horarios;
+      })
+    );
   }
 
   private datesMatchLocal(dbFecha: any, selectedFechaStr: string): boolean {
@@ -293,13 +314,23 @@ export class SuperAdminComponent implements OnInit {
           titulo: 'Motivo del Bloqueo',
           mensaje: 'Por favor, ingresa el motivo del bloqueo de este horario:',
           tipo: 'prompt',
-          defaultText: defaultReason
+          defaultText: defaultReason,
+          showCheckbox: this.tipoRecurso === 'cancha',
+          checkboxLabel: 'Encender luces en este horario (torneo/evento)'
         }
       });
 
-      promptRef.afterClosed().subscribe(motivo => {
-        if (typeof motivo === 'string') {
-          this.bloquearReserva(this.fechaSeleccionada!, hora, motivo);
+      promptRef.afterClosed().subscribe(res => {
+        if (res) {
+          let motivoText = '';
+          let conLuz = false;
+          if (typeof res === 'string') {
+            motivoText = res;
+          } else {
+            motivoText = res.motivo;
+            conLuz = !!res.conLuz;
+          }
+          this.bloquearReserva(this.fechaSeleccionada!, hora, motivoText, conLuz);
         }
       });
     };
@@ -326,8 +357,8 @@ export class SuperAdminComponent implements OnInit {
     }
   }
 
-  bloquearReserva(fecha: string, hora: string, motivo: string): void {
-    this.reservasService.bloquearReserva(fecha, hora, motivo, this.tipoRecurso).subscribe({
+  bloquearReserva(fecha: string, hora: string, motivo: string, conLuz: boolean = false): void {
+    this.reservasService.bloquearReserva(fecha, hora, motivo, this.tipoRecurso, conLuz).subscribe({
       next: (res) => {
         const nombreRecurso = this.tipoRecurso === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel';
         this.dialog.open(ConfirmDialogComponent, {
@@ -568,6 +599,46 @@ export class SuperAdminComponent implements OnInit {
         });
       }
     });
+  }
+
+  esReservaActiva(reserva: any): boolean {
+    if (!reserva || !reserva.fecha || !reserva.hora) return false;
+    
+    const estado = (reserva.estado || '').toLowerCase();
+    if (['cancelado', 'cancelada', 'rechazado', 'rechazada'].includes(estado)) {
+      return false;
+    }
+
+    try {
+      let cleanFecha = reserva.fecha.toString().trim();
+      if (cleanFecha.includes('T')) {
+        cleanFecha = cleanFecha.split('T')[0];
+      } else if (cleanFecha.includes(' ')) {
+        cleanFecha = cleanFecha.split(' ')[0];
+      }
+      if (cleanFecha.includes('/')) {
+        const parts = cleanFecha.split('/');
+        if (parts.length === 3 && parts[2].length === 4) {
+          cleanFecha = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+        }
+      }
+
+      const ahora = new Date();
+      const [hh, mm] = reserva.hora.split(':').map(Number);
+      const partes = cleanFecha.split('-');
+      const año = parseInt(partes[0], 10);
+      const mes = parseInt(partes[1], 10) - 1;
+      const diaNum = parseInt(partes[2], 10);
+
+      const horaReserva = new Date(año, mes, diaNum, hh, mm, 0, 0);
+      if (hh === 0 && mm === 0) {
+        horaReserva.setHours(24, 0, 0, 0);
+      }
+      
+      return horaReserva >= ahora;
+    } catch (e) {
+      return true;
+    }
   }
 
   // Filtrado local de usuarios

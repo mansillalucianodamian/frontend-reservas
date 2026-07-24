@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms'; // 👈 Necesario para [(ngModel)]
 })
 export class ConfirmDialogComponent {
   motivoText: string = '';
+  checkboxValue: boolean = false;
 
   constructor(
     public dialogRef: MatDialogRef<ConfirmDialogComponent>,
@@ -22,6 +23,7 @@ export class ConfirmDialogComponent {
     if (this.data) {
       if (this.data.tipo === 'prompt') {
         this.motivoText = this.data.defaultText || '';
+        this.checkboxValue = this.data.checkboxDefault || false;
       }
       
       // 🔹 Limpiar emojis problemáticos que se ven como cuadraditos en Windows viejos
@@ -40,7 +42,11 @@ export class ConfirmDialogComponent {
   
   onConfirm() {
     if (this.data && this.data.tipo === 'prompt') {
-      this.dialogRef.close(this.motivoText);
+      if (this.data.showCheckbox) {
+        this.dialogRef.close({ motivo: this.motivoText, conLuz: this.checkboxValue });
+      } else {
+        this.dialogRef.close(this.motivoText);
+      }
     } else {
       this.dialogRef.close(true);
     }
