@@ -11,6 +11,28 @@
             <span class="user-welcome-text">Hola, <strong class="user-name">{{ userFirstName }}</strong></span>
         </div>
 
+        <!-- Botón de Acceso a Administración (para super_admin) -->
+        <a *ngIf="userRole === 'super_admin'" routerLink="/admin" class="nav-btn-pill" title="Volver al Panel Administrador">
+            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="9"></rect>
+                <rect x="14" y="3" width="7" height="5"></rect>
+                <rect x="14" y="12" width="7" height="9"></rect>
+                <rect x="3" y="16" width="7" height="5"></rect>
+            </svg>
+            <span class="nav-btn-text">Panel Admin</span>
+        </a>
+
+        <!-- Botón de Acceso a Recepción (para recepcionista) -->
+        <a *ngIf="userRole === 'recepcionista'" routerLink="/recepcionista" class="nav-btn-pill" title="Volver al Panel Recepcionista">
+            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="9"></rect>
+                <rect x="14" y="3" width="7" height="5"></rect>
+                <rect x="14" y="12" width="7" height="9"></rect>
+                <rect x="3" y="16" width="7" height="5"></rect>
+            </svg>
+            <span class="nav-btn-text">Panel Recepción</span>
+        </a>
+
         <!-- Cerrar Sesión (Pill button con ícono SVG de logout) -->
         <button (click)="cerrarSesion()" class="nav-btn-pill btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
             <svg class="nav-icon logout-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">

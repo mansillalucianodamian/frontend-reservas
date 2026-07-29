@@ -14,6 +14,7 @@ export class App {
   isLoggedIn$;
   userFirstName = '';
   userInitials = '';
+  userRole = '';
 
   constructor(private authService: AuthService, private router: Router) {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
@@ -30,10 +31,14 @@ export class App {
           const firstN = user.nombre ? user.nombre.charAt(0).toUpperCase() : '';
           const firstA = user.apellido ? user.apellido.charAt(0).toUpperCase() : '';
           this.userInitials = `${firstN}${firstA}`;
+
+          // Guardar el rol para mostrar accesos correspondientes
+          this.userRole = user.rol || '';
         }
       } else {
         this.userFirstName = '';
         this.userInitials = '';
+        this.userRole = '';
       }
     });
   }
