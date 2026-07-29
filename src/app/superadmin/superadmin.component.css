@@ -1196,3 +1196,212 @@
         justify-content: flex-end;
     }
 }
+
+/* Card de Control Manual de Luces Shelly */
+.luces-control-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.luces-control-card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.09);
+    border-color: #cbd5e1;
+}
+
+.luces-control-header {
+    background: #f8fafc;
+    border-bottom: 1.5px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.luces-title-section {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.luces-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.icon-bulb {
+    color: #94a3b8;
+    transition: all 0.3s ease;
+}
+
+.icon-bulb.active {
+    color: #f59e0b;
+    filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.6));
+}
+
+.btn-refresh-luces {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    padding: 0.25rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.btn-refresh-luces:hover:not(:disabled) {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.btn-refresh-luces:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+.luces-control-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.luces-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #64748b;
+    box-shadow: 0 0 0 rgba(100, 116, 139, 0.4);
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.status-dot.active {
+    background-color: #10b981;
+    animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-green {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.status-text {
+    font-size: 0.9rem;
+    color: #475569;
+}
+
+.text-active {
+    color: #10b981;
+}
+
+.luces-mode-selectors {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-mode-selector {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    border-radius: 8px;
+    border: 1.5px solid #cbd5e1;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-mode-selector:hover:not(.active):not(:disabled) {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.btn-mode-selector:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-mode-selector .btn-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.15rem;
+}
+
+.btn-mode-selector .btn-subtext {
+    font-size: 0.7rem;
+    color: #64748b;
+}
+
+/* Modo Activo - Automático */
+.btn-mode-selector.auto.active {
+    background: #eff6ff;
+    border-color: #3b82f6;
+}
+.btn-mode-selector.auto.active .btn-label {
+    color: #1d4ed8;
+}
+.btn-mode-selector.auto.active .btn-subtext {
+    color: #3b82f6;
+}
+
+/* Modo Activo - ON */
+.btn-mode-selector.on.active {
+    background: #ecfdf5;
+    border-color: #10b981;
+}
+.btn-mode-selector.on.active .btn-label {
+    color: #047857;
+}
+.btn-mode-selector.on.active .btn-subtext {
+    color: #10b981;
+}
+
+/* Modo Activo - OFF */
+.btn-mode-selector.off.active {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+.btn-mode-selector.off.active .btn-label {
+    color: #b91c1c;
+}
+.btn-mode-selector.off.active .btn-subtext {
+    color: #ef4444;
+}

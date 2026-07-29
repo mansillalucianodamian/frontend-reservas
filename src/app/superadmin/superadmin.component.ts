@@ -35,6 +35,11 @@ export class SuperAdminComponent implements OnInit {
   mensaje: string | null = null;
   errorMessage: string | null = null;
 
+  // Para el control manual de luces
+  lucesCanchaEncendidas: boolean = false;
+  lucesCanchaModo: 'ON' | 'OFF' | 'AUTO' = 'AUTO';
+  cargandoLuces: boolean = false;
+
   constructor(
     private usuariosService: UsuariosService,
     private reservasService: ReservasService,
@@ -46,6 +51,7 @@ export class SuperAdminComponent implements OnInit {
     this.loadUsuarios();
     this.loadReservas();
     this.generarCalendario(this.currentMonth);
+    this.loadLucesStatus();
   }
 
   loadUsuarios(): void {
@@ -64,6 +70,57 @@ export class SuperAdminComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error al precargar listado de reservas:', err);
+      }
+    });
+  }
+
+  loadLucesStatus(): void {
+    this.cargandoLuces = true;
+    this.reservasService.getLucesStatus().subscribe({
+      next: (res) => {
+        this.lucesCanchaEncendidas = !!res.output;
+        this.lucesCanchaModo = res.mode || 'AUTO';
+        this.cargandoLuces = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar estado de luces Shelly:', err);
+        this.cargandoLuces = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cambiarModoLuces(nuevoModo: 'ON' | 'OFF' | 'AUTO'): void {
+    this.cargandoLuces = true;
+    this.reservasService.updateLucesMode(nuevoModo).subscribe({
+      next: (res) => {
+        this.lucesCanchaModo = nuevoModo;
+        this.mensaje = `Modo de luces cambiado a: ${nuevoModo === 'ON' ? 'FORZADO ENCENDIDO' : nuevoModo === 'OFF' ? 'FORZADO APAGADO' : 'AUTOMÁTICO'}`;
+        
+        // Auto-limpiar mensaje después de 4 segundos
+        setTimeout(() => {
+          this.mensaje = null;
+          this.cdr.detectChanges();
+        }, 4000);
+
+        // Volver a consultar el estado del Shelly transcurrido 1 segundo para reflejar el cambio físico real
+        setTimeout(() => {
+          this.loadLucesStatus();
+        }, 1200);
+      },
+      error: (err) => {
+        console.error('Error al cambiar modo de luces:', err);
+        this.errorMessage = err?.message || 'Error al actualizar el modo de las luces.';
+        
+        // Auto-limpiar mensaje de error
+        setTimeout(() => {
+          this.errorMessage = null;
+          this.cdr.detectChanges();
+        }, 4000);
+
+        this.cargandoLuces = false;
+        this.cdr.detectChanges();
       }
     });
   }

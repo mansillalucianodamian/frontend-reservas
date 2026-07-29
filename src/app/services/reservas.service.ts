@@ -133,4 +133,19 @@ export class ReservasService {
       { headers: this.getHeaders() }
     );
   }
+
+  getLucesStatus(): Observable<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }> {
+    return this.http.get<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }>(
+      '/api/configuracion/luces',
+      { headers: this.getHeaders() }
+    );
+  }
+
+  updateLucesMode(mode: 'ON' | 'OFF' | 'AUTO'): Observable<{ ok: boolean, message: string }> {
+    return this.http.put<{ ok: boolean, message: string }>(
+      '/api/configuracion/luces',
+      { mode },
+      { headers: this.getHeaders() }
+    );
+  }
 }
