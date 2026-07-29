@@ -134,16 +134,16 @@ export class ReservasService {
     );
   }
 
-  getLucesStatus(): Observable<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }> {
+  getDispositivoStatus(tipo: 'cancha' | 'quincho'): Observable<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }> {
     return this.http.get<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }>(
-      '/api/configuracion/luces',
+      `/api/configuracion/dispositivo/${tipo}`,
       { headers: this.getHeaders() }
     );
   }
 
-  updateLucesMode(mode: 'ON' | 'OFF' | 'AUTO'): Observable<{ ok: boolean, message: string }> {
+  updateDispositivoMode(tipo: 'cancha' | 'quincho', mode: 'ON' | 'OFF' | 'AUTO'): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
-      '/api/configuracion/luces',
+      `/api/configuracion/dispositivo/${tipo}`,
       { mode },
       { headers: this.getHeaders() }
     );

@@ -76,7 +76,7 @@ export class SuperAdminComponent implements OnInit {
 
   loadLucesStatus(): void {
     this.cargandoLuces = true;
-    this.reservasService.getLucesStatus().subscribe({
+    this.reservasService.getDispositivoStatus(this.tipoRecurso).subscribe({
       next: (res) => {
         this.lucesCanchaEncendidas = !!res.output;
         this.lucesCanchaModo = res.mode || 'AUTO';
@@ -84,7 +84,10 @@ export class SuperAdminComponent implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error al cargar estado de luces Shelly:', err);
+        console.error(`Error al cargar estado de Shelly (${this.tipoRecurso}):`, err);
+        // Si hay error (como dispositivo no instalado o fuera de línea), mostrar apagado por defecto
+        this.lucesCanchaEncendidas = false;
+        this.lucesCanchaModo = 'AUTO';
         this.cargandoLuces = false;
         this.cdr.detectChanges();
       }
@@ -93,10 +96,11 @@ export class SuperAdminComponent implements OnInit {
 
   cambiarModoLuces(nuevoModo: 'ON' | 'OFF' | 'AUTO'): void {
     this.cargandoLuces = true;
-    this.reservasService.updateLucesMode(nuevoModo).subscribe({
+    this.reservasService.updateDispositivoMode(this.tipoRecurso, nuevoModo).subscribe({
       next: (res) => {
         this.lucesCanchaModo = nuevoModo;
-        this.mensaje = `Modo de luces cambiado a: ${nuevoModo === 'ON' ? 'FORZADO ENCENDIDO' : nuevoModo === 'OFF' ? 'FORZADO APAGADO' : 'AUTOMÁTICO'}`;
+        const nombreDisp = this.tipoRecurso === 'quincho' ? 'Aire Acondicionado' : 'Luces Cancha';
+        this.mensaje = `Modo de ${nombreDisp} cambiado a: ${nuevoModo === 'ON' ? 'FORZADO ENCENDIDO' : nuevoModo === 'OFF' ? 'FORZADO APAGADO' : 'AUTOMÁTICO'}`;
         
         // Auto-limpiar mensaje después de 4 segundos
         setTimeout(() => {
@@ -104,14 +108,14 @@ export class SuperAdminComponent implements OnInit {
           this.cdr.detectChanges();
         }, 4000);
 
-        // Volver a consultar el estado del Shelly transcurrido 1 segundo para reflejar el cambio físico real
+        // Volver a consultar el estado del Shelly transcurrido 1.2 segundos para reflejar el cambio físico real
         setTimeout(() => {
           this.loadLucesStatus();
         }, 1200);
       },
       error: (err) => {
-        console.error('Error al cambiar modo de luces:', err);
-        this.errorMessage = err?.message || 'Error al actualizar el modo de las luces.';
+        console.error(`Error al cambiar modo del Shelly (${this.tipoRecurso}):`, err);
+        this.errorMessage = err?.message || 'Error al actualizar el modo del dispositivo.';
         
         // Auto-limpiar mensaje de error
         setTimeout(() => {
@@ -223,6 +227,8 @@ export class SuperAdminComponent implements OnInit {
     if (this.fechaSeleccionada) {
       this.seleccionarDia(this.fechaSeleccionada);
     }
+    // Recargar el estado del Shelly según el recurso actual seleccionado
+    this.loadLucesStatus();
   }
 
   seleccionarDia(dia: string) {
