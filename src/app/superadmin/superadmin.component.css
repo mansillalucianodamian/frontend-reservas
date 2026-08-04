@@ -1405,3 +1405,288 @@
 .btn-mode-selector.off.active .btn-subtext {
     color: #ef4444;
 }
+
+/* Card de Bloqueo Masivo */
+.bulk-block-card {
+    margin-top: 1.5rem;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+}
+
+.bulk-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.dates-row .form-group {
+    flex: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.field-label, .group-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.form-input {
+    background-color: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    border-color: #3F801F;
+    box-shadow: 0 0 0 3px rgba(63, 128, 31, 0.15);
+    background-color: #ffffff;
+}
+
+/* Chips de selección de días */
+.days-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.day-chip {
+    flex: 1;
+    min-width: 38px;
+    text-align: center;
+    padding: 0.5rem 0.25rem;
+    border: 1.5px solid #cbd5e1;
+    background: #f8fafc;
+    color: #475569;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.day-chip:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+
+.day-chip.selected {
+    background: #3F801F;
+    border-color: #2f6016;
+    color: #ffffff;
+    box-shadow: 0 3px 8px rgba(63, 128, 31, 0.25);
+}
+
+.hidden-checkbox {
+    display: none;
+}
+
+/* Horarios Grid */
+.hours-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+
+.hours-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+}
+
+.btn-text-action {
+    background: none;
+    border: none;
+    color: #3F801F;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: color 0.2s;
+}
+
+.btn-text-action:hover {
+    color: #2f6016;
+    text-decoration: underline;
+}
+
+.action-sep {
+    color: #cbd5e1;
+}
+
+.hours-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+    padding: 4px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.hour-chip {
+    padding: 0.4rem 0.25rem;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hour-chip:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #1e293b;
+}
+
+.hour-chip.selected {
+    background: #3F801F;
+    border-color: #2f6016;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(63, 128, 31, 0.2);
+}
+
+/* Checkbox Moderno */
+.form-group-checkbox {
+    display: flex;
+    align-items: center;
+    margin: 4px 0;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #475569;
+    user-select: none;
+}
+
+.checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 18px;
+    width: 18px;
+    background-color: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background-color: #3F801F;
+    border-color: #2f6016;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.checkbox-container .checkmark:after {
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.checkbox-label-text {
+    line-height: 1.2;
+}
+
+/* Botón Aplicar Bloqueo Masivo */
+.btn-apply-bulk {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #2f6016;
+    background: #3F801F;
+    color: #ffffff;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 10px rgba(63, 128, 31, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-apply-bulk:hover:not(:disabled) {
+    background: #346b19;
+    border-color: #244b13;
+    box-shadow: 0 6px 15px rgba(63, 128, 31, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-apply-bulk:disabled {
+    background: #cbd5e1;
+    border-color: #cbd5e1;
+    color: #94a3b8;
+    cursor: not-allowed;
+    box-shadow: none;
+}

@@ -112,6 +112,78 @@
               </div>
             </div>
           </div>
+
+          <!-- Card de Bloqueo Masivo (solo para la cancha de pádel) -->
+          <div class="calendar-card bulk-block-card" *ngIf="tipoRecurso === 'cancha'">
+            <div class="calendar-card-header">
+              <h3 class="card-title">Bloqueo Recurrente y Masivo (Cancha)</h3>
+              <p class="card-subtitle">Programa bloqueos repetitivos en un rango de fechas</p>
+            </div>
+            
+            <div class="bulk-form">
+              <!-- Rango de fechas -->
+              <div class="form-row dates-row">
+                <div class="form-group">
+                  <label for="fechaDesde" class="field-label">Desde:</label>
+                  <input type="date" id="fechaDesde" [(ngModel)]="fechaDesdeMasivo" class="form-input">
+                </div>
+                <div class="form-group">
+                  <label for="fechaHasta" class="field-label">Hasta:</label>
+                  <input type="date" id="fechaHasta" [(ngModel)]="fechaHastaMasivo" class="form-input">
+                </div>
+              </div>
+
+              <!-- Días de la semana -->
+              <div class="form-group">
+                <label class="group-label">Días a bloquear:</label>
+                <div class="days-chips">
+                  <label *ngFor="let dia of diasSemanaMasivo" class="day-chip" [class.selected]="dia.selected">
+                    <input type="checkbox" [(ngModel)]="dia.selected" class="hidden-checkbox">
+                    <span>{{ dia.label }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Horarios a bloquear -->
+              <div class="form-group">
+                <div class="hours-header">
+                  <label class="group-label">Horarios:</label>
+                  <div class="hours-actions">
+                    <button type="button" (click)="seleccionarTodasHoras()" class="btn-text-action">Todos</button>
+                    <span class="action-sep">|</span>
+                    <button type="button" (click)="deseleccionarTodasHoras()" class="btn-text-action">Ninguno</button>
+                  </div>
+                </div>
+                <div class="hours-grid">
+                  <label *ngFor="let slot of horasMasivo" class="hour-chip" [class.selected]="slot.selected">
+                    <input type="checkbox" [(ngModel)]="slot.selected" class="hidden-checkbox">
+                    <span>{{ slot.hora }}</span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Motivo del bloqueo -->
+              <div class="form-group">
+                <label for="motivoMasivo" class="field-label">Motivo del Bloqueo:</label>
+                <input type="text" id="motivoMasivo" [(ngModel)]="motivoMasivo" placeholder="Ej: Torneo Municipal" class="form-input">
+              </div>
+
+              <!-- Opciones adicionales -->
+              <div class="form-group-checkbox">
+                <label class="checkbox-container">
+                  <input type="checkbox" [(ngModel)]="conLuzMasivo">
+                  <span class="checkmark"></span>
+                  <span class="checkbox-label-text">Encender luces en estos horarios (torneos)</span>
+                </label>
+              </div>
+
+              <!-- Botón de Envío -->
+              <button type="button" (click)="aplicarBloqueoMasivo()" [disabled]="cargandoMasivo" class="btn-apply-bulk">
+                <span *ngIf="!cargandoMasivo">Aplicar Bloqueo Masivo</span>
+                <span *ngIf="cargandoMasivo">Procesando bloqueo masivo...</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Columna Horarios -->

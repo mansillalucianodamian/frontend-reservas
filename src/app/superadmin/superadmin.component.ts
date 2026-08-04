@@ -40,6 +40,23 @@ export class SuperAdminComponent implements OnInit {
   lucesCanchaModo: 'ON' | 'OFF' | 'AUTO' = 'AUTO';
   cargandoLuces: boolean = false;
 
+  // Para el bloqueo masivo (solo Cancha)
+  fechaDesdeMasivo: string = '';
+  fechaHastaMasivo: string = '';
+  diasSemanaMasivo: { label: string, value: number, selected: boolean }[] = [
+    { label: 'Lu', value: 1, selected: false },
+    { label: 'Ma', value: 2, selected: false },
+    { label: 'Mi', value: 3, selected: false },
+    { label: 'Ju', value: 4, selected: false },
+    { label: 'Vi', value: 5, selected: false },
+    { label: 'Sá', value: 6, selected: false },
+    { label: 'Do', value: 0, selected: false }
+  ];
+  horasMasivo: { hora: string, selected: boolean }[] = [];
+  motivoMasivo: string = 'Uso interno municipal';
+  conLuzMasivo: boolean = false;
+  cargandoMasivo: boolean = false;
+
   constructor(
     private usuariosService: UsuariosService,
     private reservasService: ReservasService,
@@ -52,6 +69,13 @@ export class SuperAdminComponent implements OnInit {
     this.loadReservas();
     this.generarCalendario(this.currentMonth);
     this.loadLucesStatus();
+    
+    // Inicializar datos para el bloqueo masivo
+    const hoy = new Date();
+    this.fechaDesdeMasivo = this.formatLocalISO(hoy);
+    const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0);
+    this.fechaHastaMasivo = this.formatLocalISO(finMes);
+    this.inicializarHorasMasivo();
   }
 
   loadUsuarios(): void {
@@ -448,6 +472,189 @@ export class SuperAdminComponent implements OnInit {
           }
         });
         this.cdr.detectChanges();
+      }
+    });
+  }
+
+  inicializarHorasMasivo() {
+    this.horasMasivo = [];
+    for (let h = 7; h <= 24; h++) {
+      const hora = h === 24 ? '00:00' : `${h.toString().padStart(2, '0')}:00`;
+      this.horasMasivo.push({ hora, selected: false });
+    }
+  }
+
+  seleccionarTodasHoras() {
+    this.horasMasivo.forEach(h => h.selected = true);
+  }
+
+  deseleccionarTodasHoras() {
+    this.horasMasivo.forEach(h => h.selected = false);
+  }
+
+  aplicarBloqueoMasivo() {
+    if (!this.fechaDesdeMasivo || !this.fechaHastaMasivo) {
+      this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Datos Incompletos',
+          mensaje: 'Por favor, selecciona un rango de fechas válido.',
+          tipo: 'error'
+        }
+      });
+      return;
+    }
+
+    if (new Date(this.fechaDesdeMasivo) > new Date(this.fechaHastaMasivo)) {
+      this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Rango Inválido',
+          mensaje: 'La fecha de inicio no puede ser posterior a la fecha de fin.',
+          tipo: 'error'
+        }
+      });
+      return;
+    }
+
+    const diasSeleccionados = this.diasSemanaMasivo
+      .filter(d => d.selected)
+      .map(d => d.value);
+
+    if (diasSeleccionados.length === 0) {
+      this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Días no seleccionados',
+          mensaje: 'Por favor, selecciona al menos un día de la semana.',
+          tipo: 'error'
+        }
+      });
+      return;
+    }
+
+    const horasSeleccionadas = this.horasMasivo
+      .filter(h => h.selected)
+      .map(h => h.hora);
+
+    if (horasSeleccionadas.length === 0) {
+      this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Horarios no seleccionados',
+          mensaje: 'Por favor, selecciona al menos un horario para bloquear.',
+          tipo: 'error'
+        }
+      });
+      return;
+    }
+
+    const [startYear, startMonth, startDay] = this.fechaDesdeMasivo.split('-').map(Number);
+    const [endYear, endMonth, endDay] = this.fechaHastaMasivo.split('-').map(Number);
+
+    let current = new Date(startYear, startMonth - 1, startDay);
+    const end = new Date(endYear, endMonth - 1, endDay);
+
+    const fechasAfectadas: string[] = [];
+    while (current <= end) {
+      const dayOfWeek = current.getDay();
+      if (diasSeleccionados.includes(dayOfWeek)) {
+        fechasAfectadas.push(this.formatLocalISO(current));
+      }
+      current.setDate(current.getDate() + 1);
+    }
+
+    if (fechasAfectadas.length === 0) {
+      this.dialog.open(ConfirmDialogComponent, {
+        data: {
+          titulo: 'Sin Coincidencias',
+          mensaje: 'No hay días dentro del rango que coincidan con los días de la semana seleccionados.',
+          tipo: 'error'
+        }
+      });
+      return;
+    }
+
+    let reservasAfectadasCount = 0;
+    if (this.reservas) {
+      fechasAfectadas.forEach(fecha => {
+        horasSeleccionadas.forEach(hora => {
+          const res = this.reservas.find(r => {
+            const tipoMatch = (r.tipo || 'cancha').toLowerCase() === 'cancha';
+            const fechaMatch = this.datesMatchLocal(r.fecha, fecha);
+            const horaMatch = this.hoursMatch(r.hora, hora);
+            const estadoLower = r.estado ? r.estado.toLowerCase().trim() : '';
+            const esActivaDeUsuario = estadoLower !== 'cancelada' &&
+                                      estadoLower !== 'cancelado' &&
+                                      estadoLower !== 'rechazada' &&
+                                      estadoLower !== 'rechazado' &&
+                                      !estadoLower.startsWith('bloquead') &&
+                                      r.usuario_id != null;
+            return tipoMatch && fechaMatch && horaMatch && esActivaDeUsuario;
+          });
+          if (res) {
+            reservasAfectadasCount++;
+          }
+        });
+      });
+    }
+
+    let warningMsg = `Se procederá a realizar el bloqueo de ${horasSeleccionadas.length} horario(s) en ${fechasAfectadas.length} día(s) diferente(s) (Total de slots a bloquear: ${horasSeleccionadas.length * fechasAfectadas.length}).\n\n`;
+    if (reservasAfectadasCount > 0) {
+      warningMsg += `ATENCIÓN: Se detectaron ${reservasAfectadasCount} reservas activas de usuarios en esos horarios. Si continúas, serán canceladas y se les enviará un aviso de forma automática. ¿Deseas continuar?`;
+    } else {
+      warningMsg += `¿Estás seguro de que deseas confirmar este bloqueo masivo?`;
+    }
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titulo: 'Confirmar Bloqueo Masivo',
+        mensaje: warningMsg,
+        tipo: 'confirm'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(confirmado => {
+      if (confirmado) {
+        this.cargandoMasivo = true;
+        this.reservasService.bloquearReservaMasivo(
+          this.fechaDesdeMasivo,
+          this.fechaHastaMasivo,
+          diasSeleccionados,
+          horasSeleccionadas,
+          this.motivoMasivo,
+          this.conLuzMasivo
+        ).subscribe({
+          next: (res) => {
+            this.cargandoMasivo = false;
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Bloqueo Masivo Exitoso',
+                mensaje: '',
+                resultado: `Se completaron con éxito los bloqueos programados (${res.resultado?.totalBloqueados || 0} turnos bloqueados en total).`,
+                tipo: 'success'
+              }
+            });
+
+            this.diasSemanaMasivo.forEach(d => d.selected = false);
+            this.horasMasivo.forEach(h => h.selected = false);
+            this.conLuzMasivo = false;
+
+            this.loadReservas();
+            if (this.fechaSeleccionada) {
+              this.seleccionarDia(this.fechaSeleccionada);
+            }
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.cargandoMasivo = false;
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Error al Bloquear',
+                mensaje: '',
+                resultado: err?.error?.message || err?.message || 'Ocurrió un error inesperado al aplicar el bloqueo masivo.',
+                tipo: 'error'
+              }
+            });
+            this.cdr.detectChanges();
+          }
+        });
       }
     });
   }

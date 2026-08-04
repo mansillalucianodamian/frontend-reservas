@@ -97,6 +97,13 @@ export class ReservasService {
       { headers: this.getHeaders() }
     );
   }
+  bloquearReservaMasivo(fechaInicio: string, fechaFin: string, diasSemana: number[], horas: string[], motivo: string, conLuz: boolean = false): Observable<{ ok: boolean, resultado?: any, message?: string }> {
+    return this.http.post<{ ok: boolean, resultado?: any, message?: string }>(
+      `${this.apiUrl}/bloquear-masivo`,
+      { fechaInicio, fechaFin, diasSemana, horas, motivo, con_luz: conLuz },
+      { headers: this.getHeaders() }
+    );
+  }
   getReservasPendientes(): Observable<any[]> {
     return this.http.get<{ ok: boolean, reservas: any[] }>(
       `${this.apiUrl}/pendientes`,
