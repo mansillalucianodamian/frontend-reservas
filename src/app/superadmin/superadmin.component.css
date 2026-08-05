@@ -282,7 +282,7 @@
 
 /* Grilla de Horarios */
 .hours-list-container {
-    max-height: 380px;
+    max-height: 700px;
     overflow-y: auto;
     padding-right: 4px;
 }
