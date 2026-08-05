@@ -184,3 +184,20 @@
 .service-card:hover .arrow-icon {
   transform: translateX(4px);
 }
+
+/* Diseño Adaptativo para Celulares */
+@media (max-width: 600px) {
+  .landing-container {
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+    gap: 1.5rem;
+  }
+  .welcome-title {
+    font-size: 1.8rem;
+    line-height: 1.2;
+    padding: 0 0.5rem;
+  }
+  .cards-grid {
+    gap: 1.5rem;
+  }
+}
