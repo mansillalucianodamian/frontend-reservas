@@ -1692,10 +1692,24 @@
     box-shadow: none;
 }
 
+/* Clases auxiliares para mostrar/ocultar según dispositivo */
+.show-on-mobile {
+    display: none !important;
+}
+.hide-on-mobile {
+    display: block !important;
+}
+
 /* Diseño Adaptativo para Tablets y Celulares */
 @media (max-width: 1024px) {
     .tab-layout {
         flex-direction: column;
+    }
+    .show-on-mobile {
+        display: block !important;
+    }
+    .hide-on-mobile {
+        display: none !important;
     }
 }
 
