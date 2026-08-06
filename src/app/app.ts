@@ -50,7 +50,8 @@ export class App {
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
-    if (!this.elementRef.nativeElement.contains(event.target)) {
+    const target = event.target as HTMLElement;
+    if (target && typeof target.closest === 'function' && !target.closest('.user-menu-container')) {
       this.isDropdownOpen = false;
     }
   }
