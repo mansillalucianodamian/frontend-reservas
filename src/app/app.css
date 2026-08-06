@@ -63,16 +63,35 @@ body {
     gap: 0.85rem;
 }
 
-/* Saludo de usuario */
-.user-greeting {
+/* Saludo de usuario / Contenedor del menú desplegable */
+.user-menu-container {
+    position: relative;
+    display: inline-block;
+}
+
+/* Botón de gatillo del menú */
+.user-menu-trigger {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-right: 0.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
     color: #ffffff;
+    padding: 6px 14px;
+    border-radius: 30px;
+    transition: background-color 0.25s ease;
     font-family: 'Segoe UI', system-ui, sans-serif;
     font-size: 0.95rem;
-    user-select: none;
+    outline: none;
+}
+
+.user-menu-trigger:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.user-menu-trigger:focus-visible {
+    box-shadow: 0 0 0 2px #F1B822;
 }
 
 .user-avatar {
@@ -90,11 +109,11 @@ body {
     border: 1.5px solid rgba(255, 255, 255, 0.25);
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    transition: transform 0.25s ease;
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.user-greeting:hover .user-avatar {
-    transform: scale(1.1);
+.user-menu-trigger:hover .user-avatar {
+    transform: scale(1.08);
 }
 
 .user-welcome-text {
@@ -107,64 +126,141 @@ body {
     font-weight: 600;
 }
 
-/* Nuevos botones tipo Pill */
-.nav-btn-pill {
-    display: inline-flex;
+/* Caret/Flecha del dropdown */
+.dropdown-caret {
+    width: 14px;
+    height: 14px;
+    stroke: rgba(255, 255, 255, 0.6);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.2s ease;
+}
+
+.user-menu-trigger:hover .dropdown-caret {
+    stroke: #ffffff;
+}
+
+.dropdown-caret.open {
+    transform: rotate(180deg);
+}
+
+/* Panel del menú desplegable */
+.user-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: rgba(31, 31, 31, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 8px 0;
+    display: none;
+    flex-direction: column;
+    z-index: 1100;
+    transform-origin: top right;
+    animation: dropdownFadeIn 0.25s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.user-dropdown-menu.show {
+    display: flex;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Encabezado del Dropdown */
+.dropdown-header {
+    padding: 10px 18px 8px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdown-user-name {
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 184px;
+}
+
+.dropdown-user-role {
+    color: #F1B822; /* Amarillo marca */
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+}
+
+/* Línea divisoria */
+.dropdown-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 6px 0;
+}
+
+/* Items del Dropdown */
+.dropdown-item {
+    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 7px 16px;
-    border-radius: 50px;
+    gap: 12px;
+    padding: 10px 18px;
+    color: #cbd5e1;
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    text-align: left;
+    width: 100%;
     font-family: 'Segoe UI', system-ui, sans-serif;
     font-size: 0.9rem;
-    font-weight: 600;
-    text-decoration: none;
+    font-weight: 500;
     cursor: pointer;
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.2s ease;
     box-sizing: border-box;
     outline: none;
-    
-    /* Estilo glassmorphism sutil */
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dropdown-item:hover {
+    background-color: rgba(63, 128, 31, 0.15); /* Fondo verde traslúcido */
     color: #ffffff;
 }
 
-/* Iconos dentro de los botones */
-.nav-icon {
-    width: 18px;
-    height: 18px;
+.dropdown-item:focus-visible {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Iconos de items */
+.dropdown-icon {
+    width: 16px;
+    height: 16px;
     stroke: currentColor;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    display: block;
+    fill: none;
+    transition: transform 0.2s ease;
 }
 
-/* Efecto hover general de reservar (con verde marca #3F801F) */
-.nav-btn-pill:not(.btn-logout):hover {
-    background: rgba(63, 128, 31, 0.18);
-    border-color: #3F801F;
-    color: #F1B822; /* Amarillo marca en hover */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(63, 128, 31, 0.45);
+.dropdown-item:hover .dropdown-icon {
+    transform: scale(1.05);
 }
 
-/* Estilo y hover específico de Cerrar Sesión (con rojo marca #BF2824) */
-.btn-logout {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.btn-logout:hover {
-    background: rgba(191, 40, 36, 0.18);
-    border-color: #BF2824;
+/* Hover específico para cerrar sesión */
+.dropdown-item-logout:hover {
+    background-color: rgba(191, 40, 36, 0.18); /* Fondo rojo traslúcido */
     color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(191, 40, 36, 0.45);
 }
 
-/* Micro-animación en el icono de logout */
-.btn-logout:hover .logout-icon {
-    transform: translateX(3px);
+.dropdown-item-logout:hover .dropdown-icon {
+    transform: translateX(2px);
 }
 
 /* Adaptabilidad para móviles (Responsive) */
@@ -174,21 +270,10 @@ body {
         display: none;
     }
     
-    .user-greeting {
-        margin-right: 0.25rem;
+    .dropdown-caret {
+        margin-left: -2px;
     }
 
-    .nav-btn-pill {
-        padding: 0;
-        border-radius: 50%;
-        width: 38px;
-        height: 38px;
-    }
-    
-    .nav-btn-text {
-        display: none;
-    }
-    
     .navbar-title {
         font-size: 0.95rem;
         margin-left: 3.2rem;

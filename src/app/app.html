@@ -5,43 +5,60 @@
     </div>
 
     <nav class="navbar-links" *ngIf="isLoggedIn$ | async">
-        <!-- Saludo al usuario (Avatar circular + Nombre) -->
-        <div class="user-greeting" [title]="userFirstName">
-            <div class="user-avatar">{{ userInitials }}</div>
-            <span class="user-welcome-text">Hola, <strong class="user-name">{{ userFirstName }}</strong></span>
+        <!-- Contenedor del menú desplegable del usuario -->
+        <div class="user-menu-container">
+            <button class="user-menu-trigger" (click)="toggleDropdown($event)" aria-haspopup="true" [attr.aria-expanded]="isDropdownOpen" title="Menú de usuario">
+                <div class="user-avatar">{{ userInitials }}</div>
+                <span class="user-welcome-text">Hola, <strong class="user-name">{{ userFirstName }}</strong></span>
+                <!-- Flecha indicadora de dropdown -->
+                <svg class="dropdown-caret" [class.open]="isDropdownOpen" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </button>
+
+            <!-- Menú desplegable -->
+            <div class="user-dropdown-menu" [class.show]="isDropdownOpen">
+                <div class="dropdown-header">
+                    <span class="dropdown-user-name">{{ userFullName }}</span>
+                    <span class="dropdown-user-role">{{ getRoleLabel(userRole) }}</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                
+                <!-- Opción Panel Administrador (para super_admin) -->
+                <a *ngIf="userRole === 'super_admin'" routerLink="/admin" (click)="isDropdownOpen = false" class="dropdown-item">
+                    <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9"></rect>
+                        <rect x="14" y="3" width="7" height="5"></rect>
+                        <rect x="14" y="12" width="7" height="9"></rect>
+                        <rect x="3" y="16" width="7" height="5"></rect>
+                    </svg>
+                    <span>Panel Administrador</span>
+                </a>
+
+                <!-- Opción Panel Recepción (para super_admin y recepcionista) -->
+                <a *ngIf="userRole === 'super_admin' || userRole === 'recepcionista'" routerLink="/recepcionista" (click)="isDropdownOpen = false" class="dropdown-item">
+                    <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Panel Recepcionista</span>
+                </a>
+
+                <div class="dropdown-divider"></div>
+
+                <!-- Cerrar Sesión -->
+                <button (click)="cerrarSesion(); isDropdownOpen = false" class="dropdown-item dropdown-item-logout">
+                    <svg class="dropdown-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </div>
         </div>
-
-        <!-- Botón de Acceso a Administración (para super_admin) -->
-        <a *ngIf="userRole === 'super_admin'" routerLink="/admin" class="nav-btn-pill" title="Volver al Panel Administrador">
-            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="9"></rect>
-                <rect x="14" y="3" width="7" height="5"></rect>
-                <rect x="14" y="12" width="7" height="9"></rect>
-                <rect x="3" y="16" width="7" height="5"></rect>
-            </svg>
-            <span class="nav-btn-text">Panel Admin</span>
-        </a>
-
-        <!-- Botón de Acceso a Recepción (para recepcionista) -->
-        <a *ngIf="userRole === 'recepcionista'" routerLink="/recepcionista" class="nav-btn-pill" title="Volver al Panel Recepcionista">
-            <svg class="nav-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="7" height="9"></rect>
-                <rect x="14" y="3" width="7" height="5"></rect>
-                <rect x="14" y="12" width="7" height="9"></rect>
-                <rect x="3" y="16" width="7" height="5"></rect>
-            </svg>
-            <span class="nav-btn-text">Panel Recepción</span>
-        </a>
-
-        <!-- Cerrar Sesión (Pill button con ícono SVG de logout) -->
-        <button (click)="cerrarSesion()" class="nav-btn-pill btn-logout" title="Cerrar sesión" aria-label="Cerrar sesión">
-            <svg class="nav-icon logout-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-            <span class="nav-btn-text">Cerrar Sesión</span>
-        </button>
     </nav>
 </header>
 
