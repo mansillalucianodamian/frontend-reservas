@@ -118,8 +118,8 @@
 }
 .header-top-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.8rem;
+  justify-content: space-between;
+  align-items: center;
 }
 .icon-action-btn {
   background-color: #cbd5e1; /* 👈 gris más oscurito para mejor visibilidad */
