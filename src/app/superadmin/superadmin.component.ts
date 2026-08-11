@@ -56,6 +56,7 @@ export class SuperAdminComponent implements OnInit {
   motivoMasivo: string = 'Uso interno municipal';
   conLuzMasivo: boolean = false;
   cargandoMasivo: boolean = false;
+  filtroDiaBloqueos: string = '';
 
   constructor(
     private usuariosService: UsuariosService,
@@ -1040,5 +1041,44 @@ export class SuperAdminComponent implements OnInit {
     }));
 
     return list.sort((a, b) => b.count - a.count).slice(0, 5);
+  }
+
+  formatFechaISO(fechaStr: any): string {
+    if (!fechaStr) return '';
+    try {
+      let clean = fechaStr.toString().trim();
+      if (clean.includes('T')) {
+        clean = clean.split('T')[0];
+      } else if (clean.includes(' ')) {
+        clean = clean.split(' ')[0];
+      }
+      return clean;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  get bloqueosFiltrados(): any[] {
+    return this.reservas.filter(r => {
+      const esBloqueado = r.estado === 'Bloqueado';
+      if (!esBloqueado) return false;
+      
+      const coincideRecurso = r.tipo === this.tipoRecurso;
+      if (!coincideRecurso) return false;
+      
+      if (this.filtroDiaBloqueos) {
+        return this.formatFechaISO(r.fecha) === this.filtroDiaBloqueos;
+      }
+      return true;
+    });
+  }
+
+  get bloqueosFiltradosOrdenados(): any[] {
+    const list = this.bloqueosFiltrados;
+    return list.sort((a, b) => {
+      const dateA = new Date(this.formatFechaISO(a.fecha) + 'T' + (a.hora || '00:00:00'));
+      const dateB = new Date(this.formatFechaISO(b.fecha) + 'T' + (b.hora || '00:00:00'));
+      return dateA.getTime() - dateB.getTime();
+    });
   }
 }
