@@ -297,3 +297,75 @@
     padding: 2.5rem 1.5rem;
   }
 }
+
+/* Textos en la columna de imagen (Idea 1) */
+.login-image-texts {
+  margin-top: auto; /* Empuja el texto hacia el fondo */
+  color: #ffffff;
+  z-index: 3;
+}
+
+.image-main-title {
+  font-size: 2.1rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+}
+
+.image-subtitle {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 0.8rem 0;
+  line-height: 1.4;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.image-help-text {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.75);
+  margin: 0;
+  font-style: italic;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Encabezado de Bienvenida en formulario (Idea 3) */
+.login-header-welcome {
+  text-align: center;
+  margin-bottom: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-label {
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #0f172a; /* Slate 900 */
+  margin: 0 0 0.25rem 0;
+  letter-spacing: -0.5px;
+}
+
+.welcome-sublabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b; /* Slate 500 */
+  margin: 0 0 0.8rem 0;
+}
+
+.welcome-bar {
+  width: 110px;
+  height: 4px;
+}
+
+/* Ajuste del título "Iniciar Sesión" */
+.content-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #475569; /* Slate 600 */
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
