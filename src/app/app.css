@@ -3,8 +3,9 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Arial, sans-serif;
-    background-color: #ecf0f1;
-    /* gris claro global */
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
     box-sizing: border-box;
 }
 
@@ -290,8 +291,7 @@ body {
     flex: 1;
     /* resto de la pantalla debajo de la navbar */
     padding: 1rem;
-    background-color: #616262;
-    /* gris claro */
+    background: transparent;
 }
 
 :host {
