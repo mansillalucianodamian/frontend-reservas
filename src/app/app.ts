@@ -1,5 +1,5 @@
 import { Component, HostListener, ElementRef } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 
@@ -17,9 +17,19 @@ export class App {
   userInitials = '';
   userRole = '';
   isDropdownOpen = false;
+  showNavbarAndFooter = true;
 
   constructor(private authService: AuthService, private router: Router, private elementRef: ElementRef) {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
+
+    // Escuchar cambios de ruta para ocultar navbar y footer en páginas de autenticación
+    this.router.events.subscribe((event) => {
+      if (event instanceof NavigationEnd) {
+        const url = event.urlAfterRedirects || event.url;
+        const hideOnRoutes = ['/login', '/registro', '/forgot-password', '/reset-password'];
+        this.showNavbarAndFooter = !hideOnRoutes.some(route => url.startsWith(route));
+      }
+    });
 
     this.isLoggedIn$.subscribe(status => {
       console.log('📡 Navbar recibió estado:', status);

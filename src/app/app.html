@@ -1,4 +1,4 @@
-<header class="navbar">
+<header class="navbar" *ngIf="showNavbarAndFooter">
     <div class="navbar-left" routerLink="/inicio" style="cursor: pointer;">
         <img src="/Aldea-San-Antonio.png" alt="Logo Aldea San Antonio" class="navbar-logo">
         <h2 class="navbar-title">Sistema de Reservas</h2>
@@ -106,7 +106,7 @@
     <router-outlet></router-outlet>
 </main>
 
-<footer class="app-footer">
+<footer class="app-footer" *ngIf="showNavbarAndFooter">
   <div class="footer-brand-line">
     <div class="color-red"></div>
     <div class="color-yellow"></div>
