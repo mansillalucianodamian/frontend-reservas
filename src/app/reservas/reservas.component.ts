@@ -283,7 +283,7 @@ export class ReservasComponent {
           const reserva = {
             fecha: this.fechaSeleccionada!,
             hora: this.horaSeleccionada!,
-            costo: 0,
+            costo: this.esMesCorriente(this.fechaSeleccionada!) ? (result.conAire ? this.costoTotalQuincho * 2 : this.costoTotalQuincho) : 0,
             costoTotal: result.conAire ? this.costoTotalQuincho * 2 : this.costoTotalQuincho,
             tipo: this.tipoRecurso,
             motivo: motivoFormatted,
@@ -327,5 +327,23 @@ export class ReservasComponent {
         this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', tipo: this.tipoRecurso } });
       }
     });
+  }
+
+  esMesCorriente(fechaStr: string): boolean {
+    if (!fechaStr) return false;
+    try {
+      const partes = fechaStr.split('-');
+      if (partes.length < 2) return false;
+      const añoReserva = parseInt(partes[0], 10);
+      const mesReserva = parseInt(partes[1], 10);
+
+      const hoy = new Date();
+      const añoActual = hoy.getFullYear();
+      const mesActual = hoy.getMonth() + 1;
+
+      return añoReserva === añoActual && mesReserva === mesActual;
+    } catch (e) {
+      return false;
+    }
   }
 }

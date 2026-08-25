@@ -139,7 +139,7 @@
                     <span *ngIf="slot.estado === 'bloqueado'" class="slot-extra-info block-desc">
                       (Motivo: {{ slot.motivo }})
                     </span>
-                    <span *ngIf="slot.estado === 'reservado'" class="slot-extra-info user-desc">
+                    <span *ngIf="slot.estado === 'pendiente' || slot.estado === 'aprobado' || slot.estado === 'reservado'" class="slot-extra-info user-desc">
                       (Por: {{ slot.usuario }})
                     </span>
                   </div>
@@ -147,7 +147,7 @@
                   <div class="hour-action">
                     <!-- Botón para bloquear (se muestra si está disponible o reservado) -->
                     <button *ngIf="slot.estado !== 'bloqueado'" 
-                            (click)="solicitarBloqueo(h.hora, slot.estado === 'reservado')" 
+                            (click)="solicitarBloqueo(h.hora, slot.estado !== 'disponible')" 
                             class="btn-block-hour" 
                             title="Bloquear horario">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -263,14 +263,15 @@
           </div>
         </div>
 
-        <!-- Card de Listado de Horarios Bloqueados -->
+        <!-- Card de Listado de Horarios y Reservas -->
         <div class="calendar-card list-blocked-card half-width-card">
           <div class="calendar-card-header">
-            <h3 class="card-title">Listado de Horarios Bloqueados (Cancha)</h3>
-            <p class="card-subtitle">Consulta y libera los horarios bloqueados por la administración</p>
+            <h3 class="card-title">Listado de Horarios y Reservas (Cancha)</h3>
+            <p class="card-subtitle">Consulta, filtra y gestiona los horarios de este recurso</p>
           </div>
           
           <div class="blocked-list-controls">
+            <!-- Filtro de Día -->
             <div class="form-group">
               <label for="filtroDiaBloqueos" class="field-label">Filtrar por día:</label>
               <div class="filter-input-row">
@@ -283,33 +284,71 @@
                 </button>
               </div>
             </div>
+
+            <!-- Filtro de Estado -->
+            <div class="form-group">
+              <label for="filtroEstadoBloqueos" class="field-label">Filtrar por estado:</label>
+              <select id="filtroEstadoBloqueos" [(ngModel)]="filtroEstadoBloqueos" class="form-input">
+                <option value="todos">Todos</option>
+                <option value="bloqueado">Bloqueados</option>
+                <option value="aprobado">Aprobados</option>
+                <option value="pendiente">Pendientes</option>
+                <option value="disponible">Disponibles</option>
+              </select>
+            </div>
           </div>
 
           <div class="blocked-list-wrapper">
-            <div class="table-scroll-container" *ngIf="bloqueosFiltradosOrdenados.length > 0; else noBlocks">
+            <div class="table-scroll-container" *ngIf="listadoGeneralFiltrado.length > 0; else noBlocks">
               <table class="blocked-table">
                 <thead>
                   <tr>
                     <th>Fecha</th>
                     <th>Horario</th>
-                    <th>Motivo</th>
+                    <th>Estado</th>
+                    <th>Detalle / Motivo</th>
                     <th>Luz</th>
                     <th>Acción</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let b of bloqueosFiltradosOrdenados">
+                  <tr *ngFor="let b of listadoGeneralFiltrado">
                     <td>{{ formatFechaLocal(b.fecha) }}</td>
                     <td class="text-bold">{{ b.hora.substring(0, 5) }} hs</td>
-                    <td>{{ b.motivo || 'Uso interno' }}</td>
                     <td>
-                      <span class="luz-indicator" [class.active]="b.con_luz">
-                        {{ b.con_luz ? '💡 SÍ' : '🌑 NO' }}
+                      <span class="hour-status-badge" [ngClass]="b.estado">
+                        {{ b.label }}
                       </span>
                     </td>
                     <td>
-                      <button (click)="solicitarDesbloqueo(b.id, b.hora.substring(0, 5))" class="btn-table-action-delete" title="Liberar horario">
+                      <span *ngIf="b.estado === 'bloqueado'" class="slot-extra-info block-desc">
+                        (Motivo: {{ b.motivo }})
+                      </span>
+                      <span *ngIf="b.estado === 'pendiente' || b.estado === 'aprobado'" class="slot-extra-info user-desc">
+                        (Por: {{ b.usuario }})
+                      </span>
+                      <span *ngIf="b.estado === 'disponible'" class="slot-extra-info libre-desc" style="color: #10b981; font-style: italic; font-weight: 500; font-size: 0.85rem;">
+                        Libre
+                      </span>
+                    </td>
+                    <td>
+                      <span class="luz-indicator" [class.active]="b.con_luz" *ngIf="b.estado !== 'disponible'">
+                        {{ b.con_luz ? '💡 SÍ' : '🌑 NO' }}
+                      </span>
+                      <span *ngIf="b.estado === 'disponible'">-</span>
+                    </td>
+                    <td>
+                      <!-- Si es bloqueado: liberar -->
+                      <button *ngIf="b.estado === 'bloqueado'" (click)="solicitarDesbloqueo(b.id, b.hora.substring(0, 5))" class="btn-table-action-delete" title="Liberar horario">
                         Liberar
+                      </button>
+                      <!-- Si es reserva (aprobada/pendiente): cancelar -->
+                      <button *ngIf="b.estado === 'pendiente' || b.estado === 'aprobado'" (click)="cancelarReserva(b.id)" class="btn-table-action-delete" style="border-color: #fca5a5; color: #ef4444;" title="Cancelar reserva">
+                        Cancelar
+                      </button>
+                      <!-- Si es disponible: bloquear -->
+                      <button *ngIf="b.estado === 'disponible'" (click)="solicitarBloqueo(b.hora, false)" class="btn-table-action-approve" style="background: #ecfdf5; border: 1.5px solid #a7f3d0; color: #059669; padding: 2.5px 8px; border-radius: 4px; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center;" title="Bloquear horario">
+                        Bloquear
                       </button>
                     </td>
                   </tr>
@@ -322,7 +361,8 @@
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-                <span>No hay horarios bloqueados.</span>
+                <span *ngIf="filtroEstadoBloqueos === 'disponible' && !filtroDiaBloqueos">Selecciona un día en el filtro para ver los horarios disponibles.</span>
+                <span *ngIf="filtroEstadoBloqueos !== 'disponible' || filtroDiaBloqueos">No se encontraron horarios con el filtro seleccionado.</span>
               </div>
             </ng-template>
           </div>

@@ -33,7 +33,7 @@
       <div class="header-title-section">
         <h2 class="title">Reservar {{ tipoRecurso === 'quincho' ? 'quincho municipal' : 'cancha de pádel' }}</h2>
         <p class="legend" *ngIf="tipoRecurso === 'cancha'">(Solo se podrán reservar dos turnos por semana)</p>
-        <p class="legend" *ngIf="tipoRecurso === 'quincho'">(Costo total: {{ costoTotalQuincho | currency:'ARS' }} - Se abona luego de su uso)</p>
+        <p class="legend" *ngIf="tipoRecurso === 'quincho'">(Valor: {{ costoTotalQuincho | currency:'ARS' }})</p>
       </div>
     </div>
 
@@ -87,8 +87,8 @@
       <p class="price" *ngIf="tipoRecurso === 'cancha'">Costo de la cancha: {{ costoCancha | currency:'ARS' }}</p>
       <p class="price" *ngIf="tipoRecurso === 'quincho'">
         Costo total: {{ costoTotalQuincho | currency:'ARS' }} <br>
-        <span style="font-size: 0.85em; font-weight: normal; color: #64748b;">
-          (Se abona luego de su uso - A pagar hoy: <strong>$0</strong>)
+        <span *ngIf="!esMesCorriente(fechaSeleccionada!)" style="font-size: 0.8em; font-weight: normal; color: #b45309; display: block; margin-top: 4px; line-height: 1.3;">
+          (Valor vigente a la fecha, sujeto a modificación según decreto reglamentario)
         </span>
       </p>
       <button (click)="agregarAlCarrito()" class="button-primary">Reservar AHORA</button>

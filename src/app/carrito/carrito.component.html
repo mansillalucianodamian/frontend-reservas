@@ -65,8 +65,16 @@
               {{ r.costo | currency:'ARS' }}
             </span>
             <span class="item-price" *ngIf="r.tipo === 'quincho'">
-              {{ r.costoTotal | currency:'ARS' }}
-              <span style="display: block; font-size: 0.7em; color: #64748b; font-weight: normal; line-height: 1.2; text-align: right;">(Se abona luego)</span>
+              <ng-container *ngIf="esMesCorriente(r.fecha)">
+                {{ r.costoTotal | currency:'ARS' }}
+                <span style="display: block; font-size: 0.72em; color: #15803d; font-weight: 600; line-height: 1.2; text-align: right;">(Se abona para confirmar)</span>
+              </ng-container>
+              <ng-container *ngIf="!esMesCorriente(r.fecha)">
+                {{ r.costoTotal | currency:'ARS' }} <span style="font-size: 0.75em; color: #b45309; font-weight: 600;">(Estimado)</span>
+                <span style="display: block; font-size: 0.65em; color: #b45309; font-weight: 500; line-height: 1.3; text-align: right; margin-top: 2px;">
+                  Sujeto a variación por decreto.<br>Se abona en {{ obtenerNombreMes(r.fecha) }} (no antes).
+                </span>
+              </ng-container>
             </span>
             <button (click)="eliminar(r)" class="btn-delete-item" title="Eliminar del carrito" aria-label="Eliminar del carrito">
               <!-- Icono de tacho de basura en SVG -->

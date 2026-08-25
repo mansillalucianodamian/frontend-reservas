@@ -57,6 +57,7 @@ export class SuperAdminComponent implements OnInit {
   conLuzMasivo: boolean = false;
   cargandoMasivo: boolean = false;
   filtroDiaBloqueos: string = '';
+  filtroEstadoBloqueos: 'todos' | 'bloqueado' | 'pendiente' | 'aprobado' | 'disponible' = 'todos';
 
   constructor(
     private usuariosService: UsuariosService,
@@ -346,7 +347,7 @@ export class SuperAdminComponent implements OnInit {
   }
 
   obtenerEstadoSlot(hora: string): { 
-    estado: 'disponible' | 'reservado' | 'bloqueado', 
+    estado: 'disponible' | 'pendiente' | 'aprobado' | 'bloqueado' | 'reservado', 
     label: string, 
     reservaId?: number, 
     usuario?: string, 
@@ -385,8 +386,26 @@ export class SuperAdminComponent implements OnInit {
       };
     }
     
+    if (estadoLower === 'pendiente') {
+      return { 
+        estado: 'pendiente', 
+        label: 'Pendiente', 
+        reservaId: res.id,
+        usuario: res.usuario || `Usuario ID: ${res.usuario_id}`
+      };
+    }
+    
+    if (estadoLower === 'aprobado' || estadoLower === 'aprobada' || estadoLower === 'confirmado' || estadoLower === 'confirmada') {
+      return { 
+        estado: 'aprobado', 
+        label: 'Aprobado', 
+        reservaId: res.id,
+        usuario: res.usuario || `Usuario ID: ${res.usuario_id}`
+      };
+    }
+    
     return { 
-      estado: 'reservado', 
+      estado: 'pendiente', 
       label: 'Reservado', 
       reservaId: res.id,
       usuario: res.usuario || `Usuario ID: ${res.usuario_id}`
@@ -1078,6 +1097,131 @@ export class SuperAdminComponent implements OnInit {
     return list.sort((a, b) => {
       const dateA = new Date(this.formatFechaISO(a.fecha) + 'T' + (a.hora || '00:00:00'));
       const dateB = new Date(this.formatFechaISO(b.fecha) + 'T' + (b.hora || '00:00:00'));
+      return dateA.getTime() - dateB.getTime();
+    });
+  }
+
+  get listadoGeneralFiltrado(): any[] {
+    if (!this.reservas) return [];
+
+    // 1. Obtener reservas/bloqueos de la base de datos (ocupados/activos)
+    const ocupados = this.reservas.filter(r => {
+      const coincideRecurso = (r.tipo || 'cancha').toLowerCase() === this.tipoRecurso.toLowerCase();
+      if (!coincideRecurso) return false;
+
+      const estadoLower = r.estado ? r.estado.toLowerCase().trim() : '';
+      const esActivo = estadoLower !== 'cancelada' && 
+                       estadoLower !== 'cancelado' && 
+                       estadoLower !== 'rechazada' && 
+                       estadoLower !== 'rechazado';
+      if (!esActivo) return false;
+
+      if (this.filtroDiaBloqueos) {
+        return this.datesMatchLocal(r.fecha, this.filtroDiaBloqueos);
+      }
+      return true;
+    });
+
+    // 2. Mapear a un formato común
+    let mappedList: any[] = ocupados.map(r => {
+      const estadoLower = r.estado ? r.estado.toLowerCase().trim() : '';
+      let estadoMapped: 'bloqueado' | 'pendiente' | 'aprobado' = 'pendiente';
+      let labelMapped = 'Reservado';
+      
+      if (estadoLower.startsWith('bloquead')) {
+        estadoMapped = 'bloqueado';
+        labelMapped = 'Bloqueado';
+      } else if (estadoLower === 'pendiente') {
+        estadoMapped = 'pendiente';
+        labelMapped = 'Pendiente';
+      } else if (estadoLower === 'aprobado' || estadoLower === 'aprobada' || estadoLower === 'confirmado' || estadoLower === 'confirmada') {
+        estadoMapped = 'aprobado';
+        labelMapped = 'Aprobado';
+      }
+      
+      return {
+        id: r.id,
+        fecha: this.formatFechaISO(r.fecha),
+        hora: r.hora,
+        estado: estadoMapped,
+        label: labelMapped,
+        motivo: r.motivo || '',
+        usuario: r.usuario || `Usuario ID: ${r.usuario_id}`,
+        con_luz: !!r.con_luz,
+        con_aire: !!r.con_aire
+      };
+    });
+
+    // 3. Si se filtra por un día específico y se solicita 'disponible' o 'todos', generar los disponibles
+    if (this.filtroDiaBloqueos && (this.filtroEstadoBloqueos === 'todos' || this.filtroEstadoBloqueos === 'disponible')) {
+      const todosHorarios: string[] = [];
+      if (this.tipoRecurso === 'quincho') {
+        todosHorarios.push('09:00', '19:00');
+      } else {
+        for (let h = 7; h <= 24; h++) {
+          const horaStr = h === 24 ? '00:00' : `${h.toString().padStart(2, '0')}:00`;
+          todosHorarios.push(horaStr);
+        }
+      }
+
+      // Horas que ya están ocupadas en el formato HH:MM
+      const horasOcupadas = mappedList.map(r => {
+        let h = r.hora || '';
+        if (h.includes(':')) {
+          const parts = h.split(':');
+          return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+        }
+        return h;
+      });
+
+      // Filtrar las horas libres
+      const libres = todosHorarios.filter(h => !horasOcupadas.includes(h));
+
+      // Filtrar horas del pasado si es hoy
+      const hoyLocal = this.formatLocalISO(new Date());
+      let libresFuturas = libres;
+      if (this.filtroDiaBloqueos === hoyLocal) {
+        const ahora = new Date();
+        libresFuturas = libres.filter(h => {
+          let [hh, mm] = h.split(':').map(Number);
+          const partes = this.filtroDiaBloqueos.split('-');
+          const año = parseInt(partes[0], 10);
+          const mes = parseInt(partes[1], 10) - 1;
+          const diaNum = parseInt(partes[2], 10);
+
+          const horaSlot = new Date(año, mes, diaNum, hh, mm, 0, 0);
+          if (hh === 0 && mm === 0) {
+            horaSlot.setHours(24, 0, 0, 0);
+          }
+          return horaSlot >= ahora;
+        });
+      }
+
+      // Convertir a objetos del mismo formato
+      const disponiblesMapped = libresFuturas.map(h => ({
+        id: 0,
+        fecha: this.filtroDiaBloqueos,
+        hora: h,
+        estado: 'disponible' as const,
+        label: 'Disponible',
+        motivo: 'Disponible para reservar',
+        usuario: 'N/A',
+        con_luz: false,
+        con_aire: false
+      }));
+
+      mappedList = [...mappedList, ...disponiblesMapped];
+    }
+
+    // 4. Filtrar por estado seleccionado
+    if (this.filtroEstadoBloqueos !== 'todos') {
+      mappedList = mappedList.filter(item => item.estado === this.filtroEstadoBloqueos);
+    }
+
+    // 5. Ordenar por fecha y hora
+    return mappedList.sort((a, b) => {
+      const dateA = new Date(a.fecha + 'T' + (a.hora.substring(0, 5) || '00:00'));
+      const dateB = new Date(b.fecha + 'T' + (b.hora.substring(0, 5) || '00:00'));
       return dateA.getTime() - dateB.getTime();
     });
   }

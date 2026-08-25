@@ -332,9 +332,15 @@
     color: #15803d;
 }
 
-.hour-status-badge.reservado {
+.hour-status-badge.reservado,
+.hour-status-badge.pendiente {
     background: #fef3c7;
     color: #d97706;
+}
+
+.hour-status-badge.aprobado {
+    background: #dcfce7;
+    color: #15803d;
 }
 
 .hour-status-badge.bloqueado {

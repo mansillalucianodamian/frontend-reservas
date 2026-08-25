@@ -227,4 +227,64 @@ export class RecepcionistaComponent implements OnInit {
       return fechaStr;
     }
   }
+
+  normalizarFecha(fechaStr: any): string {
+    if (!fechaStr) return '';
+    try {
+      let clean = fechaStr.toString().trim();
+      if (clean.includes('T')) {
+        clean = clean.split('T')[0];
+      } else if (clean.includes(' ')) {
+        clean = clean.split(' ')[0];
+      }
+      if (clean.includes('/')) {
+        const parts = clean.split('/');
+        if (parts.length === 3) {
+          if (parts[2].length === 4) {
+            return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+          }
+        }
+      }
+      return clean;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  esMesCorrienteOPasado(fechaStr: string): boolean {
+    const normalized = this.normalizarFecha(fechaStr);
+    if (!normalized) return false;
+    try {
+      const partes = normalized.split('-');
+      if (partes.length < 2) return false;
+      const añoReserva = parseInt(partes[0], 10);
+      const mesReserva = parseInt(partes[1], 10);
+
+      const hoy = new Date();
+      const añoActual = hoy.getFullYear();
+      const mesActual = hoy.getMonth() + 1;
+
+      if (añoActual > añoReserva) return true;
+      if (añoActual === añoReserva) return mesActual >= mesReserva;
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  obtenerNombreMes(fechaStr: string): string {
+    const normalized = this.normalizarFecha(fechaStr);
+    if (!normalized) return '';
+    try {
+      const partes = normalized.split('-');
+      const mes = parseInt(partes[1], 10);
+      const nombresMeses = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      ];
+      return nombresMeses[mes - 1] || '';
+    } catch (e) {
+      return '';
+    }
+  }
 }
