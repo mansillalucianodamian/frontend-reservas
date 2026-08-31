@@ -176,11 +176,16 @@ export class CarritoComponent implements OnInit {
         this.isProcessing = false; // 👈 Desactivar bloqueo en caso de error
         this.cd.detectChanges();
 
+        const errorMsg = err?.error?.message 
+          || (typeof err?.error === 'string' ? err.error : null)
+          || err?.message 
+          || (typeof err === 'string' ? err : 'Ocurrió un error al procesar las reservas');
+
         this.dialog.open(ConfirmDialogComponent, {
           data: {
             titulo: 'Error al Confirmar',
             mensaje: '',
-            resultado: err?.message || 'Ocurrió un error al procesar las reservas',
+            resultado: errorMsg,
             tipo: 'error'
           }
         });

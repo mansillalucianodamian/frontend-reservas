@@ -26,10 +26,23 @@ export class ConfirmDialogComponent {
         this.checkboxValue = this.data.checkboxDefault || false;
       }
       
-      // 🔹 Limpiar emojis problemáticos que se ven como cuadraditos en Windows viejos
+      // 🔹 Limpiar emojis problemáticos y parsear mensajes técnicos HTTP si llegaran a filtrarse
       const cleanText = (txt: string) => {
         if (!txt) return txt;
-        return txt.replace(/[✅❌⚠️]/g, '').trim();
+        let cleaned = txt.replace(/[✅❌⚠️]/g, '').trim();
+        if (cleaned.startsWith('Http failure response')) {
+          if (cleaned.includes('400')) {
+            return 'No se pudo procesar la solicitud. Es posible que hayas alcanzado el límite semanal de reservas o que el turno ya no esté disponible.';
+          }
+          if (cleaned.includes('401') || cleaned.includes('403')) {
+            return 'Tu sesión ha expirado o no tienes permisos. Por favor, vuelve a iniciar sesión.';
+          }
+          if (cleaned.includes('500')) {
+            return 'Ocurrió un error en el servidor. Por favor, intenta nuevamente más tarde.';
+          }
+          return 'No se pudo conectar con el servidor. Revisa tu conexión a internet.';
+        }
+        return cleaned;
       };
 
       if (this.data.titulo) this.data.titulo = cleanText(this.data.titulo);

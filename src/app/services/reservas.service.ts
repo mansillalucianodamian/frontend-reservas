@@ -50,7 +50,7 @@ export class ReservasService {
       })),
       catchError(err => throwError(() => ({
         ok: false,
-        message: err.message || 'Error al crear reserva'
+        message: err.error?.message || (typeof err.error === 'string' ? err.error : null) || err.message || 'Error al crear reserva'
       })))
     );
   }
@@ -68,7 +68,7 @@ export class ReservasService {
       })),
       catchError(err => throwError(() => ({
         ok: false,
-        message: err.error?.message || 'Error al cancelar reserva'
+        message: err.error?.message || (typeof err.error === 'string' ? err.error : null) || err.message || 'Error al cancelar reserva'
       })))
     );
   }
@@ -86,7 +86,7 @@ export class ReservasService {
       })),
       catchError(err => throwError(() => ({
         ok: false,
-        message: err.error?.message || 'Error al aprobar reserva'
+        message: err.error?.message || (typeof err.error === 'string' ? err.error : null) || err.message || 'Error al aprobar reserva'
       })))
     );
   }
@@ -95,6 +95,11 @@ export class ReservasService {
       `${this.apiUrl}/bloquear`,
       { fecha, hora, motivo, tipo, con_luz: conLuz },
       { headers: this.getHeaders() }
+    ).pipe(
+      catchError(err => throwError(() => ({
+        ok: false,
+        message: err.error?.message || (typeof err.error === 'string' ? err.error : null) || err.message || 'Error al bloquear reserva'
+      })))
     );
   }
   bloquearReservaMasivo(fechaInicio: string, fechaFin: string, diasSemana: number[], horas: string[], motivo: string, conLuz: boolean = false): Observable<{ ok: boolean, resultado?: any, message?: string }> {
@@ -102,6 +107,11 @@ export class ReservasService {
       `${this.apiUrl}/bloquear-masivo`,
       { fechaInicio, fechaFin, diasSemana, horas, motivo, con_luz: conLuz },
       { headers: this.getHeaders() }
+    ).pipe(
+      catchError(err => throwError(() => ({
+        ok: false,
+        message: err.error?.message || (typeof err.error === 'string' ? err.error : null) || err.message || 'Error al bloquear reservas masivas'
+      })))
     );
   }
   getReservasPendientes(): Observable<any[]> {
@@ -109,7 +119,8 @@ export class ReservasService {
       `${this.apiUrl}/pendientes`,
       { headers: this.getHeaders() }
     ).pipe(
-      map(response => response.reservas) // 👈 devolvemos directamente el array
+      map(response => response.reservas), // 👈 devolvemos directamente el array
+      catchError(err => throwError(() => err.error?.message || err.message || 'Error al obtener reservas pendientes'))
     );
   }
 
