@@ -32,7 +32,7 @@
       </div>
       <div class="header-title-section">
         <h2 class="title">Reservar {{ tipoRecurso === 'quincho' ? 'quincho municipal' : 'cancha de pádel' }}</h2>
-        <p class="legend" *ngIf="tipoRecurso === 'cancha'">(Solo se podrán reservar dos turnos por semana)</p>
+        <p class="legend" *ngIf="tipoRecurso === 'cancha'">(Hasta 2 turnos por semana de lunes a domingo • Se habilita un 3° si faltan menos de 8 hs)</p>
         <p class="legend" *ngIf="tipoRecurso === 'quincho'">(Valor: {{ costoTotalQuincho | currency:'ARS' }})</p>
       </div>
     </div>

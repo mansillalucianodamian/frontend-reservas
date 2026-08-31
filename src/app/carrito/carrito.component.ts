@@ -40,16 +40,55 @@ export class CarritoComponent implements OnInit {
     this.carritoService.removeReserva(reserva);
   }
 
-  // Helper para obtener la fecha de inicio de semana (domingo) libre de desfases de huso horario
-  getSemanaId(fechaStr: string): string {
+  // Helper para obtener el rango de la semana (Lunes a Domingo) libre de desfases de huso horario
+  getSemanaRango(fechaStr: string): { inicioStr: string; finStr: string; inicioDate: Date; finDate: Date } {
+    const cleanFecha = this.normalizarFecha(fechaStr);
+    const partes = cleanFecha.split('-').map(Number);
+    if (partes.length === 3) {
+      const date = new Date(partes[0], partes[1] - 1, partes[2]);
+      const day = date.getDay(); // 0: Dom, 1: Lun, ..., 6: Sab
+      const diffLunes = day === 0 ? -6 : 1 - day;
+      const lunes = new Date(partes[0], partes[1] - 1, partes[2] + diffLunes);
+      const domingo = new Date(partes[0], partes[1] - 1, partes[2] + diffLunes + 6);
+      const format = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      return {
+        inicioStr: format(lunes),
+        finStr: format(domingo),
+        inicioDate: lunes,
+        finDate: domingo
+      };
+    }
     const date = new Date(fechaStr + 'T00:00:00');
-    const diff = date.getDate() - date.getDay();
-    const sunday = new Date(date.setDate(diff));
-    
-    const yyyy = sunday.getFullYear();
-    const mm = String(sunday.getMonth() + 1).padStart(2, '0');
-    const dd = String(sunday.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
+    const day = date.getDay();
+    const diffLunes = day === 0 ? -6 : 1 - day;
+    const lunes = new Date(date.setDate(date.getDate() + diffLunes));
+    const domingo = new Date(lunes.getTime() + 6 * 24 * 60 * 60 * 1000);
+    const format = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return {
+      inicioStr: format(lunes),
+      finStr: format(domingo),
+      inicioDate: lunes,
+      finDate: domingo
+    };
+  }
+
+  getSemanaId(fechaStr: string): string {
+    return this.getSemanaRango(fechaStr).inicioStr;
+  }
+
+  esTurnoUltimoMomento(fechaStr: string, horaStr: string): boolean {
+    try {
+      const cleanFecha = this.normalizarFecha(fechaStr);
+      const partes = cleanFecha.split('-').map(Number);
+      const [h, m] = (horaStr || '00:00').split(':').map(Number);
+      const turnoDate = new Date(partes[0], partes[1] - 1, partes[2], h || 0, m || 0, 0);
+      const ahora = new Date();
+      const diffMs = turnoDate.getTime() - ahora.getTime();
+      const diffHoras = diffMs / (1000 * 60 * 60);
+      return diffHoras > 0 && diffHoras < 8;
+    } catch (e) {
+      return false;
+    }
   }
 
   async confirmar() {
@@ -61,7 +100,7 @@ export class CarritoComponent implements OnInit {
     // 1. Obtener las reservas confirmadas del usuario desde la base de datos
     this.reservasService.getReservas().subscribe({
       next: (reservasConfirmadas) => {
-        // Agrupar reservas confirmadas por semana (representada por el domingo de esa semana)
+        // Agrupar reservas confirmadas por semana (representada por el lunes de esa semana)
         const reservasPorSemana: { [semana: string]: number } = {};
         
         reservasConfirmadas.forEach(r => {
@@ -79,7 +118,7 @@ export class CarritoComponent implements OnInit {
           }
         });
 
-        // Simular la suma de reservas del carrito para ver si alguna semana supera el límite de 2
+        // Simular la suma de reservas del carrito para ver si alguna semana supera el límite
         const cartPorSemana: { [semana: string]: number } = {};
         let errorExcedido = false;
         let detalleError = '';
@@ -92,17 +131,24 @@ export class CarritoComponent implements OnInit {
           const yaConfirmadas = reservasPorSemana[semId] || 0;
           const enCarrito = cartPorSemana[semId] || 0;
 
-          if (yaConfirmadas + enCarrito + 1 > 2) {
+          // ¿Este turno es de último momento (< 8 hs)?
+          const esExpress = this.esTurnoUltimoMomento(r.fecha, r.hora);
+          const maxPermitido = esExpress ? 3 : 2;
+
+          if (yaConfirmadas + enCarrito + 1 > maxPermitido) {
             errorExcedido = true;
             
-            const inicioDate = new Date(semId + 'T00:00:00');
-            const finDate = new Date(inicioDate);
-            finDate.setDate(inicioDate.getDate() + 6);
-            
+            const rango = this.getSemanaRango(r.fecha);
             const formatFecha = (d: Date) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
             
-            detalleError = `Superas el límite de 2 reservas semanales para la semana del ${formatFecha(inicioDate)} al ${formatFecha(finDate)}. ` +
-                           `Ya tienes ${yaConfirmadas} reserva(s) confirmada(s) y estás intentando sumar ${enCarrito + 1} más en tu carrito actual.`;
+            if (maxPermitido === 2) {
+              detalleError = `Superas el límite de 2 reservas semanales para la semana del ${formatFecha(rango.inicioDate)} (Lunes) al ${formatFecha(rango.finDate)} (Domingo). ` +
+                             `Ya tienes ${yaConfirmadas} reserva(s) confirmada(s) y estás intentando sumar ${enCarrito + 1} más en tu carrito. ` +
+                             `Recuerda que se habilita una 3ra reserva si faltan menos de 8 horas para el turno.`;
+            } else {
+              detalleError = `Superas el cupo máximo de 3 reservas semanales (incluyendo turno express de último momento) para la semana del ${formatFecha(rango.inicioDate)} (Lunes) al ${formatFecha(rango.finDate)} (Domingo). ` +
+                             `Ya tienes ${yaConfirmadas} reserva(s) y estás intentando sumar ${enCarrito + 1} más.`;
+            }
             break;
           }
           cartPorSemana[semId] = enCarrito + 1;
