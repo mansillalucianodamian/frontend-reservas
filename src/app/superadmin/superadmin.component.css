@@ -850,6 +850,28 @@
     border-radius: 4px;
 }
 
+.btn-undo-booking {
+    background: #ffffff;
+    border: 1.5px solid #fdba74;
+    color: #c2410c;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.btn-undo-booking:hover {
+    background: #fff7ed;
+    color: #9a3412;
+    border-color: #f97316;
+    transform: scale(1.02);
+}
+
 .btn-cancel-booking {
     background: #ffffff;
     border: 1.5px solid #fca5a5;

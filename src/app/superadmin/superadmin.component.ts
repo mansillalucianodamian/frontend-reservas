@@ -891,6 +891,49 @@ export class SuperAdminComponent implements OnInit {
     });
   }
 
+  deshacerAprobacion(reserva: any): void {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titulo: 'Deshacer Aprobación de Reserva',
+        mensaje: `¿Estás seguro de revertir la aprobación de esta reserva (#${reserva.id}) para ${reserva.usuario || 'el usuario'} (${this.formatFechaLocal(reserva.fecha)} ${reserva.hora} hs)?\n\nEl turno volverá al estado 'Pendiente'.`,
+        tipo: 'confirm'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.reservasService.deshacerAprobacion(reserva.id).subscribe({
+          next: (res) => {
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Aprobación Revertida',
+                mensaje: '',
+                resultado: 'La reserva se restableció al estado Pendiente con éxito.',
+                tipo: 'success'
+              }
+            });
+            this.loadReservas();
+            if (this.fechaSeleccionada) {
+              this.seleccionarDia(this.fechaSeleccionada);
+            }
+            this.cdr.detectChanges();
+          },
+          error: (err) => {
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Error',
+                mensaje: '',
+                resultado: err?.message || 'Error al deshacer aprobación',
+                tipo: 'error'
+              }
+            });
+            this.cdr.detectChanges();
+          }
+        });
+      }
+    });
+  }
+
   esReservaActiva(reserva: any): boolean {
     if (!reserva || !reserva.fecha || !reserva.hora) return false;
     

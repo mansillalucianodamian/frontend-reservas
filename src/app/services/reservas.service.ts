@@ -90,6 +90,25 @@ export class ReservasService {
       })))
     );
   }
+
+  // 🔹 Deshacer aprobación de una reserva (período de gracia de 15 min para recepcionista)
+  deshacerAprobacion(id: number): Observable<{ ok: boolean, message: string, reserva?: any }> {
+    return this.http.put<{ ok: boolean, message: string, reserva?: any }>(
+      `${this.apiUrl}/${id}/deshacer-aprobacion`,
+      {},
+      { headers: this.getHeaders() }
+    ).pipe(
+      map(res => ({
+        ok: res.ok,
+        message: res.message || 'Aprobación revertida con éxito',
+        reserva: res.reserva
+      })),
+      catchError(err => throwError(() => ({
+        ok: false,
+        message: err.error?.message || (typeof err.error === 'string' ? err.error : null) || err.message || 'Error al deshacer aprobación'
+      })))
+    );
+  }
   bloquearReserva(fecha: string, hora: string, motivo: string, tipo: string = 'cancha', conLuz: boolean = false): Observable<{ ok: boolean, message: string }> {
     return this.http.post<{ ok: boolean, message: string }>(
       `${this.apiUrl}/bloquear`,

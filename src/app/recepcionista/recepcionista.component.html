@@ -17,137 +17,418 @@
     </div>
   </div>
 
-  <!-- Columna Derecha: Panel de Trabajo -->
+  <!-- Columna Derecha: Panel de Trabajo con Pestañas -->
   <div class="container-work-card">
     <div class="header-recep-section">
-      <h2 class="title">Control de Reservas</h2>
-      <p class="legend">(Gestión y acreditación de cobros para habilitar el uso de canchas)</p>
+      <div class="title-row">
+        <h2 class="title">Panel de Recepción y Control</h2>
+      </div>
+      <div class="brand-colors-bar" style="margin-top: 6px; width: 120px; height: 4px;">
+        <div class="color-red"></div>
+        <div class="color-yellow"></div>
+        <div class="color-green"></div>
+      </div>
+    </div>
+
+    <!-- Grupo de Pestañas Material -->
+    <mat-tab-group class="custom-tabs-group" dynamicHeight>
       
-      <!-- 🔹 Sección para editar tarifas -->
-      <div class="price-edit-container">
-        <div class="price-edit-card">
-          <span class="price-edit-title">Valor de Cancha:</span>
-          <div class="price-input-wrapper">
-            <span class="currency-prefix">$</span>
-            <input type="number" [(ngModel)]="precioCancha" class="price-edit-input" [disabled]="isUpdatingPrice" min="0">
-            <button (click)="guardarPrecio()" class="btn-price-save" [disabled]="isUpdatingPrice">
-              <span>{{ isUpdatingPrice ? 'Guardando...' : 'Actualizar' }}</span>
-            </button>
+      <!-- PESTAÑA 1: Pendientes de Aprobación -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="tab-label-text">Pendientes de Cobro</span>
+          <span class="tab-badge" *ngIf="totalPendientes > 0">{{ totalPendientes }}</span>
+        </ng-template>
+
+        <div class="tab-body-content">
+          <p class="legend">Gestión y acreditación de cobros para habilitar el uso de turnos.</p>
+
+          <!-- 🔹 Sección para editar tarifas -->
+          <div class="price-edit-container">
+            <div class="price-edit-card">
+              <span class="price-edit-title">Valor Cancha Pádel:</span>
+              <div class="price-input-wrapper">
+                <span class="currency-prefix">$</span>
+                <input type="number" [(ngModel)]="precioCancha" class="price-edit-input" [disabled]="isUpdatingPrice" min="0">
+                <button (click)="guardarPrecio()" class="btn-price-save" [disabled]="isUpdatingPrice">
+                  <span>{{ isUpdatingPrice ? 'Guardando...' : 'Actualizar' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="price-edit-card">
+              <span class="price-edit-title">Valor Quincho:</span>
+              <div class="price-input-wrapper">
+                <span class="currency-prefix">$</span>
+                <input type="number" [(ngModel)]="precioQuincho" class="price-edit-input" [disabled]="isUpdatingQuinchoPrice" min="0">
+                <button (click)="guardarPrecioQuincho()" class="btn-price-save" [disabled]="isUpdatingQuinchoPrice">
+                  <span>{{ isUpdatingQuinchoPrice ? 'Guardando...' : 'Actualizar' }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Si cargan las reservas pendientes -->
+          <div *ngIf="(reservas$ | async) as reservas; else cargandoPendientes" class="recep-content">
+            <!-- Buscador superior -->
+            <div class="search-box">
+              <div class="search-input-wrapper">
+                <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="Buscar por usuario o apellido..." [(ngModel)]="filtroUsuario" class="search-input">
+              </div>
+            </div>
+
+            <div *ngIf="reservas.length > 0; else vacioPendientes" class="recep-items-list">
+              <div *ngFor="let r of reservas | userFilter:filtroUsuario" class="reserva-item-row" [ngClass]="r.estado.toLowerCase()">
+                <!-- Icono identificador -->
+                <div class="reserva-status-icon-wrapper" [ngClass]="r.estado.toLowerCase()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                </div>
+
+                <!-- Detalles del turno -->
+                <div class="reserva-details">
+                  <div class="reserva-username" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span class="user-label">Usuario:</span>
+                    <span class="user-value">{{ r.usuario }}</span>
+                    <span class="badge-recurso" [ngClass]="r.tipo || 'cancha'">
+                      {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Cancha' }}
+                    </span>
+                  </div>
+                  <div class="reserva-datetime">
+                    <span class="reserva-date">{{ formatFechaLocal(r.fecha) }}</span>
+                    <span class="reserva-separator">•</span>
+                    <span class="reserva-time">{{ r.hora }} hs</span>
+                  </div>
+                  <div class="reserva-meta">
+                    <span class="reserva-court">{{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</span>
+                    <span class="reserva-code">Ref: #{{ r.id }}</span>
+                    <span class="reserva-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
+                  </div>
+                  <!-- Badge para aire acondicionado -->
+                  <div *ngIf="(r.tipo || 'cancha') === 'quincho' && (r.con_aire || (r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')))" class="reserva-ac-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706;">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Con Aire Acondicionado (Tarifa doble)</span>
+                  </div>
+                  <!-- Motivo si existe -->
+                  <div *ngIf="r.motivo" class="reserva-motivo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Nota: {{ r.motivo }}</span>
+                  </div>
+                </div>
+
+                <!-- Acciones de validación -->
+                <div class="reserva-action" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                  <button (click)="aprobarReserva(r.id)" 
+                          [disabled]="r.estado !== 'Pendiente' || (r.tipo === 'quincho' && !esMesCorrienteOPasado(r.fecha))" 
+                          class="btn-approve-payment" 
+                          title="Aprobar pago de reserva">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Aprobar Pago</span>
+                  </button>
+                  <span *ngIf="r.tipo === 'quincho' && r.estado === 'Pendiente' && !esMesCorrienteOPasado(r.fecha)" 
+                        class="aviso-mes-futuro">
+                    Se abona en {{ obtenerNombreMes(r.fecha) }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
+      </mat-tab>
 
-        <div class="price-edit-card">
-          <span class="price-edit-title">Valor de Quincho:</span>
-          <div class="price-input-wrapper">
-            <span class="currency-prefix">$</span>
-            <input type="number" [(ngModel)]="precioQuincho" class="price-edit-input" [disabled]="isUpdatingQuinchoPrice" min="0">
-            <button (click)="guardarPrecioQuincho()" class="btn-price-save" [disabled]="isUpdatingQuinchoPrice">
-              <span>{{ isUpdatingQuinchoPrice ? 'Guardando...' : 'Actualizar' }}</span>
-            </button>
+      <!-- PESTAÑA 2: Historial y Gestión de Reservas -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="tab-label-text">Historial y Gestión</span>
+        </ng-template>
+
+        <div class="tab-body-content">
+          <p class="legend">Consulta de todas las reservas y posibilidad de revertir aprobaciones dentro de los 15 min de gracia.</p>
+
+          <!-- 🎛️ FILTROS AVANZADOS -->
+          <div class="advanced-filters-panel">
+            
+            <!-- Fila 1: Selector de tipo de recurso y estado -->
+            <div class="filter-row">
+              <!-- Filtro de Recurso -->
+              <div class="filter-group">
+                <span class="filter-label">Espacio:</span>
+                <div class="pill-group">
+                  <button [class.active]="filtroHistorialTipo === 'todos'" (click)="filtroHistorialTipo = 'todos'" class="btn-pill">
+                    Todos
+                  </button>
+                  <button [class.active]="filtroHistorialTipo === 'cancha'" (click)="filtroHistorialTipo = 'cancha'" class="btn-pill">
+                    Pádel
+                  </button>
+                  <button [class.active]="filtroHistorialTipo === 'quincho'" (click)="filtroHistorialTipo = 'quincho'" class="btn-pill">
+                    Quincho
+                  </button>
+                </div>
+              </div>
+
+              <!-- Filtro de Estado -->
+              <div class="filter-group">
+                <span class="filter-label">Estado:</span>
+                <div class="pill-group">
+                  <button [class.active]="filtroHistorialEstado === 'todos'" (click)="filtroHistorialEstado = 'todos'" class="btn-pill">
+                    Todos
+                  </button>
+                  <button [class.active]="filtroHistorialEstado === 'aprobado'" (click)="filtroHistorialEstado = 'aprobado'" class="btn-pill success">
+                    Aprobadas
+                  </button>
+                  <button [class.active]="filtroHistorialEstado === 'pendiente'" (click)="filtroHistorialEstado = 'pendiente'" class="btn-pill warning">
+                    Pendientes
+                  </button>
+                  <button [class.active]="filtroHistorialEstado === 'cancelado'" (click)="filtroHistorialEstado = 'cancelado'" class="btn-pill danger">
+                    Canceladas
+                  </button>
+                  <button [class.active]="filtroHistorialEstado === 'bloqueado'" (click)="filtroHistorialEstado = 'bloqueado'" class="btn-pill secondary">
+                    Bloqueos
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fila 2: Filtro por Fecha y Turno/Horario -->
+            <div class="filter-row-secondary">
+              <!-- Selector de Fecha con accesos directos -->
+              <div class="filter-date-group">
+                <span class="filter-label">Día / Fecha:</span>
+                <div class="date-controls-wrapper">
+                  <input type="date" [(ngModel)]="filtroHistorialFecha" class="filter-date-input" title="Seleccionar fecha específica">
+                  <div class="date-quick-buttons">
+                    <button type="button" (click)="establecerFiltroFecha('hoy')" [class.active-quick]="esFechaHoy()" class="btn-quick-date">Hoy</button>
+                    <button type="button" (click)="establecerFiltroFecha('manana')" [class.active-quick]="esFechaManana()" class="btn-quick-date">Mañana</button>
+                    <button type="button" (click)="establecerFiltroFecha('todas')" [class.active-quick]="!filtroHistorialFecha" class="btn-quick-date">Todas</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Selector de Turno / Horario -->
+              <div class="filter-time-group">
+                <span class="filter-label">Turno / Horario:</span>
+                <select [(ngModel)]="filtroHistorialHorario" class="filter-select-time">
+                  <option value="todos">Todos los horarios</option>
+                  <option *ngFor="let h of listaHorarios" [value]="h">{{ h }} hs</option>
+                </select>
+              </div>
+
+              <!-- Buscador por texto -->
+              <div class="filter-search-group">
+                <span class="filter-label">Búsqueda rápida:</span>
+                <div class="search-input-wrapper-compact">
+                  <svg class="search-icon-compact" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" placeholder="Usuario, DNI o Ref..." [(ngModel)]="filtroHistorialBusqueda" class="search-input-compact">
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Si cargan las reservas -->
-    <div *ngIf="(reservas$ | async) as reservas; else cargando" class="recep-content">
-      <!-- Buscador superior -->
-      <div class="search-box">
-        <div class="search-input-wrapper">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input type="text" placeholder="Buscar por usuario o apellido..." [(ngModel)]="filtroUsuario" class="search-input">
-        </div>
-      </div>
-
-      <div *ngIf="reservas.length > 0; else vacio" class="recep-items-list">
-        <div *ngFor="let r of reservas | userFilter:filtroUsuario" class="reserva-item-row" [ngClass]="r.estado.toLowerCase()">
-          <!-- Icono identificador -->
-          <div class="reserva-status-icon-wrapper" [ngClass]="r.estado.toLowerCase()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-          </div>
-
-          <!-- Detalles del turno -->
-          <div class="reserva-details">
-            <div class="reserva-username" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-              <span class="user-label">Usuario:</span>
-              <span class="user-value">{{ r.usuario }}</span>
-              <span class="badge-recurso" [ngClass]="r.tipo || 'cancha'">
-                {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Cancha' }}
-              </span>
-            </div>
-            <div class="reserva-datetime">
-              <span class="reserva-date">{{ formatFechaLocal(r.fecha) }}</span>
-              <span class="reserva-separator">•</span>
-              <span class="reserva-time">{{ r.hora }} hs</span>
-            </div>
-            <div class="reserva-meta">
-              <span class="reserva-court">{{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</span>
-              <span class="reserva-code">Ref: #{{ r.id }}</span>
-              <span class="reserva-badge" [ngClass]="r.estado.toLowerCase()">{{ r.estado }}</span>
-            </div>
-            <!-- Badge para aire acondicionado -->
-            <div *ngIf="(r.tipo || 'cancha') === 'quincho' && (r.con_aire || (r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')))" class="reserva-ac-badge" style="font-size: 0.82em; color: #b45309; margin-top: 4px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; padding: 2px 6px; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 4px;">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706;">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Con Aire Acondicionado (Tarifa doble)</span>
-            </div>
-            <!-- Motivo si existe -->
-            <div *ngIf="r.motivo" class="reserva-motivo">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="16" y1="13" x2="8" y2="13"></line>
-                <line x1="16" y1="17" x2="8" y2="17"></line>
-              </svg>
-              <span>Nota: {{ r.motivo }}</span>
-            </div>
-          </div>
-
-          <!-- Acciones de validación -->
-          <div class="reserva-action" style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
-            <button (click)="aprobarReserva(r.id)" 
-                    [disabled]="r.estado !== 'Pendiente' || (r.tipo === 'quincho' && !esMesCorrienteOPasado(r.fecha))" 
-                    class="btn-approve-payment" 
-                    title="Aprobar pago de reserva">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Aprobar Pago</span>
-            </button>
-            <span *ngIf="r.tipo === 'quincho' && r.estado === 'Pendiente' && !esMesCorrienteOPasado(r.fecha)" 
-                  style="font-size: 0.72em; color: #b45309; font-weight: 600; text-align: right; background-color: #fffbeb; border: 1px solid #fde68a; padding: 2px 6px; border-radius: 4px;">
-              Se abona en {{ obtenerNombreMes(r.fecha) }}
+          <!-- Indicador de cantidad de resultados y botón refrescar -->
+          <div class="results-meta-bar">
+            <span class="results-count-text">
+              Mostrando <strong>{{ reservasFiltradas.length }}</strong> reserva(s)
             </span>
+            <button (click)="loadTodasLasReservas()" class="btn-refresh-history" title="Actualizar lista">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" [class.spinning]="cargandoHistorial">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+              <span>Refrescar</span>
+            </button>
+          </div>
+
+          <!-- Listado de Reservas Filtradas -->
+          <div *ngIf="!cargandoHistorial; else cargandoHistorialTpl">
+            <div *ngIf="reservasFiltradas.length > 0; else vacioHistorial" class="recep-items-list">
+              <div *ngFor="let r of reservasFiltradas" class="reserva-item-row" [ngClass]="(r.estado || '').toLowerCase()">
+                
+                <!-- Icono de estado -->
+                <div class="reserva-status-icon-wrapper" [ngClass]="(r.estado || '').toLowerCase()">
+                  <!-- Aprobado -->
+                  <svg *ngIf="['aprobado', 'aprobada', 'confirmado', 'confirmada'].includes((r.estado || '').toLowerCase())" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <!-- Pendiente -->
+                  <svg *ngIf="(r.estado || '').toLowerCase() === 'pendiente'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <!-- Cancelado -->
+                  <svg *ngIf="['cancelado', 'cancelada', 'rechazado', 'rechazada'].includes((r.estado || '').toLowerCase())" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  <!-- Bloqueado -->
+                  <svg *ngIf="(r.estado || '').toLowerCase() === 'bloqueado'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </div>
+
+                <!-- Detalles de la reserva -->
+                <div class="reserva-details">
+                  <div class="reserva-username" style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <span class="user-label">{{ r.usuario_id ? 'Usuario:' : 'Bloqueo:' }}</span>
+                    <span class="user-value">{{ r.usuario_id ? r.usuario : 'Administrativo' }}</span>
+                    <span class="badge-recurso" [ngClass]="r.tipo || 'cancha'">
+                      {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Cancha' }}
+                    </span>
+                  </div>
+
+                  <div class="reserva-datetime">
+                    <span class="reserva-date">{{ formatFechaLocal(r.fecha) }}</span>
+                    <span class="reserva-separator">•</span>
+                    <span class="reserva-time">{{ r.hora }} hs</span>
+                  </div>
+
+                  <div class="reserva-meta">
+                    <span class="reserva-court">{{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho Municipal' : 'Cancha de Pádel' }}</span>
+                    <span class="reserva-code">Ref: #{{ r.id }}</span>
+                    <span class="reserva-badge" [ngClass]="(r.estado || '').toLowerCase()">{{ r.estado }}</span>
+                  </div>
+
+                  <!-- Badge de Aire Acondicionado si corresponde -->
+                  <div *ngIf="(r.tipo || 'cancha') === 'quincho' && (r.con_aire || (r.motivo && r.motivo.includes('Aire Acondicionado: SÍ')))" class="reserva-ac-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #d97706;">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Con Aire Acondicionado</span>
+                  </div>
+
+                  <!-- Motivo / Nota -->
+                  <div *ngIf="r.motivo" class="reserva-motivo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Nota: {{ r.motivo }}</span>
+                  </div>
+                </div>
+
+                <!-- Acciones según estado y período de gracia -->
+                <div class="reserva-action" style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                  
+                  <!-- CASO 1: APROBADA Y EN PERÍODO DE GRACIA (15 MIN) -->
+                  <ng-container *ngIf="['aprobado', 'aprobada', 'confirmado', 'confirmada'].includes((r.estado || '').toLowerCase())">
+                    <div *ngIf="estaEnPeriodoGracia(r)" class="grace-period-badge">
+                      <svg class="pulse-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                      <span>Gracia: {{ userRole === 'super_admin' ? 'Admin (Sin límite)' : minutosGraciaRestantes(r) + ' min restantes' }}</span>
+                    </div>
+
+                    <button *ngIf="estaEnPeriodoGracia(r)" 
+                            (click)="deshacerAprobacion(r)" 
+                            class="btn-undo-approval" 
+                            title="Volver la reserva al estado Pendiente">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7v6h6"></path>
+                        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                      </svg>
+                      <span>Deshacer Aprobación</span>
+                    </button>
+
+                    <div *ngIf="!estaEnPeriodoGracia(r)" class="badge-approved-permanent">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Aprobado Definitivo</span>
+                    </div>
+                  </ng-container>
+
+                  <!-- CASO 2: PENDIENTE (Posibilidad de aprobar desde esta vista) -->
+                  <ng-container *ngIf="(r.estado || '').toLowerCase() === 'pendiente'">
+                    <button (click)="aprobarReserva(r.id)" 
+                            [disabled]="r.tipo === 'quincho' && !esMesCorrienteOPasado(r.fecha)" 
+                            class="btn-approve-payment small" 
+                            title="Aprobar pago de reserva">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Aprobar Pago</span>
+                    </button>
+                    <span *ngIf="r.tipo === 'quincho' && !esMesCorrienteOPasado(r.fecha)" 
+                          class="aviso-mes-futuro">
+                      Se abona en {{ obtenerNombreMes(r.fecha) }}
+                    </span>
+                  </ng-container>
+
+                  <!-- CASO 3: CANCELADA / BLOQUEADA -->
+                  <span *ngIf="['cancelado', 'cancelada', 'rechazado', 'rechazada'].includes((r.estado || '').toLowerCase())" class="badge-status-simple cancelado">
+                    Cancelada
+                  </span>
+                  <span *ngIf="(r.estado || '').toLowerCase() === 'bloqueado'" class="badge-status-simple bloqueado">
+                    Bloqueo Activo
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+      </mat-tab>
 
-    <!-- Templates cargando y vacío -->
-    <ng-template #cargando>
+    </mat-tab-group>
+
+    <!-- Templates cargando y vacío para pendientes -->
+    <ng-template #cargandoPendientes>
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando reservas pendientes...</p>
+      </div>
+    </ng-template>
+
+    <ng-template #vacioPendientes>
+      <div class="empty-recep-state">
+        <div class="empty-icon-wrapper">
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+        </div>
+        <p class="empty-title">Sin cobros pendientes</p>
+        <p class="empty-description">No hay reservas pendientes de validación en este momento.</p>
+      </div>
+    </ng-template>
+
+    <!-- Templates cargando y vacío para historial -->
+    <ng-template #cargandoHistorialTpl>
       <div class="loading-state">
         <div class="loading-spinner"></div>
         <p class="loading-text">Cargando grilla de reservas...</p>
       </div>
     </ng-template>
 
-    <ng-template #vacio>
+    <ng-template #vacioHistorial>
       <div class="empty-recep-state">
         <div class="empty-icon-wrapper">
-          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </div>
-        <p class="empty-title">Sin tareas pendientes</p>
-        <p class="empty-description">No hay reservas pendientes de validación de pago en este momento.</p>
+        <p class="empty-title">No se encontraron reservas</p>
+        <p class="empty-description">No hay reservas que coincidan con los filtros seleccionados.</p>
       </div>
     </ng-template>
 
@@ -157,11 +438,11 @@
   </div>
 </div>
 
-<!-- Overlay de Carga (Spinner de Aprobación) -->
+<!-- Overlay de Carga (Spinner de Aprobación/Reversión) -->
 <div class="loading-overlay" *ngIf="isProcessing">
   <div class="loading-spinner-container">
     <div class="spinner"></div>
-    <h3 class="loading-text">Confirmando pago...</h3>
+    <h3 class="loading-text">Procesando solicitud...</h3>
     <p class="loading-subtext">Por favor, no cierres esta ventana.</p>
   </div>
 </div>
