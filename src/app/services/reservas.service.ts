@@ -15,11 +15,21 @@ export class ReservasService {
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  // 🔹 Obtener todas las reservas (usuario, recepcionista o admin según rol)
-  getReservas(): Observable<any[]> {
+  // 🔹 Obtener reservas (con soporte de filtros opcionales del lado servidor)
+  getReservas(filters?: any): Observable<any[]> {
+    let params: any = {};
+    if (filters) {
+      if (filters.fecha) params.fecha = filters.fecha;
+      if (filters.tipo && filters.tipo !== 'todos') params.tipo = filters.tipo;
+      if (filters.estado && filters.estado !== 'todos') params.estado = filters.estado;
+      if (filters.hora && filters.hora !== 'todos') params.hora = filters.hora;
+      if (filters.busqueda && filters.busqueda.trim() !== '') params.busqueda = filters.busqueda.trim();
+      if (filters.limit) params.limit = filters.limit;
+    }
+
     return this.http.get<{ ok: boolean, reservas: any[], message?: string }>(
       this.apiUrl,
-      { headers: this.getHeaders() }
+      { headers: this.getHeaders(), params }
     ).pipe(
       map(res => res.reservas || []),
       catchError(err => throwError(() => err.error?.message || 'Error al obtener reservas'))

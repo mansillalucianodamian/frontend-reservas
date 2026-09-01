@@ -1,32 +1,22 @@
-<div class="container">
-  <!-- Columna Izquierda: Imagen y Logo Municipal -->
-  <div class="container-image">
-    <img src="cancha-padel-vertical.png" alt="Cancha de pádel" class="image-padel">
-    <div class="image-card-overlay">
-      <div class="overlay-logo-container">
-        <img src="Aldea-San-Antonio-White.png" alt="Logo Aldea San Antonio" class="overlay-logo">
-      </div>
-      <div class="overlay-banner">
-        <h1 class="overlay-title">RECEPCIÓN</h1>
+<div class="container-recep-full">
+  <!-- Tarjeta Principal de Trabajo Recepción -->
+  <div class="container-work-card">
+    
+    <!-- Cabecera Institucional del Panel -->
+    <div class="header-recep-section">
+      <div class="header-brand-row">
+        <div class="brand-identity">
+          <img src="Aldea-San-Antonio.png" alt="Logo Aldea San Antonio" class="header-logo">
+          <div class="header-titles">
+            <h1 class="title">Panel de Recepción y Control</h1>
+            <span class="subtitle">Gestión de Cobros, Acreditación de Turnos y Reversión</span>
+          </div>
+        </div>
         <div class="brand-colors-bar">
           <div class="color-red"></div>
           <div class="color-yellow"></div>
           <div class="color-green"></div>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Columna Derecha: Panel de Trabajo con Pestañas -->
-  <div class="container-work-card">
-    <div class="header-recep-section">
-      <div class="title-row">
-        <h2 class="title">Panel de Recepción y Control</h2>
-      </div>
-      <div class="brand-colors-bar" style="margin-top: 6px; width: 120px; height: 4px;">
-        <div class="color-red"></div>
-        <div class="color-yellow"></div>
-        <div class="color-green"></div>
       </div>
     </div>
 
@@ -158,7 +148,7 @@
         </ng-template>
 
         <div class="tab-body-content">
-          <p class="legend">Consulta de todas las reservas y posibilidad de revertir aprobaciones dentro de los 15 min de gracia.</p>
+          <p class="legend">Consulta reservas bajo demanda mediante filtros y revierte aprobaciones dentro de los 15 min de gracia.</p>
 
           <!-- 🎛️ FILTROS AVANZADOS -->
           <div class="advanced-filters-panel">
@@ -169,13 +159,13 @@
               <div class="filter-group">
                 <span class="filter-label">Espacio:</span>
                 <div class="pill-group">
-                  <button [class.active]="filtroHistorialTipo === 'todos'" (click)="filtroHistorialTipo = 'todos'" class="btn-pill">
+                  <button [class.active]="filtroHistorialTipo === 'todos'" (click)="seleccionarTipo('todos')" class="btn-pill">
                     Todos
                   </button>
-                  <button [class.active]="filtroHistorialTipo === 'cancha'" (click)="filtroHistorialTipo = 'cancha'" class="btn-pill">
+                  <button [class.active]="filtroHistorialTipo === 'cancha'" (click)="seleccionarTipo('cancha')" class="btn-pill">
                     Pádel
                   </button>
-                  <button [class.active]="filtroHistorialTipo === 'quincho'" (click)="filtroHistorialTipo = 'quincho'" class="btn-pill">
+                  <button [class.active]="filtroHistorialTipo === 'quincho'" (click)="seleccionarTipo('quincho')" class="btn-pill">
                     Quincho
                   </button>
                 </div>
@@ -185,26 +175,26 @@
               <div class="filter-group">
                 <span class="filter-label">Estado:</span>
                 <div class="pill-group">
-                  <button [class.active]="filtroHistorialEstado === 'todos'" (click)="filtroHistorialEstado = 'todos'" class="btn-pill">
+                  <button [class.active]="filtroHistorialEstado === 'todos'" (click)="seleccionarEstado('todos')" class="btn-pill">
                     Todos
                   </button>
-                  <button [class.active]="filtroHistorialEstado === 'aprobado'" (click)="filtroHistorialEstado = 'aprobado'" class="btn-pill success">
+                  <button [class.active]="filtroHistorialEstado === 'aprobado'" (click)="seleccionarEstado('aprobado')" class="btn-pill success">
                     Aprobadas
                   </button>
-                  <button [class.active]="filtroHistorialEstado === 'pendiente'" (click)="filtroHistorialEstado = 'pendiente'" class="btn-pill warning">
+                  <button [class.active]="filtroHistorialEstado === 'pendiente'" (click)="seleccionarEstado('pendiente')" class="btn-pill warning">
                     Pendientes
                   </button>
-                  <button [class.active]="filtroHistorialEstado === 'cancelado'" (click)="filtroHistorialEstado = 'cancelado'" class="btn-pill danger">
+                  <button [class.active]="filtroHistorialEstado === 'cancelado'" (click)="seleccionarEstado('cancelado')" class="btn-pill danger">
                     Canceladas
                   </button>
-                  <button [class.active]="filtroHistorialEstado === 'bloqueado'" (click)="filtroHistorialEstado = 'bloqueado'" class="btn-pill secondary">
+                  <button [class.active]="filtroHistorialEstado === 'bloqueado'" (click)="seleccionarEstado('bloqueado')" class="btn-pill secondary">
                     Bloqueos
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Fila 2: Filtro por Fecha y Turno/Horario -->
+            <!-- Fila 2: Filtro por Fecha, Horario y Búsqueda -->
             <div class="filter-row-secondary">
               <!-- Selector de Fecha con accesos directos -->
               <div class="filter-date-group">
@@ -236,18 +226,37 @@
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
-                  <input type="text" placeholder="Usuario, DNI o Ref..." [(ngModel)]="filtroHistorialBusqueda" class="search-input-compact">
+                  <input type="text" placeholder="Usuario, DNI o Ref..." [(ngModel)]="filtroHistorialBusqueda" (keyup.enter)="ejecutarBusqueda()" class="search-input-compact">
                 </div>
               </div>
             </div>
+
+            <!-- Fila 3: Botón de Acción Principal de Búsqueda -->
+            <div class="filter-actions-row">
+              <button (click)="ejecutarBusqueda()" [disabled]="cargandoHistorial" class="btn-filter-search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [class.spinning]="cargandoHistorial">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <span>{{ cargandoHistorial ? 'Buscando...' : 'Buscar Reservas' }}</span>
+              </button>
+              
+              <button *ngIf="busquedaRealizada" (click)="limpiarFiltros()" class="btn-filter-clear">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Limpiar</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Indicador de cantidad de resultados y botón refrescar -->
-          <div class="results-meta-bar">
+          <!-- Indicador de cantidad de resultados cuando se ejecutó la búsqueda -->
+          <div class="results-meta-bar" *ngIf="busquedaRealizada">
             <span class="results-count-text">
-              Mostrando <strong>{{ reservasFiltradas.length }}</strong> reserva(s)
+              Se encontraron <strong>{{ todasReservas.length }}</strong> reserva(s)
             </span>
-            <button (click)="loadTodasLasReservas()" class="btn-refresh-history" title="Actualizar lista">
+            <button (click)="ejecutarBusqueda()" [disabled]="cargandoHistorial" class="btn-refresh-history" title="Actualizar búsqueda">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" [class.spinning]="cargandoHistorial">
                 <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
               </svg>
@@ -255,10 +264,22 @@
             </button>
           </div>
 
+          <!-- Estado inicial cuando aún no se ejecutó la búsqueda -->
+          <div *ngIf="!busquedaRealizada && !cargandoHistorial" class="initial-search-prompt">
+            <div class="prompt-icon-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </div>
+            <h4 class="prompt-title">Búsqueda de Reservas</h4>
+            <p class="prompt-text">Selecciona los filtros deseados arriba y haz clic en <strong>"Buscar Reservas"</strong> o usa los accesos rápidos de fecha para consultar turnos.</p>
+          </div>
+
           <!-- Listado de Reservas Filtradas -->
-          <div *ngIf="!cargandoHistorial; else cargandoHistorialTpl">
-            <div *ngIf="reservasFiltradas.length > 0; else vacioHistorial" class="recep-items-list">
-              <div *ngFor="let r of reservasFiltradas" class="reserva-item-row" [ngClass]="(r.estado || '').toLowerCase()">
+          <div *ngIf="busquedaRealizada && !cargandoHistorial">
+            <div *ngIf="todasReservas.length > 0; else vacioHistorial" class="recep-items-list">
+              <div *ngFor="let r of todasReservas" class="reserva-item-row" [ngClass]="(r.estado || '').toLowerCase()">
                 
                 <!-- Icono de estado -->
                 <div class="reserva-status-icon-wrapper" [ngClass]="(r.estado || '').toLowerCase()">
@@ -411,13 +432,11 @@
       </div>
     </ng-template>
 
-    <!-- Templates cargando y vacío para historial -->
-    <ng-template #cargandoHistorialTpl>
-      <div class="loading-state">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Cargando grilla de reservas...</p>
-      </div>
-    </ng-template>
+    <!-- Template cargando para historial -->
+    <div class="loading-state" *ngIf="cargandoHistorial">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">Consultando reservas...</p>
+    </div>
 
     <ng-template #vacioHistorial>
       <div class="empty-recep-state">
@@ -428,7 +447,7 @@
           </svg>
         </div>
         <p class="empty-title">No se encontraron reservas</p>
-        <p class="empty-description">No hay reservas que coincidan con los filtros seleccionados.</p>
+        <p class="empty-description">No hay registros que coincidan con los filtros seleccionados.</p>
       </div>
     </ng-template>
 

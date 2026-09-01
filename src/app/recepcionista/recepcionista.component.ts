@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms'; // ✅ necesario para [(ngModel)]
 import { MatTabsModule } from '@angular/material/tabs'; // ✅ Tabs
 import { ReservasService } from '../services/reservas.service';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { UserFilterPipe } from '../pipes/user-filter.pipe'; // importa el pipe
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
@@ -17,6 +17,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 })
 export class RecepcionistaComponent implements OnInit, OnDestroy {
   reservas$!: Observable<any[]>;
+  totalPendientes: number = 0;
   filtroUsuario: string = '';
   mensaje: string | null = null;
   errorMessage: string | null = null;
@@ -31,9 +32,10 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   precioQuincho: number = 21500;
   isUpdatingQuinchoPrice: boolean = false;
 
-  // 🔹 Historial y Gestión Completa de Reservas
+  // 🔹 Historial y Gestión de Reservas (Búsqueda bajo demanda)
   todasReservas: any[] = [];
   cargandoHistorial: boolean = false;
+  busquedaRealizada: boolean = false;
 
   // Filtros de la pestaña Historial / Gestión
   filtroHistorialTipo: 'todos' | 'cancha' | 'quincho' = 'todos';
@@ -61,7 +63,6 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userRole = localStorage.getItem('rol') || sessionStorage.getItem('rol') || 'recepcionista';
     this.loadReservas();
-    this.loadTodasLasReservas();
     this.cargarPrecioCancha();
     this.cargarPrecioQuincho();
 
@@ -166,23 +167,49 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   }
 
   loadReservas(): void {
-    this.reservas$ = this.reservasService.getReservasPendientes();
+    this.reservas$ = this.reservasService.getReservasPendientes().pipe(
+      tap(list => {
+        this.totalPendientes = list ? list.length : 0;
+      })
+    );
   }
 
-  loadTodasLasReservas(): void {
+  // 🔹 Ejecutar búsqueda / filtro bajo demanda en el backend
+  ejecutarBusqueda(): void {
     this.cargandoHistorial = true;
-    this.reservasService.getReservas().subscribe({
+    this.busquedaRealizada = true;
+
+    const filtros = {
+      tipo: this.filtroHistorialTipo,
+      estado: this.filtroHistorialEstado,
+      fecha: this.filtroHistorialFecha || undefined,
+      hora: this.filtroHistorialHorario !== 'todos' ? this.filtroHistorialHorario : undefined,
+      busqueda: this.filtroHistorialBusqueda || undefined
+    };
+
+    this.reservasService.getReservas(filtros).subscribe({
       next: (res) => {
         this.todasReservas = res || [];
         this.cargandoHistorial = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Error al cargar historial de reservas:', err);
+        console.error('Error al consultar reservas filtradas:', err);
         this.cargandoHistorial = false;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  limpiarFiltros(): void {
+    this.filtroHistorialTipo = 'todos';
+    this.filtroHistorialEstado = 'todos';
+    this.filtroHistorialFecha = '';
+    this.filtroHistorialHorario = 'todos';
+    this.filtroHistorialBusqueda = '';
+    this.todasReservas = [];
+    this.busquedaRealizada = false;
+    this.cdr.detectChanges();
   }
 
   aprobarReserva(id: number): void {
@@ -212,7 +239,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
                 }
               });
               this.loadReservas();
-              this.loadTodasLasReservas();
+              if (this.busquedaRealizada) {
+                this.ejecutarBusqueda();
+              }
             } else {
               this.dialog.open(ConfirmDialogComponent, {
                 data: {
@@ -268,7 +297,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
               }
             });
             this.loadReservas();
-            this.loadTodasLasReservas();
+            if (this.busquedaRealizada) {
+              this.ejecutarBusqueda();
+            }
           },
           error: (err) => {
             this.isProcessing = false;
@@ -326,7 +357,6 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
     }
   }
 
-  // 🔹 Helper de formato de fecha ISO local (YYYY-MM-DD)
   formatLocalISO(d: Date): string {
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -355,71 +385,22 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       manana.setDate(manana.getDate() + 1);
       this.filtroHistorialFecha = this.formatLocalISO(manana);
     }
+    // Ejecutar búsqueda automáticamente al cambiar filtro rápido de fecha
+    this.ejecutarBusqueda();
   }
 
-  // 🔹 Filtro reactivo para el listado de reservas de la solapa Historial y Gestión
-  get reservasFiltradas(): any[] {
-    if (!this.todasReservas) return [];
-
-    let resultado = [...this.todasReservas];
-
-    // 1. Filtro por Tipo de recurso
-    if (this.filtroHistorialTipo !== 'todos') {
-      resultado = resultado.filter(r => (r.tipo || 'cancha').toLowerCase() === this.filtroHistorialTipo.toLowerCase());
+  seleccionarTipo(tipo: 'todos' | 'cancha' | 'quincho'): void {
+    this.filtroHistorialTipo = tipo;
+    if (this.busquedaRealizada) {
+      this.ejecutarBusqueda();
     }
-
-    // 2. Filtro por Estado
-    if (this.filtroHistorialEstado !== 'todos') {
-      resultado = resultado.filter(r => {
-        const est = (r.estado || '').toLowerCase();
-        if (this.filtroHistorialEstado === 'aprobado') {
-          return est === 'aprobado' || est === 'aprobada' || est === 'confirmado' || est === 'confirmada';
-        }
-        if (this.filtroHistorialEstado === 'cancelado') {
-          return est === 'cancelado' || est === 'cancelada' || est === 'rechazado' || est === 'rechazada';
-        }
-        return est === this.filtroHistorialEstado.toLowerCase();
-      });
-    }
-
-    // 3. Filtro por Fecha
-    if (this.filtroHistorialFecha) {
-      resultado = resultado.filter(r => {
-        const fechaNorm = this.normalizarFecha(r.fecha);
-        return fechaNorm === this.filtroHistorialFecha;
-      });
-    }
-
-    // 4. Filtro por Horario
-    if (this.filtroHistorialHorario && this.filtroHistorialHorario !== 'todos') {
-      resultado = resultado.filter(r => {
-        const horaNorm = (r.hora || '').trim().substring(0, 5);
-        return horaNorm === this.filtroHistorialHorario;
-      });
-    }
-
-    // 5. Filtro por Búsqueda libre
-    if (this.filtroHistorialBusqueda && this.filtroHistorialBusqueda.trim() !== '') {
-      const q = this.filtroHistorialBusqueda.toLowerCase().trim();
-      resultado = resultado.filter(r =>
-        (r.usuario && r.usuario.toLowerCase().includes(q)) ||
-        (r.motivo && r.motivo.toLowerCase().includes(q)) ||
-        (r.id && r.id.toString().includes(q)) ||
-        (r.fecha && r.fecha.toString().includes(q))
-      );
-    }
-
-    // Ordenar de más reciente a más antigua
-    return resultado.reverse();
   }
 
-  // Contadores para badges informativos
-  get totalPendientes(): number {
-    return this.todasReservas.filter(r => (r.estado || '').toLowerCase() === 'pendiente').length;
-  }
-
-  get totalAprobadas(): number {
-    return this.todasReservas.filter(r => ['aprobado', 'aprobada', 'confirmado', 'confirmada'].includes((r.estado || '').toLowerCase())).length;
+  seleccionarEstado(estado: 'todos' | 'pendiente' | 'aprobado' | 'cancelado' | 'bloqueado'): void {
+    this.filtroHistorialEstado = estado;
+    if (this.busquedaRealizada) {
+      this.ejecutarBusqueda();
+    }
   }
 
   formatFechaLocal(fechaStr: string): string {
