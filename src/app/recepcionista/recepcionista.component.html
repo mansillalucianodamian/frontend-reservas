@@ -58,6 +58,44 @@
             </div>
           </div>
 
+          <!-- ⚡ Aprobaciones Recientes con Período de Gracia (15 min) -->
+          <div *ngIf="aprobacionesRecientes.length > 0" class="recent-approvals-card">
+            <div class="recent-approvals-header">
+              <div class="recent-title-group">
+                <span class="pulse-dot"></span>
+                <h3 class="recent-approvals-title">⚡ Aprobaciones Recientes (Período de Gracia de 15 min)</h3>
+              </div>
+              <span class="recent-approvals-count">{{ aprobacionesRecientes.length }} turno(s)</span>
+            </div>
+            <p class="recent-approvals-legend">Turnos aprobados recientemente. Si cometiste un error, puedes deshacer la aprobación aquí antes de que finalicen los 15 minutos:</p>
+
+            <div class="recent-approvals-list">
+              <div *ngFor="let r of aprobacionesRecientes" class="recent-approval-item">
+                <div class="recent-approval-info">
+                  <div class="recent-user-row">
+                    <span class="user-value">{{ r.usuario || 'Usuario' }}</span>
+                    <span class="badge-recurso" [ngClass]="r.tipo || 'cancha'">
+                      {{ (r.tipo || 'cancha') === 'quincho' ? 'Quincho' : 'Pádel' }}
+                    </span>
+                    <span class="reserva-code">Ref: #{{ r.id }}</span>
+                  </div>
+                  <div class="recent-time-row">
+                    <span class="recent-datetime-text">{{ formatFechaLocal(r.fecha) }} • {{ r.hora }} hs</span>
+                    <span class="grace-countdown">⏱️ {{ userRole === 'super_admin' ? 'Admin' : minutosGraciaRestantes(r) + ' min restantes' }}</span>
+                  </div>
+                </div>
+
+                <button (click)="deshacerAprobacion(r)" class="btn-undo-approval-prominent" title="Revertir aprobación y volver a Pendiente">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 7v6h6"></path>
+                    <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path>
+                  </svg>
+                  <span>Deshacer Aprobación</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <!-- Si cargan las reservas pendientes -->
           <div *ngIf="(reservas$ | async) as reservas; else cargandoPendientes" class="recep-content">
             <!-- Buscador superior -->

@@ -32,6 +32,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   precioQuincho: number = 21500;
   isUpdatingQuinchoPrice: boolean = false;
 
+  // 🔹 Aprobaciones Recientes en período de gracia (15 min)
+  aprobacionesRecientes: any[] = [];
+
   // 🔹 Historial y Gestión de Reservas (Búsqueda bajo demanda)
   todasReservas: any[] = [];
   cargandoHistorial: boolean = false;
@@ -63,13 +66,27 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.userRole = localStorage.getItem('rol') || sessionStorage.getItem('rol') || 'recepcionista';
     this.loadReservas();
+    this.cargarAprobacionesRecientes();
     this.cargarPrecioCancha();
     this.cargarPrecioQuincho();
 
-    // Actualizar la vista cada 20 segundos para refrescar los minutos del período de gracia en vivo
+    // Actualizar la vista cada 15 segundos para refrescar los minutos del período de gracia en vivo
     this.intervalId = setInterval(() => {
+      if (this.aprobacionesRecientes.length > 0) {
+        this.aprobacionesRecientes = this.aprobacionesRecientes.filter(r => this.estaEnPeriodoGracia(r));
+      }
       this.cdr.detectChanges();
-    }, 20000);
+    }, 15000);
+  }
+
+  cargarAprobacionesRecientes(): void {
+    this.reservasService.getAprobacionesRecientes().subscribe({
+      next: (res) => {
+        this.aprobacionesRecientes = res || [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error al cargar aprobaciones recientes:', err)
+    });
   }
 
   ngOnDestroy(): void {
@@ -239,6 +256,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
                 }
               });
               this.loadReservas();
+              this.cargarAprobacionesRecientes();
               if (this.busquedaRealizada) {
                 this.ejecutarBusqueda();
               }
@@ -297,6 +315,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
               }
             });
             this.loadReservas();
+            this.cargarAprobacionesRecientes();
             if (this.busquedaRealizada) {
               this.ejecutarBusqueda();
             }

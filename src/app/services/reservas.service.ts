@@ -153,6 +153,16 @@ export class ReservasService {
     );
   }
 
+  getAprobacionesRecientes(): Observable<any[]> {
+    return this.http.get<{ ok: boolean, reservas: any[] }>(
+      `${this.apiUrl}/recientes-aprobadas`,
+      { headers: this.getHeaders() }
+    ).pipe(
+      map(response => response.reservas || []),
+      catchError(err => throwError(() => err.error?.message || err.message || 'Error al obtener aprobaciones recientes'))
+    );
+  }
+
   getPrecioCancha(): Observable<{ ok: boolean, precio: number }> {
     return this.http.get<{ ok: boolean, precio: number }>(
       '/api/configuracion/precio'
