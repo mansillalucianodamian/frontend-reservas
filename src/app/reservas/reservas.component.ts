@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ReservasService } from '../services/reservas.service';
 import { AuthService } from '../services/auth.service';
@@ -40,16 +40,22 @@ export class ReservasComponent {
     private router: Router,
     private route: ActivatedRoute,
     private carritoService: CarritoService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.carrito$ = this.carritoService.carrito$;
     this.currentMonth = new Date();
+    // Generar calendario de inmediato de forma síncrona para que no quede en blanco
+    this.generarCalendario(this.currentMonth);
 
     this.route.queryParams.subscribe(params => {
       this.tipoRecurso = params['tipo'] || 'cancha';
       
+      // Re-generar de inmediato con las reglas del recurso
+      this.generarCalendario(this.currentMonth);
+
       // Cargar precio/seña según tipo y fechas ocupadas
       if (this.tipoRecurso === 'quincho') {
         this.cargarFechasOcupadas();
@@ -60,6 +66,7 @@ export class ReservasComponent {
               if (res.precio_aire !== undefined) {
                 this.costoAireQuincho = res.precio_aire;
               }
+              this.cdr.detectChanges();
             }
           },
           error: (err) => console.error('Error al cargar tarifas de quincho:', err)
@@ -71,6 +78,7 @@ export class ReservasComponent {
           next: (res) => {
             if (res && res.ok) {
               this.costoCancha = res.precio;
+              this.cdr.detectChanges();
             }
           },
           error: (err) => console.error('Error al cargar el precio de la cancha:', err)
@@ -80,6 +88,7 @@ export class ReservasComponent {
       if (params['refresh'] === 'true' && this.fechaSeleccionada) {
         this.seleccionarDia(this.fechaSeleccionada);
       }
+      this.cdr.detectChanges();
     });
   }
 
@@ -88,10 +97,12 @@ export class ReservasComponent {
       next: (fechas) => {
         this.fechasOcupadas = new Set(fechas || []);
         this.generarCalendario(this.currentMonth);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Error al cargar fechas ocupadas:', err);
         this.generarCalendario(this.currentMonth);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -168,6 +179,7 @@ export class ReservasComponent {
         enabled: false
       });
     }
+    this.cdr.detectChanges();
   }
 
   mesSiguiente() {
