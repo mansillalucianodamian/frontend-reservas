@@ -428,6 +428,58 @@ button:disabled {
   background: #f8fafc;
 }
 
+/* Día ocupado en el calendario (rojo, deshabilitado y no clickeable) */
+.grid-day.ocupado {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+  cursor: not-allowed !important;
+  font-weight: 700;
+  text-decoration: line-through;
+  opacity: 0.95;
+}
+
+.grid-day.ocupado:hover {
+  background-color: #fee2e2 !important;
+  transform: none !important;
+}
+
+/* Leyenda de colores del calendario */
+.calendar-indicators-legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.2rem;
+  margin-top: 0.6rem;
+  padding: 0.3rem 0;
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.legend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 500;
+}
+
+.indicator-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.indicator-dot.green {
+  background-color: #2e6016;
+  border: 1px solid #166534;
+}
+
+.indicator-dot.red {
+  background-color: #dc2626;
+  border: 1px solid #b91c1c;
+}
+
 /* Contenedor de horarios (mismo estilo que el del calendario) */
 .schedule-container {
   background: #ffffff;
@@ -483,6 +535,39 @@ button:disabled {
   background-color: #2e6016 !important; /* 👈 verde oscuro de selección */
   color: #ffffff !important;
   font-weight: 700;
+}
+
+/* Horarios / turnos ocupados (rojo, deshabilitado y no clickeable) */
+.button-hour.ocupado {
+  background-color: #fee2e2 !important;
+  color: #b91c1c !important;
+  border: 1px solid #fca5a5 !important;
+  cursor: not-allowed !important;
+  opacity: 0.9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 0;
+  line-height: 1.1;
+}
+
+.button-hour.ocupado:hover {
+  background-color: #fee2e2 !important;
+  transform: none !important;
+}
+
+.hour-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.slot-badge-ocupado {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #dc2626;
+  letter-spacing: 0.3px;
 }
 
 /* Estado sin turnos disponibles con diseño institucional */

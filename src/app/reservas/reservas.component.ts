@@ -23,10 +23,11 @@ export class ReservasComponent {
 
   diasDisponibles: string[] = [];
   currentMonth: Date = new Date();
-  diasCalendario: { dateStr: string; dayNum: number; isCurrentMonth: boolean; enabled: boolean }[] = [];
+  diasCalendario: { dateStr: string; dayNum: number; isCurrentMonth: boolean; enabled: boolean; ocupado?: boolean }[] = [];
+  fechasOcupadas: Set<string> = new Set();
   nombresDias: string[] = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
 
-  horariosDisponibles$!: Observable<string[]>;
+  horariosDisponibles$!: Observable<{ hora: string; disponible: boolean }[]>;
   fechaSeleccionada: string | null = null;
   horaSeleccionada: string | null = null;
   costoCancha: number = 5000;
@@ -49,15 +50,9 @@ export class ReservasComponent {
     this.route.queryParams.subscribe(params => {
       this.tipoRecurso = params['tipo'] || 'cancha';
       
-      // Volver a generar calendario con las reglas del nuevo tipo
-      this.generarCalendario(this.currentMonth);
-      
-      if (params['refresh'] === 'true' && this.fechaSeleccionada) {
-        this.seleccionarDia(this.fechaSeleccionada);
-      }
-
-      // Cargar precio/seña según tipo
+      // Cargar precio/seña según tipo y fechas ocupadas
       if (this.tipoRecurso === 'quincho') {
+        this.cargarFechasOcupadas();
         this.reservasService.getPrecioQuincho().subscribe({
           next: (res) => {
             if (res && res.ok) {
@@ -70,6 +65,8 @@ export class ReservasComponent {
           error: (err) => console.error('Error al cargar tarifas de quincho:', err)
         });
       } else {
+        this.fechasOcupadas.clear();
+        this.generarCalendario(this.currentMonth);
         this.reservasService.getPrecioCancha().subscribe({
           next: (res) => {
             if (res && res.ok) {
@@ -78,6 +75,23 @@ export class ReservasComponent {
           },
           error: (err) => console.error('Error al cargar el precio de la cancha:', err)
         });
+      }
+
+      if (params['refresh'] === 'true' && this.fechaSeleccionada) {
+        this.seleccionarDia(this.fechaSeleccionada);
+      }
+    });
+  }
+
+  cargarFechasOcupadas() {
+    this.reservasService.getFechasOcupadas(this.tipoRecurso).subscribe({
+      next: (fechas) => {
+        this.fechasOcupadas = new Set(fechas || []);
+        this.generarCalendario(this.currentMonth);
+      },
+      error: (err) => {
+        console.error('Error al cargar fechas ocupadas:', err);
+        this.generarCalendario(this.currentMonth);
       }
     });
   }
@@ -130,13 +144,15 @@ export class ReservasComponent {
       d.setHours(0, 0, 0, 0);
 
       const dateStr = this.formatLocalISO(d);
-      const enabled = this.esDiaHabilitado(dateStr);
+      const estaOcupado = this.tipoRecurso === 'quincho' && this.fechasOcupadas.has(dateStr);
+      const enabled = this.esDiaHabilitado(dateStr) && !estaOcupado;
 
       this.diasCalendario.push({
         dateStr,
         dayNum: i,
         isCurrentMonth: true,
-        enabled
+        enabled,
+        ocupado: estaOcupado
       });
     }
 
@@ -198,7 +214,7 @@ export class ReservasComponent {
   }
 
   seleccionarDia(dia: string) {
-    if (!this.esDiaHabilitado(dia)) {
+    if (!this.esDiaHabilitado(dia) || (this.tipoRecurso === 'quincho' && this.fechasOcupadas.has(dia))) {
       return;
     }
     this.fechaSeleccionada = dia;
@@ -207,13 +223,11 @@ export class ReservasComponent {
 
     this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso).pipe(
       map((horarios: { hora: string, disponible: boolean }[]) => {
-        let libres = horarios.filter(h => h.disponible).map(h => h.hora);
-
         const hoyLocal = new Date().toLocaleDateString('en-CA');
         if (dia === hoyLocal) {
           const ahora = new Date();
-          libres = libres.filter(horaStr => {
-            let [hh, mm] = horaStr.split(':').map(Number);
+          return horarios.map(slot => {
+            let [hh, mm] = slot.hora.split(':').map(Number);
             const partes = dia.split('-');
             const año = parseInt(partes[0], 10);
             const mes = parseInt(partes[1], 10) - 1;
@@ -223,11 +237,13 @@ export class ReservasComponent {
             if (hh === 0 && mm === 0) {
               horaSlot.setHours(24, 0, 0, 0);
             }
-            return horaSlot >= ahora;
+            return {
+              ...slot,
+              disponible: slot.disponible && horaSlot >= ahora
+            };
           });
         }
-
-        return libres;
+        return horarios;
       })
     );
   }

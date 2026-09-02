@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, catchError, map, throwError } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -42,6 +42,16 @@ export class ReservasService {
       `${this.apiUrl}/disponibles/${fecha}?tipo=${tipo}`
     ).pipe(
       map(res => res.horarios)
+    );
+  }
+
+  // 🔹 Obtener fechas ocupadas para el calendario (p.ej. quincho)
+  getFechasOcupadas(tipo: string = 'quincho'): Observable<string[]> {
+    return this.http.get<{ ok: boolean, fechas: string[] }>(
+      `${this.apiUrl}/fechas-ocupadas?tipo=${tipo}`
+    ).pipe(
+      map(res => res.fechas || []),
+      catchError(() => of([]))
     );
   }
 

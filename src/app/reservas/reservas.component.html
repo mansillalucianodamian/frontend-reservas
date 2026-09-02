@@ -56,9 +56,21 @@
                 [disabled]="!dia.enabled"
                 [class.selected]="fechaSeleccionada === dia.dateStr"
                 [class.current-month]="dia.isCurrentMonth"
+                [class.ocupado]="dia.ocupado"
+                [attr.title]="dia.ocupado ? 'Día ocupado (sin turnos disponibles)' : null"
                 class="grid-day">
           {{ dia.dayNum }}
         </button>
+      </div>
+
+      <!-- Referencias visuales para Quincho -->
+      <div class="calendar-indicators-legend" *ngIf="tipoRecurso === 'quincho'">
+        <span class="legend-indicator available">
+          <span class="indicator-dot green"></span> Disponible
+        </span>
+        <span class="legend-indicator occupied">
+          <span class="indicator-dot red"></span> Ocupado
+        </span>
       </div>
     </div>
 
@@ -70,13 +82,17 @@
     <div class="schedule-section" *ngIf="fechaSeleccionada">
       <div class="schedule-container">
         <ng-container *ngIf="(horariosDisponibles$ | async) as horarios">
-          <!-- Grilla de horarios si hay disponibilidad -->
+          <!-- Grilla de horarios con turnos libres y ocupados -->
           <div *ngIf="horarios.length > 0" class="schedule-list">
             <button *ngFor="let h of horarios" 
-                    (click)="seleccionarHorario(h)" 
-                    [class.selected]="horaSeleccionada === h"
+                    (click)="h.disponible && seleccionarHorario(h.hora)" 
+                    [disabled]="!h.disponible"
+                    [class.selected]="horaSeleccionada === h.hora"
+                    [class.ocupado]="!h.disponible"
+                    [attr.title]="!h.disponible ? 'Turno no disponible' : null"
                     class="button-hour">
-              {{ h }}
+              <span class="hour-label">{{ h.hora }}</span>
+              <span *ngIf="!h.disponible" class="slot-badge-ocupado">Ocupado</span>
             </button>
           </div>
 
