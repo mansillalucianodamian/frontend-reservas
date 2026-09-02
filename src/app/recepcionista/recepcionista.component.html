@@ -47,10 +47,21 @@
             </div>
 
             <div class="price-edit-card">
-              <span class="price-edit-title">Valor Quincho:</span>
+              <span class="price-edit-title">Valor Base Quincho:</span>
               <div class="price-input-wrapper">
                 <span class="currency-prefix">$</span>
                 <input type="number" [(ngModel)]="precioQuincho" class="price-edit-input" [disabled]="isUpdatingQuinchoPrice" min="0">
+                <button (click)="guardarPrecioQuincho()" class="btn-price-save" [disabled]="isUpdatingQuinchoPrice">
+                  <span>{{ isUpdatingQuinchoPrice ? 'Guardando...' : 'Actualizar' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="price-edit-card">
+              <span class="price-edit-title">Adicional Aire Quincho:</span>
+              <div class="price-input-wrapper">
+                <span class="currency-prefix">$</span>
+                <input type="number" [(ngModel)]="precioAireQuincho" class="price-edit-input" [disabled]="isUpdatingQuinchoPrice" min="0">
                 <button (click)="guardarPrecioQuincho()" class="btn-price-save" [disabled]="isUpdatingQuinchoPrice">
                   <span>{{ isUpdatingQuinchoPrice ? 'Guardando...' : 'Actualizar' }}</span>
                 </button>

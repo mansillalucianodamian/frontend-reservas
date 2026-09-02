@@ -70,20 +70,38 @@
     </div>
 
     <!-- Opción de Aire Acondicionado -->
-    <div class="ac-option-box" style="padding: 0.75rem 1rem; background-color: rgba(63, 128, 31, 0.03); border: 1px solid rgba(63, 128, 31, 0.1); border-radius: 8px; margin-bottom: 1rem;">
+    <div class="ac-option-box" style="padding: 0.85rem 1rem; background-color: rgba(63, 128, 31, 0.04); border: 1px solid rgba(63, 128, 31, 0.15); border-radius: 8px; margin-bottom: 1rem;">
       <label class="checkbox-label" style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
         <input type="checkbox" formControlName="conAire" class="checkbox-input" />
-        <span class="checkbox-text" style="font-size: 0.85rem; font-weight: 600; color: #1e293b;">
-          Solicitar uso de Aire Acondicionado <strong style="color: #3F801F;">(Se cobrará el doble de la tarifa general)</strong>
+        <span class="checkbox-text" style="font-size: 0.88rem; font-weight: 600; color: #1e293b;">
+          Solicitar uso de Aire Acondicionado <strong style="color: #3F801F;">(+${{ precioAire | number }})</strong>
         </span>
       </label>
-      <div *ngIf="solicitudForm.get('conAire')?.value" class="ac-warning" style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 6px; color: #b45309; font-size: 0.78rem; font-weight: 500; display: flex; align-items: center; gap: 0.5rem;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-          <line x1="12" y1="9" x2="12" y2="13"></line>
-          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+
+      <!-- Desglose de Costo en Vivo -->
+      <div style="margin-top: 0.65rem; padding: 0.6rem 0.8rem; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.82rem; color: #334155;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+          <span>Alquiler base Quincho:</span>
+          <strong>${{ precioBase | number }}</strong>
+        </div>
+        <div *ngIf="solicitudForm.get('conAire')?.value" style="display: flex; justify-content: space-between; margin-bottom: 0.25rem; color: #3F801F;">
+          <span>Adicional Aire Acondicionado:</span>
+          <strong>+${{ precioAire | number }}</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #cbd5e1; padding-top: 0.35rem; font-size: 0.9rem; font-weight: 700; color: #0f172a;">
+          <span>Total Estimado:</span>
+          <span style="color: #3F801F;">${{ totalEstimado | number }}</span>
+        </div>
+      </div>
+
+      <!-- Aviso normativo sobre mes siguiente -->
+      <div style="margin-top: 0.5rem; padding: 0.5rem 0.75rem; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; color: #64748b; font-size: 0.75rem; display: flex; align-items: flex-start; gap: 0.45rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
         </svg>
-        <span>Atención: Al activar esta opción, la Municipalidad cobrará el doble del valor de alquiler del quincho.</span>
+        <span><strong>Aviso importante:</strong> Si la reserva corresponde a un mes posterior, el valor final a abonar en tesorería se ajustará al cuadro tarifario decretado por la Municipalidad para dicho período.</span>
       </div>
     </div>
 

@@ -1199,7 +1199,7 @@ export class SuperAdminComponent implements OnInit {
     if (this.filtroDiaBloqueos && (this.filtroEstadoBloqueos === 'todos' || this.filtroEstadoBloqueos === 'disponible')) {
       const todosHorarios: string[] = [];
       if (this.tipoRecurso === 'quincho') {
-        todosHorarios.push('09:00', '19:00');
+        todosHorarios.push('10:00', '19:00');
       } else {
         for (let h = 7; h <= 24; h++) {
           const horaStr = h === 24 ? '00:00' : `${h.toString().padStart(2, '0')}:00`;
@@ -1217,8 +1217,11 @@ export class SuperAdminComponent implements OnInit {
         return h;
       });
 
-      // Filtrar las horas libres
-      const libres = todosHorarios.filter(h => !horasOcupadas.includes(h));
+      // Filtrar las horas libres (en quincho, si hay alguna reserva, no queda ninguna hora libre en el día)
+      let libres = todosHorarios.filter(h => !horasOcupadas.includes(h));
+      if (this.tipoRecurso === 'quincho' && horasOcupadas.length > 0) {
+        libres = [];
+      }
 
       // Filtrar horas del pasado si es hoy
       const hoyLocal = this.formatLocalISO(new Date());

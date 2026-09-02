@@ -30,6 +30,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
 
   // 🔹 Gestión de las tarifas del quincho
   precioQuincho: number = 21500;
+  precioAireQuincho: number = 10000;
   isUpdatingQuinchoPrice: boolean = false;
 
   // 🔹 Aprobaciones Recientes en período de gracia (15 min)
@@ -112,6 +113,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       next: (res) => {
         if (res && res.ok) {
           this.precioQuincho = res.precio;
+          if (res.precio_aire !== undefined) {
+            this.precioAireQuincho = res.precio_aire;
+          }
           this.cdr.detectChanges();
         }
       },
@@ -152,8 +156,8 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   }
 
   guardarPrecioQuincho(): void {
-    if (this.precioQuincho <= 0) {
-      this.errorMessage = 'El precio debe ser un número entero positivo';
+    if (this.precioQuincho <= 0 || this.precioAireQuincho < 0) {
+      this.errorMessage = 'Los precios deben ser valores válidos (precio base > 0, aire >= 0)';
       this.mensaje = null;
       return;
     }
@@ -162,10 +166,10 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
     this.errorMessage = null;
     this.mensaje = null;
 
-    this.reservasService.updatePrecioQuincho(this.precioQuincho, 0).subscribe({
+    this.reservasService.updatePrecioQuincho(this.precioQuincho, 0, this.precioAireQuincho).subscribe({
       next: (res) => {
         this.isUpdatingQuinchoPrice = false;
-        this.mensaje = 'Tarifas del quincho actualizadas con éxito';
+        this.mensaje = 'Tarifas del quincho y aire acondicionado actualizadas con éxito';
         this.errorMessage = null;
         this.cdr.detectChanges();
 

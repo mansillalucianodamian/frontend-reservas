@@ -19,6 +19,7 @@ import { map, Observable } from 'rxjs';
 export class ReservasComponent {
   tipoRecurso: string = 'cancha';
   costoTotalQuincho: number = 21500;
+  costoAireQuincho: number = 10000;
 
   diasDisponibles: string[] = [];
   currentMonth: Date = new Date();
@@ -61,6 +62,9 @@ export class ReservasComponent {
           next: (res) => {
             if (res && res.ok) {
               this.costoTotalQuincho = res.precio;
+              if (res.precio_aire !== undefined) {
+                this.costoAireQuincho = res.precio_aire;
+              }
             }
           },
           error: (err) => console.error('Error al cargar tarifas de quincho:', err)
@@ -272,7 +276,9 @@ export class ReservasComponent {
         maxWidth: '95vw',
         data: {
           fecha: this.fechaSeleccionada!,
-          hora: this.horaSeleccionada!
+          hora: this.horaSeleccionada!,
+          precioBase: this.costoTotalQuincho,
+          precioAire: this.costoAireQuincho
         }
       });
 
@@ -280,11 +286,12 @@ export class ReservasComponent {
         if (result) {
           const conAireLabel = result.conAire ? 'SÍ' : 'NO';
           const motivoFormatted = `Actividad: ${result.actividad} | Asistentes: ${result.asistentes} | Aire Acondicionado: ${conAireLabel} (Reglamento Aceptado)`;
+          const totalQuinchoCalculado = this.costoTotalQuincho + (result.conAire ? this.costoAireQuincho : 0);
           const reserva = {
             fecha: this.fechaSeleccionada!,
             hora: this.horaSeleccionada!,
-            costo: this.esMesCorriente(this.fechaSeleccionada!) ? (result.conAire ? this.costoTotalQuincho * 2 : this.costoTotalQuincho) : 0,
-            costoTotal: result.conAire ? this.costoTotalQuincho * 2 : this.costoTotalQuincho,
+            costo: this.esMesCorriente(this.fechaSeleccionada!) ? totalQuinchoCalculado : 0,
+            costoTotal: totalQuinchoCalculado,
             tipo: this.tipoRecurso,
             motivo: motivoFormatted,
             conAire: !!result.conAire

@@ -177,16 +177,16 @@ export class ReservasService {
     );
   }
 
-  getPrecioQuincho(): Observable<{ ok: boolean, precio: number, sena: number }> {
-    return this.http.get<{ ok: boolean, precio: number, sena: number }>(
+  getPrecioQuincho(): Observable<{ ok: boolean, precio: number, sena: number, precio_aire: number }> {
+    return this.http.get<{ ok: boolean, precio: number, sena: number, precio_aire: number }>(
       '/api/configuracion/precio-quincho'
     );
   }
 
-  updatePrecioQuincho(precio: number, sena: number): Observable<{ ok: boolean, message: string }> {
+  updatePrecioQuincho(precio: number, sena: number, precioAire: number): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
       '/api/configuracion/precio-quincho',
-      { precio, sena },
+      { precio, sena, precio_aire: precioAire },
       { headers: this.getHeaders() }
     );
   }

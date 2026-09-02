@@ -17,10 +17,23 @@ export class SolicitudQuinchoDialogComponent implements OnInit {
 
   constructor(
     private dialogRef: MatDialogRef<SolicitudQuinchoDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { fecha: string; hora: string },
+    @Inject(MAT_DIALOG_DATA) public data: { fecha: string; hora: string; precioBase?: number; precioAire?: number },
     private fb: FormBuilder,
     private authService: AuthService
   ) {}
+
+  get precioBase(): number {
+    return this.data.precioBase || 21500;
+  }
+
+  get precioAire(): number {
+    return this.data.precioAire || 10000;
+  }
+
+  get totalEstimado(): number {
+    const conAire = this.solicitudForm?.get('conAire')?.value;
+    return this.precioBase + (conAire ? this.precioAire : 0);
+  }
 
   ngOnInit(): void {
     const user = this.authService.getUser();
