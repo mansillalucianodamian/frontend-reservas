@@ -155,7 +155,9 @@ export class ReservasComponent {
       d.setHours(0, 0, 0, 0);
 
       const dateStr = this.formatLocalISO(d);
-      const estaOcupado = this.tipoRecurso === 'quincho' && this.fechasOcupadas.has(dateStr);
+      const hoyLocal = this.formatLocalISO(hoy);
+      const pasadoHoyQuincho = this.tipoRecurso === 'quincho' && dateStr === hoyLocal && new Date().getHours() >= 10;
+      const estaOcupado = (this.tipoRecurso === 'quincho' && this.fechasOcupadas.has(dateStr)) || pasadoHoyQuincho;
       const enabled = this.esDiaHabilitado(dateStr) && !estaOcupado;
 
       this.diasCalendario.push({
@@ -214,6 +216,11 @@ export class ReservasComponent {
     d.setHours(0, 0, 0, 0);
 
     if (this.tipoRecurso === 'quincho') {
+      // Si es hoy y ya son las 10:00 o más, ya no se puede reservar quincho en el día
+      const hoyLocal = this.formatLocalISO(hoy);
+      if (dia === hoyLocal && new Date().getHours() >= 10) {
+        return false;
+      }
       // Habilitar todo el mes actual y el mes siguiente
       const finMesSiguiente = new Date(hoy.getFullYear(), hoy.getMonth() + 2, 0); // último día del mes siguiente
       return d >= hoy && d <= finMesSiguiente;
@@ -235,9 +242,22 @@ export class ReservasComponent {
 
     this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso).pipe(
       map((horarios: { hora: string, disponible: boolean }[]) => {
-        const hoyLocal = new Date().toLocaleDateString('en-CA');
+        const hoyLocal = this.formatLocalISO(new Date());
         if (dia === hoyLocal) {
           const ahora = new Date();
+          if (this.tipoRecurso === 'quincho') {
+            // En quincho: si el turno de las 10:00 ya pasó o algún slot no está disponible, se bloquea todo el día
+            const partes = dia.split('-');
+            const año = parseInt(partes[0], 10);
+            const mes = parseInt(partes[1], 10) - 1;
+            const diaNum = parseInt(partes[2], 10);
+            const slot10 = new Date(año, mes, diaNum, 10, 0, 0, 0);
+
+            if (ahora >= slot10 || horarios.some(h => !h.disponible)) {
+              return horarios.map(slot => ({ ...slot, disponible: false }));
+            }
+          }
+
           return horarios.map(slot => {
             let [hh, mm] = slot.hora.split(':').map(Number);
             const partes = dia.split('-');
@@ -255,6 +275,12 @@ export class ReservasComponent {
             };
           });
         }
+
+        // Si es quincho para cualquier fecha y hay algún slot ocupado, bloquear todos los turnos del día
+        if (this.tipoRecurso === 'quincho' && horarios.some(h => !h.disponible)) {
+          return horarios.map(h => ({ ...h, disponible: false }));
+        }
+
         return horarios;
       })
     );
