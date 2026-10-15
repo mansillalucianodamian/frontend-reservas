@@ -10,7 +10,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
 @Component({
   selector: 'app-carrito',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './carrito.component.html',
   styleUrls: ['./carrito.component.css']
 })

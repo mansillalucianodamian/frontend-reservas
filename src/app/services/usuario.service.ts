@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
 import { LoginResponse, RegistroResponse } from '../models/auth-response.model';
@@ -10,11 +10,6 @@ export class UsuariosService {
   private apiAdminUrl = '/api/users';
 
   constructor(private http: HttpClient) { }
-
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
-  }
 
   // 🔹 Registro
   registrar(usuario: Usuario): Observable<RegistroResponse> {
@@ -49,8 +44,7 @@ export class UsuariosService {
   // 🔹 Listar usuarios
   getUsuarios(): Observable<Usuario[]> {
     return this.http.get<{ ok: boolean; users: Usuario[] }>(
-      this.apiAdminUrl,
-      { headers: this.getHeaders() }
+      this.apiAdminUrl
     ).pipe(
       map(res => res.users || []),
       catchError(err => throwError(() => err.error?.message || 'Error al obtener usuarios'))
@@ -61,8 +55,7 @@ export class UsuariosService {
   crearUsuario(usuario: Usuario): Observable<{ ok: boolean; message: string; usuario?: Usuario }> {
     return this.http.post<{ ok: boolean; message: string; usuario?: Usuario }>(
       this.apiAdminUrl,
-      usuario,
-      { headers: this.getHeaders() }
+      usuario
     ).pipe(
       catchError(err => throwError(() => ({
         ok: false,
@@ -75,8 +68,7 @@ export class UsuariosService {
   editarUsuario(id: number, usuario: Partial<Usuario>): Observable<{ ok: boolean; message: string }> {
     return this.http.put<{ ok: boolean; message: string }>(
       `${this.apiAdminUrl}/${id}`,
-      usuario,
-      { headers: this.getHeaders() }
+      usuario
     ).pipe(
       catchError(err => throwError(() => ({
         ok: false,
@@ -88,8 +80,7 @@ export class UsuariosService {
   // 🔹 Eliminar usuario
   eliminarUsuario(id: number): Observable<{ ok: boolean; message: string }> {
     return this.http.delete<{ ok: boolean; message: string }>(
-      `${this.apiAdminUrl}/${id}`,
-      { headers: this.getHeaders() }
+      `${this.apiAdminUrl}/${id}`
     ).pipe(
       catchError(err => throwError(() => ({
         ok: false,
@@ -102,8 +93,7 @@ export class UsuariosService {
   asignarRol(id: number, rol: string): Observable<{ ok: boolean; message: string }> {
     return this.http.put<{ ok: boolean; message: string }>(
       `${this.apiAdminUrl}/${id}`,
-      { rol },
-      { headers: this.getHeaders() }
+      { rol }
     ).pipe(
       catchError(err => throwError(() => ({
         ok: false,
@@ -112,6 +102,3 @@ export class UsuariosService {
     );
   }
 }
-
-
-

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, catchError, map, of, throwError } from 'rxjs';
 
 @Injectable({
@@ -9,11 +9,6 @@ export class ReservasService {
   private apiUrl = '/api/reservas';
 
   constructor(private http: HttpClient) { }
-
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-    return new HttpHeaders().set('Authorization', `Bearer ${token}`);
-  }
 
   // 🔹 Obtener reservas (con soporte de filtros opcionales del lado servidor)
   getReservas(filters?: any): Observable<any[]> {
@@ -29,7 +24,7 @@ export class ReservasService {
 
     return this.http.get<{ ok: boolean, reservas: any[], message?: string }>(
       this.apiUrl,
-      { headers: this.getHeaders(), params }
+      { params }
     ).pipe(
       map(res => res.reservas || []),
       catchError(err => throwError(() => err.error?.message || 'Error al obtener reservas'))
@@ -57,11 +52,10 @@ export class ReservasService {
 
   // 🔹 Crear una nueva reserva
   crearReserva(fecha: string, hora: string, tipo: string = 'cancha', motivo: string | null = null, conAire: boolean = false): Observable<{ ok: boolean, message: string, reserva?: any }> {
-    const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId'); // 👈 importante incluir usuario_id
+    const usuarioId = localStorage.getItem('usuarioId') || sessionStorage.getItem('usuarioId');
     return this.http.post<{ ok: boolean, message: string, reserva?: any }>(
       this.apiUrl,
-      { usuario_id: usuarioId, fecha, hora, tipo, motivo, con_aire: conAire },
-      { headers: this.getHeaders() }
+      { usuario_id: usuarioId, fecha, hora, tipo, motivo, con_aire: conAire }
     ).pipe(
       map(res => ({
         ok: res.ok,
@@ -79,8 +73,7 @@ export class ReservasService {
   cancelarReserva(id: number): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
       `${this.apiUrl}/${id}/cancelar`,
-      {},
-      { headers: this.getHeaders() }
+      {}
     ).pipe(
       map(res => ({
         ok: res.ok,
@@ -93,12 +86,11 @@ export class ReservasService {
     );
   }
 
-  // 🔹 Aprobar una reserva (nuevo método para recepcionista/superadmin)
+  // 🔹 Aprobar una reserva
   aprobarReserva(id: number): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
       `${this.apiUrl}/${id}/aprobar`,
-      {},
-      { headers: this.getHeaders() }
+      {}
     ).pipe(
       map(res => ({
         ok: res.ok,
@@ -115,8 +107,7 @@ export class ReservasService {
   deshacerAprobacion(id: number): Observable<{ ok: boolean, message: string, reserva?: any }> {
     return this.http.put<{ ok: boolean, message: string, reserva?: any }>(
       `${this.apiUrl}/${id}/deshacer-aprobacion`,
-      {},
-      { headers: this.getHeaders() }
+      {}
     ).pipe(
       map(res => ({
         ok: res.ok,
@@ -129,11 +120,11 @@ export class ReservasService {
       })))
     );
   }
+
   bloquearReserva(fecha: string, hora: string, motivo: string, tipo: string = 'cancha', conLuz: boolean = false): Observable<{ ok: boolean, message: string }> {
     return this.http.post<{ ok: boolean, message: string }>(
       `${this.apiUrl}/bloquear`,
-      { fecha, hora, motivo, tipo, con_luz: conLuz },
-      { headers: this.getHeaders() }
+      { fecha, hora, motivo, tipo, con_luz: conLuz }
     ).pipe(
       catchError(err => throwError(() => ({
         ok: false,
@@ -141,11 +132,11 @@ export class ReservasService {
       })))
     );
   }
+
   bloquearReservaMasivo(fechaInicio: string, fechaFin: string, diasSemana: number[], horas: string[], motivo: string, conLuz: boolean = false): Observable<{ ok: boolean, resultado?: any, message?: string }> {
     return this.http.post<{ ok: boolean, resultado?: any, message?: string }>(
       `${this.apiUrl}/bloquear-masivo`,
-      { fechaInicio, fechaFin, diasSemana, horas, motivo, con_luz: conLuz },
-      { headers: this.getHeaders() }
+      { fechaInicio, fechaFin, diasSemana, horas, motivo, con_luz: conLuz }
     ).pipe(
       catchError(err => throwError(() => ({
         ok: false,
@@ -153,20 +144,19 @@ export class ReservasService {
       })))
     );
   }
+
   getReservasPendientes(): Observable<any[]> {
     return this.http.get<{ ok: boolean, reservas: any[] }>(
-      `${this.apiUrl}/pendientes`,
-      { headers: this.getHeaders() }
+      `${this.apiUrl}/pendientes`
     ).pipe(
-      map(response => response.reservas), // 👈 devolvemos directamente el array
+      map(response => response.reservas),
       catchError(err => throwError(() => err.error?.message || err.message || 'Error al obtener reservas pendientes'))
     );
   }
 
   getAprobacionesRecientes(): Observable<any[]> {
     return this.http.get<{ ok: boolean, reservas: any[] }>(
-      `${this.apiUrl}/recientes-aprobadas`,
-      { headers: this.getHeaders() }
+      `${this.apiUrl}/recientes-aprobadas`
     ).pipe(
       map(response => response.reservas || []),
       catchError(err => throwError(() => err.error?.message || err.message || 'Error al obtener aprobaciones recientes'))
@@ -182,8 +172,7 @@ export class ReservasService {
   updatePrecioCancha(precio: number): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
       '/api/configuracion/precio',
-      { precio },
-      { headers: this.getHeaders() }
+      { precio }
     );
   }
 
@@ -196,23 +185,20 @@ export class ReservasService {
   updatePrecioQuincho(precio: number, sena: number, precioAire: number): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
       '/api/configuracion/precio-quincho',
-      { precio, sena, precio_aire: precioAire },
-      { headers: this.getHeaders() }
+      { precio, sena, precio_aire: precioAire }
     );
   }
 
   getDispositivoStatus(tipo: 'cancha' | 'quincho'): Observable<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }> {
     return this.http.get<{ ok: boolean, output: boolean, mode: 'ON' | 'OFF' | 'AUTO' }>(
-      `/api/configuracion/dispositivo/${tipo}`,
-      { headers: this.getHeaders() }
+      `/api/configuracion/dispositivo/${tipo}`
     );
   }
 
   updateDispositivoMode(tipo: 'cancha' | 'quincho', mode: 'ON' | 'OFF' | 'AUTO'): Observable<{ ok: boolean, message: string }> {
     return this.http.put<{ ok: boolean, message: string }>(
       `/api/configuracion/dispositivo/${tipo}`,
-      { mode },
-      { headers: this.getHeaders() }
+      { mode }
     );
   }
 }

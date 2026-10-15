@@ -1,4 +1,5 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
+import { Component, ChangeDetectorRef, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ReservasService } from '../services/reservas.service';
 import { AuthService } from '../services/auth.service';
@@ -17,6 +18,8 @@ import { map, Observable } from 'rxjs';
   styleUrls: ['./reservas.component.css']
 })
 export class ReservasComponent {
+  private destroyRef = inject(DestroyRef);
+
   tipoRecurso: string = 'cancha';
   costoTotalQuincho: number = 21500;
   costoAireQuincho: number = 10000;
@@ -50,7 +53,7 @@ export class ReservasComponent {
     // Generar calendario de inmediato de forma síncrona para que no quede en blanco
     this.generarCalendario(this.currentMonth);
 
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       this.tipoRecurso = params['tipo'] || 'cancha';
       
       // Re-generar de inmediato con las reglas del recurso
@@ -59,7 +62,7 @@ export class ReservasComponent {
       // Cargar precio/seña según tipo y fechas ocupadas
       if (this.tipoRecurso === 'quincho') {
         this.cargarFechasOcupadas();
-        this.reservasService.getPrecioQuincho().subscribe({
+        this.reservasService.getPrecioQuincho().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: (res) => {
             if (res && res.ok) {
               this.costoTotalQuincho = res.precio;
@@ -74,7 +77,7 @@ export class ReservasComponent {
       } else {
         this.fechasOcupadas.clear();
         this.generarCalendario(this.currentMonth);
-        this.reservasService.getPrecioCancha().subscribe({
+        this.reservasService.getPrecioCancha().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
           next: (res) => {
             if (res && res.ok) {
               this.costoCancha = res.precio;
@@ -93,7 +96,7 @@ export class ReservasComponent {
   }
 
   cargarFechasOcupadas() {
-    this.reservasService.getFechasOcupadas(this.tipoRecurso).subscribe({
+    this.reservasService.getFechasOcupadas(this.tipoRecurso).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (fechas) => {
         this.fechasOcupadas = new Set(fechas || []);
         this.generarCalendario(this.currentMonth);
@@ -336,7 +339,7 @@ export class ReservasComponent {
         }
       });
 
-      dialogRef.afterClosed().subscribe(result => {
+      dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
         if (result) {
           const conAireLabel = result.conAire ? 'SÍ' : 'NO';
           const motivoFormatted = `Actividad: ${result.actividad} | Asistentes: ${result.asistentes} | Aire Acondicionado: ${conAireLabel} (Reglamento Aceptado)`;
@@ -382,7 +385,7 @@ export class ReservasComponent {
   verCarrito() { this.router.navigate(['/carrito'], { queryParams: { tipo: this.tipoRecurso } }); }
   abrirConfirmacion(reserva: any) {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, { width: '350px', data: reserva });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
       if (result) {
         this.carritoService.addReserva({ ...reserva, tipo: this.tipoRecurso });
         this.router.navigate(['/reservas'], { queryParams: { refresh: 'true', tipo: this.tipoRecurso } });
