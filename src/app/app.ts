@@ -2,6 +2,7 @@ import { Component, HostListener, ElementRef } from '@angular/core';
 import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
+import { PwaService } from './services/pwa.service';
 
 @Component({
   selector: 'app-root',
@@ -19,7 +20,12 @@ export class App {
   isDropdownOpen = false;
   showNavbarAndFooter = true;
 
-  constructor(private authService: AuthService, private router: Router, private elementRef: ElementRef) {
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private elementRef: ElementRef,
+    public pwaService: PwaService
+  ) {
     this.isLoggedIn$ = this.authService.isLoggedIn$;
 
     // Escuchar cambios de ruta para ocultar navbar y footer en páginas de autenticación
