@@ -3,11 +3,12 @@ import { Router, RouterLink, RouterOutlet, NavigationEnd } from '@angular/router
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { PwaService } from './services/pwa.service';
+import { PwaBannerComponent } from './components/pwa-banner/pwa-banner.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule],
+  imports: [RouterOutlet, RouterLink, CommonModule, PwaBannerComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
