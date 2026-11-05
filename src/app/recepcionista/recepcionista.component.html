@@ -23,6 +23,160 @@
     <!-- Grupo de Pestañas Material -->
     <mat-tab-group class="custom-tabs-group" dynamicHeight>
       
+      <!-- PESTAÑA 0: Agenda del Día -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <span class="tab-label-text">Agenda del Día</span>
+          <span class="tab-badge" *ngIf="resumenAgenda.pendientes > 0">{{ resumenAgenda.pendientes }}</span>
+        </ng-template>
+
+        <div class="tab-body-content">
+          <p class="legend">Turnos del día con su estado de pago. Acá podés cobrar, dar de baja un turno o ver quién falta pagar.</p>
+
+          <!-- Navegación de fecha -->
+          <div class="agenda-toolbar">
+            <div class="agenda-date-nav">
+              <button type="button" class="btn-quick-date" (click)="cambiarDiaAgenda(-1)" title="Día anterior">&lt;</button>
+              <input type="date" class="filter-date-input" [(ngModel)]="fechaAgenda" (change)="cargarAgendaDiaria()">
+              <button type="button" class="btn-quick-date" (click)="cambiarDiaAgenda(1)" title="Día siguiente">&gt;</button>
+              <button type="button" class="btn-quick-date" [class.active-quick]="esAgendaHoy()" (click)="irAHoyAgenda()">Hoy</button>
+              <button type="button" class="btn-quick-date" [class.active-quick]="esAgendaManana()" (click)="irAMananaAgenda()">Mañana</button>
+              <button type="button" class="btn-quick-date" (click)="cargarAgendaDiaria()" [disabled]="cargandoAgenda" title="Actualizar">↻ Actualizar</button>
+            </div>
+            <span class="agenda-date-label">{{ formatFechaLocal(fechaAgenda) }}</span>
+          </div>
+
+          <!-- Resumen -->
+          <div class="agenda-summary">
+            <div class="agenda-kpi aprobado"><strong>{{ resumenAgenda.aprobados }}</strong><span>Pagados</span></div>
+            <div class="agenda-kpi pendiente"><strong>{{ resumenAgenda.pendientes }}</strong><span>Falta pagar</span></div>
+            <div class="agenda-kpi libre"><strong>{{ resumenAgenda.libres }}</strong><span>Libres</span></div>
+            <div class="agenda-kpi bloqueado"><strong>{{ resumenAgenda.bloqueados }}</strong><span>Bloqueados</span></div>
+          </div>
+
+          <!-- Filtros -->
+          <div class="advanced-filters-panel">
+            <div class="filter-row">
+              <div class="filter-group">
+                <span class="filter-label">Espacio:</span>
+                <div class="pill-group">
+                  <button class="btn-pill" [class.active]="agendaTipoRecurso === 'cancha'" (click)="seleccionarRecursoAgenda('cancha')">Pádel</button>
+                  <button class="btn-pill" [class.active]="agendaTipoRecurso === 'quincho'" (click)="seleccionarRecursoAgenda('quincho')">Quincho</button>
+                  <button class="btn-pill" [class.active]="agendaTipoRecurso === 'todos'" (click)="seleccionarRecursoAgenda('todos')">Ambos</button>
+                </div>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">Ver:</span>
+                <div class="pill-group">
+                  <button class="btn-pill" [class.active]="agendaFiltroEstado === 'todos'" (click)="seleccionarEstadoAgenda('todos')">Todos</button>
+                  <button class="btn-pill" [class.active]="agendaFiltroEstado === 'ocupados'" (click)="seleccionarEstadoAgenda('ocupados')">Ocupados</button>
+                  <button class="btn-pill warning" [class.active]="agendaFiltroEstado === 'pendiente'" (click)="seleccionarEstadoAgenda('pendiente')">Falta pagar</button>
+                  <button class="btn-pill success" [class.active]="agendaFiltroEstado === 'aprobado'" (click)="seleccionarEstadoAgenda('aprobado')">Pagados</button>
+                  <button class="btn-pill secondary" [class.active]="agendaFiltroEstado === 'libre'" (click)="seleccionarEstadoAgenda('libre')">Libres</button>
+                </div>
+              </div>
+            </div>
+            <div class="filter-actions-row">
+              <div class="search-input-wrapper-compact" style="flex:1;">
+                <svg class="search-icon-compact" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" class="search-input-compact" placeholder="Vecino, DNI, teléfono, hora o Ref..." [(ngModel)]="agendaBusqueda" (ngModelChange)="onAgendaBusquedaChange()">
+              </div>
+              <button *ngIf="agendaBusqueda || agendaFiltroEstado !== 'todos'" (click)="limpiarFiltrosAgenda()" class="btn-filter-clear">Limpiar</button>
+            </div>
+          </div>
+
+          <div class="loading-state" *ngIf="cargandoAgenda">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Cargando agenda...</p>
+          </div>
+
+          <ng-container *ngIf="!cargandoAgenda">
+            <!-- Grilla Cancha -->
+            <div class="agenda-section" *ngIf="agendaTipoRecurso !== 'quincho'">
+              <h3 class="agenda-section-title">Cancha de Pádel</h3>
+              <div class="agenda-grid" *ngIf="slotsAgendaCancha.length > 0; else agendaVacia">
+                <ng-container *ngFor="let s of slotsAgendaCancha">
+                  <ng-container *ngTemplateOutlet="slotAgenda; context: { $implicit: s }"></ng-container>
+                </ng-container>
+              </div>
+            </div>
+
+            <!-- Grilla Quincho -->
+            <div class="agenda-section" *ngIf="agendaTipoRecurso !== 'cancha'">
+              <h3 class="agenda-section-title">Quincho Municipal</h3>
+              <div class="agenda-grid" *ngIf="slotsAgendaQuincho.length > 0; else agendaVacia">
+                <ng-container *ngFor="let s of slotsAgendaQuincho">
+                  <ng-container *ngTemplateOutlet="slotAgenda; context: { $implicit: s }"></ng-container>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #agendaVacia>
+            <div class="empty-recep-state">
+              <p class="empty-title">Sin turnos para mostrar</p>
+              <p class="empty-description">No hay horarios que coincidan con los filtros elegidos.</p>
+            </div>
+          </ng-template>
+
+          <!-- Fila de un slot de agenda -->
+          <ng-template #slotAgenda let-s>
+            <div class="agenda-slot" [ngClass]="s.estadoSlot">
+              <div class="agenda-slot-time">
+                <strong>{{ s.hora }}</strong>
+                <span *ngIf="s.etiquetaTurno" class="agenda-slot-turno">{{ s.etiquetaTurno }}</span>
+              </div>
+
+              <div class="agenda-slot-body">
+                <ng-container *ngIf="s.reserva; else slotLibre">
+                  <div class="agenda-slot-main">
+                    <span class="user-value">{{ s.estadoSlot === 'bloqueado' ? 'Bloqueo administrativo' : s.reserva.usuario }}</span>
+                    <span class="reserva-badge" [ngClass]="s.estadoSlot">
+                      {{ s.estadoSlot === 'aprobado' ? 'Pagado' : (s.estadoSlot === 'pendiente' ? 'Falta pagar' : 'Bloqueado') }}
+                    </span>
+                    <span class="reserva-code">Ref: #{{ s.reserva.id }}</span>
+                    <span *ngIf="s.tipo === 'quincho' && (s.reserva.con_aire || (s.reserva.motivo && s.reserva.motivo.includes('Aire Acondicionado: SÍ')))" class="reserva-ac-badge">Con Aire</span>
+                  </div>
+                  <div class="agenda-slot-contact" *ngIf="s.estadoSlot !== 'bloqueado'">
+                    <span>DNI: <strong>{{ s.reserva.dni || '—' }}</strong></span>
+                    <span>Tel: <strong>{{ s.reserva.telefono || '—' }}</strong></span>
+                  </div>
+                  <div class="reserva-motivo" *ngIf="s.reserva.motivo">Nota: {{ s.reserva.motivo }}</div>
+                </ng-container>
+                <ng-template #slotLibre>
+                  <span class="agenda-slot-libre">Libre</span>
+                </ng-template>
+              </div>
+
+              <div class="agenda-slot-actions" *ngIf="s.reserva && s.estadoSlot !== 'bloqueado'">
+                <button *ngIf="s.estadoSlot === 'pendiente'"
+                        (click)="aprobarReserva(s.reserva.id)"
+                        [disabled]="s.tipo === 'quincho' && !esMesCorrienteOPasado(s.reserva.fecha)"
+                        class="btn-approve-payment small"
+                        title="Aprobar pago">
+                  <span>Aprobar Pago</span>
+                </button>
+                <span *ngIf="s.tipo === 'quincho' && s.estadoSlot === 'pendiente' && !esMesCorrienteOPasado(s.reserva.fecha)" class="aviso-mes-futuro">
+                  Se abona en {{ obtenerNombreMes(s.reserva.fecha) }}
+                </span>
+                <button *ngIf="s.estadoSlot === 'aprobado' && estaEnPeriodoGracia(s.reserva)"
+                        (click)="deshacerAprobacion(s.reserva)"
+                        class="btn-undo-approval"
+                        title="Volver a Pendiente">
+                  <span>Deshacer ({{ userRole === 'super_admin' ? 'Admin' : minutosGraciaRestantes(s.reserva) + ' min' }})</span>
+                </button>
+                <button (click)="darDeBajaReserva(s.reserva)" class="btn-baja-turno" title="Dar de baja y liberar el horario">
+                  <span>Dar de baja</span>
+                </button>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+      </mat-tab>
+
       <!-- PESTAÑA 1: Pendientes de Aprobación -->
       <mat-tab>
         <ng-template mat-tab-label>

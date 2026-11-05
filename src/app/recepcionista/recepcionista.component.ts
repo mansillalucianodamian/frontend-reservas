@@ -1,12 +1,44 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms'; // ✅ necesario para [(ngModel)]
-import { MatTabsModule } from '@angular/material/tabs'; // ✅ Tabs
+import { FormsModule } from '@angular/forms';
+import { MatTabsModule } from '@angular/material/tabs';
 import { ReservasService } from '../services/reservas.service';
 import { Observable, tap } from 'rxjs';
-import { UserFilterPipe } from '../pipes/user-filter.pipe'; // importa el pipe
+import { UserFilterPipe } from '../pipes/user-filter.pipe';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+
+export interface ReservaAgendaRecord {
+  id: number;
+  tipo: 'cancha' | 'quincho';
+  fecha: string;
+  hora: string;
+  estado: string;
+  usuario_id?: number | null;
+  usuario?: string;
+  dni?: string;
+  telefono?: string;
+  motivo?: string | null;
+  con_aire?: number | boolean;
+  con_luz?: number | boolean;
+  fecha_aprobacion?: string | null;
+}
+
+export interface AgendaSlotItem {
+  hora: string;
+  tipo: 'cancha' | 'quincho';
+  etiquetaTurno?: string;
+  estadoSlot: 'libre' | 'pendiente' | 'aprobado' | 'bloqueado';
+  reserva: ReservaAgendaRecord | null;
+}
+
+export interface ResumenAgendaDiaria {
+  totalOcupados: number;
+  aprobados: number;
+  pendientes: number;
+  libres: number;
+  bloqueados: number;
+}
 
 @Component({
   selector: 'app-recepcionista',
@@ -23,7 +55,26 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   errorMessage: string | null = null;
   isProcessing: boolean = false;
   userRole: string = 'recepcionista';
-  
+
+  // 🔹 AGENDA DIARIA (Pestaña 1 Principal)
+  fechaAgenda: string = '';
+  cargandoAgenda: boolean = false;
+  reservasAgendaDia: ReservaAgendaRecord[] = [];
+  agendaTipoRecurso: 'cancha' | 'quincho' | 'todos' = 'cancha';
+  agendaFiltroEstado: 'todos' | 'ocupados' | 'pendiente' | 'aprobado' | 'libre' = 'todos';
+  agendaBusqueda: string = '';
+
+  // Grillas precalculadas en O(N + M) para evitar cómputos en el template
+  slotsAgendaCancha: AgendaSlotItem[] = [];
+  slotsAgendaQuincho: AgendaSlotItem[] = [];
+  resumenAgenda: ResumenAgendaDiaria = {
+    totalOcupados: 0,
+    aprobados: 0,
+    pendientes: 0,
+    libres: 0,
+    bloqueados: 0
+  };
+
   // 🔹 Gestión del precio de la cancha
   precioCancha: number = 5000;
   isUpdatingPrice: boolean = false;
@@ -51,11 +102,17 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
   // Timer para actualización dinámica del tiempo de gracia
   private intervalId: any = null;
 
-  // Lista estándar de horarios disponibles para el filtro
+  // Lista estándar de horarios disponibles para cancha (07:00 a 00:00)
   readonly listaHorarios: string[] = [
     '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
     '13:00', '14:00', '15:00', '16:00', '17:00', '18:00',
     '19:00', '20:00', '21:00', '22:00', '23:00', '00:00'
+  ];
+
+  // Turnos estándar para Quincho Municipal
+  readonly horariosQuincho: { hora: string; etiqueta: string }[] = [
+    { hora: '10:00', etiqueta: 'Turno Diurno (10:00 a 16:00 hs)' },
+    { hora: '19:00', etiqueta: 'Turno Nocturno (19:00 a 01:00 hs)' }
   ];
 
   constructor(
@@ -66,6 +123,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.userRole = localStorage.getItem('rol') || sessionStorage.getItem('rol') || 'recepcionista';
+    this.fechaAgenda = this.formatLocalISO(new Date());
+
+    this.cargarAgendaDiaria();
     this.loadReservas();
     this.cargarAprobacionesRecientes();
     this.cargarPrecioCancha();
@@ -80,6 +140,296 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
     }, 15000);
   }
 
+  ngOnDestroy(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  // =========================================================================
+  // 📅 LÓGICA DE AGENDA DIARIA (Complejidad O(N + M) con Map indexado)
+  // =========================================================================
+
+  cargarAgendaDiaria(): void {
+    if (!this.fechaAgenda) {
+      this.fechaAgenda = this.formatLocalISO(new Date());
+    }
+
+    this.cargandoAgenda = true;
+    this.reservasService.getReservas({ fecha: this.fechaAgenda }).subscribe({
+      next: (res) => {
+        this.reservasAgendaDia = (res || []) as ReservaAgendaRecord[];
+        this.recalcularGrillaAgenda();
+        this.cargandoAgenda = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error al cargar la agenda diaria:', err);
+        this.reservasAgendaDia = [];
+        this.recalcularGrillaAgenda();
+        this.cargandoAgenda = false;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /**
+   * Construye la grilla horaria completa del día en tiempo lineal O(N + M)
+   * cruzando los horarios estándar con las reservas activas de la fecha.
+   */
+  recalcularGrillaAgenda(): void {
+    const mapaActivas = new Map<string, ReservaAgendaRecord>();
+
+    for (const r of this.reservasAgendaDia) {
+      const estadoNorm = (r.estado || '').toLowerCase().trim();
+      if (['cancelado', 'cancelada', 'rechazado', 'rechazada'].includes(estadoNorm)) {
+        continue;
+      }
+      const tipoNorm = ((r.tipo || 'cancha').toLowerCase().trim() === 'quincho') ? 'quincho' : 'cancha';
+      const horaNorm = this.normalizarHora(r.hora);
+      const key = `${tipoNorm}_${horaNorm}`;
+      mapaActivas.set(key, { ...r, tipo: tipoNorm, hora: horaNorm });
+    }
+
+    // 1. Construir todos los slots base de Cancha
+    const baseCancha: AgendaSlotItem[] = this.listaHorarios.map(hora => {
+      const res = mapaActivas.get(`cancha_${hora}`) || null;
+      return {
+        hora,
+        tipo: 'cancha',
+        estadoSlot: this.determinarEstadoSlot(res),
+        reserva: res
+      };
+    });
+
+    // 2. Construir todos los slots base de Quincho
+    const baseQuincho: AgendaSlotItem[] = this.horariosQuincho.map(item => {
+      const res = mapaActivas.get(`quincho_${item.hora}`) || null;
+      return {
+        hora: item.hora,
+        tipo: 'quincho',
+        etiquetaTurno: item.etiqueta,
+        estadoSlot: this.determinarEstadoSlot(res),
+        reserva: res
+      };
+    });
+
+    // 3. Calcular KPIs del recurso seleccionado antes de filtrar por estado/texto
+    const slotsParaResumen = this.agendaTipoRecurso === 'cancha'
+      ? baseCancha
+      : (this.agendaTipoRecurso === 'quincho' ? baseQuincho : [...baseQuincho, ...baseCancha]);
+
+    const resumen: ResumenAgendaDiaria = {
+      totalOcupados: 0,
+      aprobados: 0,
+      pendientes: 0,
+      libres: 0,
+      bloqueados: 0
+    };
+
+    for (const s of slotsParaResumen) {
+      if (s.estadoSlot === 'aprobado') {
+        resumen.aprobados++;
+        resumen.totalOcupados++;
+      } else if (s.estadoSlot === 'pendiente') {
+        resumen.pendientes++;
+        resumen.totalOcupados++;
+      } else if (s.estadoSlot === 'bloqueado') {
+        resumen.bloqueados++;
+      } else {
+        resumen.libres++;
+      }
+    }
+    this.resumenAgenda = resumen;
+
+    // 4. Aplicar filtros visuales (estado y búsqueda por vecino/DNI/teléfono)
+    this.slotsAgendaCancha = baseCancha.filter(s => this.cumpleFiltroSlotAgenda(s));
+    this.slotsAgendaQuincho = baseQuincho.filter(s => this.cumpleFiltroSlotAgenda(s));
+  }
+
+  private determinarEstadoSlot(reserva: ReservaAgendaRecord | null): 'libre' | 'pendiente' | 'aprobado' | 'bloqueado' {
+    if (!reserva) return 'libre';
+    const est = (reserva.estado || '').toLowerCase().trim();
+    if (['aprobado', 'aprobada', 'confirmado', 'confirmada'].includes(est)) {
+      return 'aprobado';
+    }
+    if (est === 'pendiente') {
+      return 'pendiente';
+    }
+    if (est.startsWith('bloquead')) {
+      return 'bloqueado';
+    }
+    return 'pendiente';
+  }
+
+  private cumpleFiltroSlotAgenda(slot: AgendaSlotItem): boolean {
+    if (this.agendaFiltroEstado === 'ocupados') {
+      if (slot.estadoSlot === 'libre') return false;
+    } else if (this.agendaFiltroEstado !== 'todos') {
+      if (slot.estadoSlot !== this.agendaFiltroEstado) return false;
+    }
+
+    const q = this.agendaBusqueda.trim().toLowerCase();
+    if (q) {
+      if (!slot.reserva) {
+        return slot.hora.includes(q);
+      }
+      const matchUsuario = (slot.reserva.usuario || '').toLowerCase().includes(q);
+      const matchDni = (slot.reserva.dni || '').toString().toLowerCase().includes(q);
+      const matchTel = (slot.reserva.telefono || '').toString().toLowerCase().includes(q);
+      const matchMotivo = (slot.reserva.motivo || '').toLowerCase().includes(q);
+      const matchId = slot.reserva.id?.toString().includes(q);
+      const matchHora = slot.hora.includes(q);
+      return Boolean(matchUsuario || matchDni || matchTel || matchMotivo || matchId || matchHora);
+    }
+
+    return true;
+  }
+
+  normalizarHora(horaStr: string): string {
+    if (!horaStr) return '';
+    const clean = horaStr.toString().trim();
+    const parts = clean.split(':');
+    if (parts.length >= 2) {
+      return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+    }
+    return clean;
+  }
+
+  cambiarDiaAgenda(deltaDias: number): void {
+    const base = this.fechaAgenda ? new Date(this.fechaAgenda + 'T00:00:00') : new Date();
+    if (isNaN(base.getTime())) {
+      this.fechaAgenda = this.formatLocalISO(new Date());
+    } else {
+      base.setDate(base.getDate() + deltaDias);
+      this.fechaAgenda = this.formatLocalISO(base);
+    }
+    this.cargarAgendaDiaria();
+  }
+
+  irAHoyAgenda(): void {
+    this.fechaAgenda = this.formatLocalISO(new Date());
+    this.cargarAgendaDiaria();
+  }
+
+  irAMananaAgenda(): void {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    this.fechaAgenda = this.formatLocalISO(manana);
+    this.cargarAgendaDiaria();
+  }
+
+  esAgendaHoy(): boolean {
+    return this.fechaAgenda === this.formatLocalISO(new Date());
+  }
+
+  esAgendaManana(): boolean {
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    return this.fechaAgenda === this.formatLocalISO(manana);
+  }
+
+  seleccionarRecursoAgenda(tipo: 'cancha' | 'quincho' | 'todos'): void {
+    this.agendaTipoRecurso = tipo;
+    this.recalcularGrillaAgenda();
+    this.cdr.detectChanges();
+  }
+
+  seleccionarEstadoAgenda(estado: 'todos' | 'ocupados' | 'pendiente' | 'aprobado' | 'libre'): void {
+    this.agendaFiltroEstado = estado;
+    this.recalcularGrillaAgenda();
+    this.cdr.detectChanges();
+  }
+
+  onAgendaBusquedaChange(): void {
+    this.recalcularGrillaAgenda();
+    this.cdr.detectChanges();
+  }
+
+  limpiarFiltrosAgenda(): void {
+    this.agendaFiltroEstado = 'todos';
+    this.agendaBusqueda = '';
+    this.recalcularGrillaAgenda();
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Dar de baja / Cancelar un turno (tanto si estaba Pendiente como Aprobado)
+   * liberando inmediatamente el horario en la agenda diaria.
+   */
+  darDeBajaReserva(reserva: any): void {
+    if (!reserva || !reserva.id) return;
+
+    const estadoActual = (reserva.estado || '').toLowerCase() === 'aprobado' ? 'Aprobado (Pagado)' : 'Pendiente de Pago';
+    const nombreVecino = reserva.usuario || 'el vecino';
+    const horaStr = this.normalizarHora(reserva.hora);
+    const fechaFormateada = this.formatFechaLocal(reserva.fecha);
+
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      data: {
+        titulo: 'Dar de Baja / Liberar Turno',
+        mensaje: `¿Confirmás dar de baja el turno #${reserva.id} de ${nombreVecino} (${fechaFormateada} a las ${horaStr} hs - Estado: ${estadoActual})?\n\nEl horario quedará LIBRE y disponible inmediatamente en la agenda.`,
+        tipo: 'confirm'
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.isProcessing = true;
+        this.cdr.detectChanges();
+
+        this.reservasService.cancelarReserva(reserva.id).subscribe({
+          next: (res) => {
+            this.isProcessing = false;
+            this.cdr.detectChanges();
+
+            if (res.ok) {
+              this.dialog.open(ConfirmDialogComponent, {
+                data: {
+                  titulo: 'Turno Liberado',
+                  mensaje: '',
+                  resultado: `El turno de las ${horaStr} hs fue dado de baja y el horario ya se encuentra libre nuevamente.`,
+                  tipo: 'success'
+                }
+              });
+              this.sincronizarVistas();
+            } else {
+              this.dialog.open(ConfirmDialogComponent, {
+                data: {
+                  titulo: 'Error',
+                  mensaje: '',
+                  resultado: res.message || 'No se pudo dar de baja el turno',
+                  tipo: 'error'
+                }
+              });
+            }
+          },
+          error: (err) => {
+            this.isProcessing = false;
+            this.cdr.detectChanges();
+            this.dialog.open(ConfirmDialogComponent, {
+              data: {
+                titulo: 'Error al dar de baja',
+                mensaje: '',
+                resultado: err?.message || 'Ocurrió un error al intentar cancelar la reserva.',
+                tipo: 'error'
+              }
+            });
+          }
+        });
+      }
+    });
+  }
+
+  private sincronizarVistas(): void {
+    this.cargarAgendaDiaria();
+    this.loadReservas();
+    this.cargarAprobacionesRecientes();
+    if (this.busquedaRealizada) {
+      this.ejecutarBusqueda();
+    }
+  }
+
   cargarAprobacionesRecientes(): void {
     this.reservasService.getAprobacionesRecientes().subscribe({
       next: (res) => {
@@ -88,12 +438,6 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       },
       error: (err) => console.error('Error al cargar aprobaciones recientes:', err)
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-    }
   }
 
   cargarPrecioCancha(): void {
@@ -135,7 +479,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
     this.mensaje = null;
 
     this.reservasService.updatePrecioCancha(this.precioCancha).subscribe({
-      next: (res) => {
+      next: () => {
         this.isUpdatingPrice = false;
         this.mensaje = 'Precio de la cancha actualizado con éxito';
         this.errorMessage = null;
@@ -167,7 +511,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
     this.mensaje = null;
 
     this.reservasService.updatePrecioQuincho(this.precioQuincho, 0, this.precioAireQuincho).subscribe({
-      next: (res) => {
+      next: () => {
         this.isUpdatingQuinchoPrice = false;
         this.mensaje = 'Tarifas del quincho y aire acondicionado actualizadas con éxito';
         this.errorMessage = null;
@@ -255,15 +599,11 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
                 data: {
                   titulo: 'Reserva Aprobada',
                   mensaje: '',
-                  resultado: 'La reserva fue aprobada correctamente. Tienes un período de gracia de 15 minutos para deshacer esta acción si fue un error.',
+                  resultado: 'La reserva fue aprobada correctamente. Ya figura como Pagada en la Agenda Diaria (tienes 15 minutos de gracia por si necesitas deshacer la acción).',
                   tipo: 'success'
                 }
               });
-              this.loadReservas();
-              this.cargarAprobacionesRecientes();
-              if (this.busquedaRealizada) {
-                this.ejecutarBusqueda();
-              }
+              this.sincronizarVistas();
             } else {
               this.dialog.open(ConfirmDialogComponent, {
                 data: {
@@ -307,7 +647,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
         this.cdr.detectChanges();
 
         this.reservasService.deshacerAprobacion(reserva.id).subscribe({
-          next: (res) => {
+          next: () => {
             this.isProcessing = false;
             this.cdr.detectChanges();
             this.dialog.open(ConfirmDialogComponent, {
@@ -318,11 +658,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
                 tipo: 'success'
               }
             });
-            this.loadReservas();
-            this.cargarAprobacionesRecientes();
-            if (this.busquedaRealizada) {
-              this.ejecutarBusqueda();
-            }
+            this.sincronizarVistas();
           },
           error: (err) => {
             this.isProcessing = false;
@@ -408,7 +744,6 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       manana.setDate(manana.getDate() + 1);
       this.filtroHistorialFecha = this.formatLocalISO(manana);
     }
-    // Ejecutar búsqueda automáticamente al cambiar filtro rápido de fecha
     this.ejecutarBusqueda();
   }
 
@@ -434,7 +769,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       } else if (cleanFechaStr.includes(' ')) {
         cleanFechaStr = cleanFechaStr.split(' ')[0];
       }
-      
+
       if (cleanFechaStr.includes('/')) {
         const parts = cleanFechaStr.split('/');
         if (parts.length === 3 && parts[2].length === 4) {

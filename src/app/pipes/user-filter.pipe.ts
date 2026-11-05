@@ -7,9 +7,13 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class UserFilterPipe implements PipeTransform {
     transform(reservas: any[], filtroUsuario: string): any[] {
         if (!reservas) return [];
-        if (!filtroUsuario) return reservas;
+        if (!filtroUsuario || !filtroUsuario.trim()) return reservas;
+        const term = filtroUsuario.trim().toLowerCase();
         return reservas.filter(r =>
-            r.usuario?.toLowerCase().includes(filtroUsuario.toLowerCase())
+            r.usuario?.toLowerCase().includes(term) ||
+            r.dni?.toString().toLowerCase().includes(term) ||
+            r.telefono?.toString().toLowerCase().includes(term) ||
+            r.id?.toString().includes(term)
         );
     }
 }
