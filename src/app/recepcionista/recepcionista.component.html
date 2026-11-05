@@ -31,7 +31,7 @@
         </ng-template>
 
         <div class="tab-body-content">
-          <p class="legend">Turnos del día con su estado de pago. Acá podés cobrar, dar de baja un turno o ver quién falta pagar.</p>
+          <p class="legend">Turnos del día con su estado de pago. Acá podés cobrar turnos, cancelar reservas y ver quién falta pagar.</p>
 
           <!-- Navegación de fecha -->
           <div class="agenda-toolbar">
@@ -165,11 +165,11 @@
                 <button *ngIf="s.estadoSlot === 'aprobado' && estaEnPeriodoGracia(s.reserva)"
                         (click)="deshacerAprobacion(s.reserva)"
                         class="btn-undo-approval"
-                        title="Volver a Pendiente">
-                  <span>Deshacer ({{ userRole === 'super_admin' ? 'Admin' : minutosGraciaRestantes(s.reserva) + ' min' }})</span>
+                        title="Revertir a estado Falta pagar">
+                  <span>Deshacer cobro ({{ userRole === 'super_admin' ? 'Admin' : minutosGraciaRestantes(s.reserva) + ' min' }})</span>
                 </button>
-                <button (click)="darDeBajaReserva(s.reserva)" class="btn-baja-turno" title="Dar de baja y liberar el horario">
-                  <span>Dar de baja</span>
+                <button (click)="darDeBajaReserva(s.reserva)" class="btn-baja-turno" title="Cancelar reserva y liberar el horario">
+                  <span>Cancelar reserva</span>
                 </button>
               </div>
             </div>

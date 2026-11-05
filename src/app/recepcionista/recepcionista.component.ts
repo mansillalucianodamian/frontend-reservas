@@ -367,8 +367,8 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       data: {
-        titulo: 'Dar de Baja / Liberar Turno',
-        mensaje: `¿Confirmás dar de baja el turno #${reserva.id} de ${nombreVecino} (${fechaFormateada} a las ${horaStr} hs - Estado: ${estadoActual})?\n\nEl horario quedará LIBRE y disponible inmediatamente en la agenda.`,
+        titulo: 'Cancelar Reserva y Liberar Horario',
+        mensaje: `¿Confirmás cancelar la reserva #${reserva.id} de ${nombreVecino} (${fechaFormateada} a las ${horaStr} hs - Estado: ${estadoActual})?\n\nEl horario quedará LIBRE y disponible inmediatamente en la agenda.`,
         tipo: 'confirm'
       }
     });
@@ -386,9 +386,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
             if (res.ok) {
               this.dialog.open(ConfirmDialogComponent, {
                 data: {
-                  titulo: 'Turno Liberado',
+                  titulo: 'Reserva Cancelada',
                   mensaje: '',
-                  resultado: `El turno de las ${horaStr} hs fue dado de baja y el horario ya se encuentra libre nuevamente.`,
+                  resultado: `La reserva de las ${horaStr} hs fue cancelada exitosamente y el horario ya se encuentra libre nuevamente.`,
                   tipo: 'success'
                 }
               });
@@ -396,9 +396,9 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
             } else {
               this.dialog.open(ConfirmDialogComponent, {
                 data: {
-                  titulo: 'Error',
+                  titulo: 'Error al cancelar',
                   mensaje: '',
-                  resultado: res.message || 'No se pudo dar de baja el turno',
+                  resultado: res.message || 'No se pudo cancelar la reserva.',
                   tipo: 'error'
                 }
               });
@@ -409,7 +409,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
             this.cdr.detectChanges();
             this.dialog.open(ConfirmDialogComponent, {
               data: {
-                titulo: 'Error al dar de baja',
+                titulo: 'Error al cancelar',
                 mensaje: '',
                 resultado: err?.message || 'Ocurrió un error al intentar cancelar la reserva.',
                 tipo: 'error'
