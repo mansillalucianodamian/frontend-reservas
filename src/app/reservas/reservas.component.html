@@ -82,6 +82,9 @@
     <div class="schedule-section" *ngIf="fechaSeleccionada">
       <div class="schedule-container">
         <ng-container *ngIf="(horariosDisponibles$ | async) as horarios">
+          <p *ngIf="tipoRecurso === 'quincho' && horarios.length > 0" class="legend" style="margin: 0 0 0.65rem 0; font-weight: 600; color: #1e293b; text-align: center;">
+            ¿A partir de qué horario vas a ocupar el quincho? (Alquiler único por el día)
+          </p>
           <!-- Grilla de horarios con turnos libres y ocupados -->
           <div *ngIf="horarios.length > 0" class="schedule-list">
             <button *ngFor="let h of horarios" 

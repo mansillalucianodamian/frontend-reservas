@@ -82,6 +82,7 @@ export class App {
     switch (role?.toLowerCase()) {
       case 'super_admin': return 'Administrador';
       case 'recepcionista': return 'Recepcionista';
+      case 'boletero': return 'Boletería Pileta';
       case 'usuario': return 'Usuario';
       default: return role;
     }

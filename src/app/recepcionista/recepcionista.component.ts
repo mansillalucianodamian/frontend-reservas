@@ -1,6 +1,7 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ReservasService } from '../services/reservas.service';
 import { Observable, tap } from 'rxjs';
@@ -43,7 +44,7 @@ export interface ResumenAgendaDiaria {
 @Component({
   selector: 'app-recepcionista',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatTabsModule, UserFilterPipe],
+  imports: [CommonModule, FormsModule, RouterModule, MatTabsModule, UserFilterPipe],
   templateUrl: './recepcionista.component.html',
   styleUrls: ['./recepcionista.component.css']
 })
@@ -179,6 +180,7 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
    */
   recalcularGrillaAgenda(): void {
     const mapaActivas = new Map<string, ReservaAgendaRecord>();
+    const reservasQuinchoActivas: ReservaAgendaRecord[] = [];
 
     for (const r of this.reservasAgendaDia) {
       const estadoNorm = (r.estado || '').toLowerCase().trim();
@@ -187,8 +189,13 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       }
       const tipoNorm = ((r.tipo || 'cancha').toLowerCase().trim() === 'quincho') ? 'quincho' : 'cancha';
       const horaNorm = this.normalizarHora(r.hora);
-      const key = `${tipoNorm}_${horaNorm}`;
-      mapaActivas.set(key, { ...r, tipo: tipoNorm, hora: horaNorm });
+      const registroNorm: ReservaAgendaRecord = { ...r, tipo: tipoNorm, hora: horaNorm };
+      if (tipoNorm === 'quincho') {
+        reservasQuinchoActivas.push(registroNorm);
+      } else {
+        const key = `${tipoNorm}_${horaNorm}`;
+        mapaActivas.set(key, registroNorm);
+      }
     }
 
     // 1. Construir todos los slots base de Cancha
@@ -202,17 +209,22 @@ export class RecepcionistaComponent implements OnInit, OnDestroy {
       };
     });
 
-    // 2. Construir todos los slots base de Quincho
-    const baseQuincho: AgendaSlotItem[] = this.horariosQuincho.map(item => {
-      const res = mapaActivas.get(`quincho_${item.hora}`) || null;
-      return {
-        hora: item.hora,
-        tipo: 'quincho',
-        etiquetaTurno: item.etiqueta,
-        estadoSlot: this.determinarEstadoSlot(res),
-        reserva: res
-      };
-    });
+    // 2. Construir el slot de Quincho (alquiler único diario con horario de inicio elegido por el vecino)
+    const baseQuincho: AgendaSlotItem[] = reservasQuinchoActivas.length > 0
+      ? reservasQuinchoActivas.map(res => ({
+          hora: res.hora,
+          tipo: 'quincho',
+          etiquetaTurno: `Ingreso desde las ${res.hora} hs (Día completo)`,
+          estadoSlot: this.determinarEstadoSlot(res),
+          reserva: res
+        }))
+      : [{
+          hora: 'Día completo',
+          tipo: 'quincho',
+          etiquetaTurno: 'Disponible (Horario de inicio a elección)',
+          estadoSlot: 'libre',
+          reserva: null
+        }];
 
     // 3. Calcular KPIs del recurso seleccionado antes de filtrar por estado/texto
     const slotsParaResumen = this.agendaTipoRecurso === 'cancha'

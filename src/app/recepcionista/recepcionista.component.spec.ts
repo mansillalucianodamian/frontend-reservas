@@ -44,7 +44,7 @@ describe('RecepcionistaComponent - Agenda Diaria', () => {
     component.recalcularGrillaAgenda();
 
     expect(component.slotsAgendaCancha.length).toBe(18);
-    expect(component.slotsAgendaQuincho.length).toBe(2);
+    expect(component.slotsAgendaQuincho.length).toBe(1);
     expect(component.slotsAgendaCancha.every(s => s.estadoSlot === 'libre')).toBe(true);
     expect(component.resumenAgenda.libres).toBe(18);
   });

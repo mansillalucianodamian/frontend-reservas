@@ -51,6 +51,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
               <label class="dropdown-label" [attr.for]="'role-' + u.id">Rol:</label>
               <select [id]="'role-' + u.id" [ngModel]="u.rol || 'usuario'" (change)="onRolSelectChange($event, u)" class="role-select-input">
                 <option value="usuario">Usuario</option>
+                <option value="boletero">Boletería Pileta</option>
                 <option value="recepcionista">Recepcionista</option>
                 <option value="super_admin">Super Admin</option>
                 <option value="bloqueado">Bloqueado</option>
@@ -104,7 +105,8 @@ export class AdminUsuariosComponent implements OnInit {
       (u.nombre && u.nombre.toLowerCase().includes(filter)) ||
       (u.apellido && u.apellido.toLowerCase().includes(filter)) ||
       (u.email && u.email.toLowerCase().includes(filter)) ||
-      (u.dni && u.dni.toLowerCase().includes(filter))
+      (u.dni && u.dni.toLowerCase().includes(filter)) ||
+      (u.rol && u.rol.toLowerCase().includes(filter))
     );
   }
 

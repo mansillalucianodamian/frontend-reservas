@@ -1458,3 +1458,31 @@
     background: #fee2e2;
     border-color: #ef4444;
 }
+
+.header-extra-actions {
+    display: flex;
+    align-items: center;
+}
+
+.btn-recep-pileta {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #eff6ff;
+    border: 1.5px solid #bfdbfe;
+    color: #0284c7;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 7px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-recep-pileta:hover {
+    background: #0284c7;
+    color: #ffffff;
+    border-color: #0284c7;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(2, 132, 199, 0.25);
+}

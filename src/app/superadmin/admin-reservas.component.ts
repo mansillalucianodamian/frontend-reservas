@@ -648,6 +648,19 @@ export class AdminReservasComponent implements OnInit {
     this.fechaSeleccionada = dia;
     this.horariosDisponibles$ = this.reservasService.getHorariosDisponibles(dia, this.tipoRecurso).pipe(
       map((horarios: { hora: string, disponible: boolean }[]) => {
+        if (this.tipoRecurso === 'quincho' && this.reservas) {
+          const activasDia = this.reservas.filter(r =>
+            (r.tipo || 'cancha').toLowerCase() === 'quincho' &&
+            this.datesMatchLocal(r.fecha, dia) &&
+            !['cancelada', 'cancelado', 'rechazada', 'rechazado'].includes((r.estado || '').toLowerCase().trim())
+          );
+          if (activasDia.length > 0) {
+            return activasDia.map(r => ({
+              hora: (r.hora || '10:00').toString().trim().substring(0, 5),
+              disponible: false
+            }));
+          }
+        }
         const hoyLocal = this.formatLocalISO(new Date());
         if (dia === hoyLocal) {
           const ahora = new Date();
@@ -1170,7 +1183,9 @@ export class AdminReservasComponent implements OnInit {
     if (this.filtroDiaBloqueos && (this.filtroEstadoBloqueos === 'todos' || this.filtroEstadoBloqueos === 'disponible')) {
       const todosHorarios: string[] = [];
       if (this.tipoRecurso === 'quincho') {
-        todosHorarios.push('10:00', '19:00');
+        for (let h = 8; h <= 22; h++) {
+          todosHorarios.push(`${h.toString().padStart(2, '0')}:00`);
+        }
       } else {
         for (let h = 7; h <= 24; h++) {
           todosHorarios.push(h === 24 ? '00:00' : `${h.toString().padStart(2, '0')}:00`);

@@ -1,0 +1,360 @@
+<div class="pileta-public-container">
+
+  <!-- Barra de herramientas exclusiva para Personal Autorizado (Super Admin / Recepción / Boletería) -->
+  <div class="boleteria-shortcut-bar" *ngIf="puedeAccederBoleteria">
+    <div class="shortcut-info">
+      <svg class="shortcut-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+        <line x1="2" y1="10" x2="22" y2="10"></line>
+      </svg>
+      <span>Modo Personal Municipal: Los vecinos ven el cartel "Próximamente / En preparación"</span>
+    </div>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <button type="button" (click)="mostrarVistaPrevia = !mostrarVistaPrevia" class="btn-go-boleteria" style="background: #0284c7; border: none; cursor: pointer;">
+        <span>{{ mostrarVistaPrevia ? 'Ver cartel Próximamente' : 'Ver Vista Previa del Portal' }}</span>
+      </button>
+      <a routerLink="/boleteria-pileta" class="btn-go-boleteria">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>Abrir Boletería y Caja</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- VISTA PARA EL VECINO: PRÓXIMAMENTE / EN PREPARACIÓN -->
+  <div class="pileta-hero" *ngIf="!mostrarVistaPrevia" style="padding: 3.5rem 1.5rem;">
+    <div class="hero-top-badge">
+      <svg class="icon-hero-badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+        <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+        <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+      </svg>
+      <span>Polideportivo Municipal “Prof. Daniel Heidenreich”</span>
+    </div>
+
+    <div style="width: 68px; height: 68px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; margin: 0.75rem 0;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+    </div>
+
+    <h1 class="pileta-title">Pileta Municipal — Próximamente</h1>
+    <p class="pileta-subtitle" style="max-width: 560px; margin-top: 0.5rem; line-height: 1.5;">
+      Esta sección se encuentra actualmente <strong>en preparación para la Temporada de Verano 2026-2027</strong>.<br>
+      Muy pronto podrás consultar aquí los horarios, tarifas y descargar la ficha médica oficial.
+    </p>
+
+    <div class="brand-colors-bar hero-brand-bar" style="margin-bottom: 1.75rem;">
+      <div class="color-red"></div>
+      <div class="color-yellow"></div>
+      <div class="color-green"></div>
+    </div>
+
+    <a routerLink="/inicio" class="btn-go-boleteria" style="padding: 10px 24px; font-size: 0.92rem;">
+      <span>Volver al Inicio</span>
+    </a>
+  </div>
+
+  <!-- VISTA COMPLETA DEL PORTAL (Habilitable o en Vista Previa) -->
+  <ng-container *ngIf="mostrarVistaPrevia">
+  <!-- Cabecera Institucional y de Bienvenida -->
+  <header class="pileta-hero">
+    <div class="hero-top-badge">
+      <svg class="icon-hero-badge" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+        <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+        <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"></path>
+      </svg>
+      <span>Polideportivo Municipal “Prof. Daniel Heidenreich”</span>
+    </div>
+
+    <h1 class="pileta-title">Temporada de Verano 2026-2027</h1>
+    <p class="pileta-subtitle">
+      Inicio el sábado <strong>12 de diciembre de 2026</strong> hasta el domingo <strong>28 de febrero de 2027</strong>.<br>
+      <span class="colonia-badge-inline">Colonia de Vacaciones (GRATUITA): lunes 14 de diciembre de 2026 al viernes 29 de enero de 2027</span>
+    </p>
+
+    <!-- Barra tricolor municipal de Aldea San Antonio -->
+    <div class="brand-colors-bar hero-brand-bar" style="margin-bottom: 0;">
+      <div class="color-red"></div>
+      <div class="color-yellow"></div>
+      <div class="color-green"></div>
+    </div>
+  </header>
+
+  <!-- Banner Destacado: Descarga Obligatoria de Ficha Médica (Una sola vez en la temporada) -->
+  <section class="ficha-medica-banner">
+    <div class="ficha-medica-left">
+      <div class="ficha-medica-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <path d="M9 15h6"></path>
+          <path d="M12 12v6"></path>
+        </svg>
+      </div>
+      <div class="ficha-medica-texts">
+        <span class="ficha-medica-tag">Requisito Obligatorio • 1 sola vez por temporada</span>
+        <h3 class="ficha-medica-title">Presentación Obligatoria de Ficha Médica 2026-2027</h3>
+        <p class="ficha-medica-desc">
+          Descargá e imprimí la planilla oficial, completala en el <strong>Centro de Salud de la localidad</strong> y presentala ante el personal responsable en tu primer ingreso (válida para toda la temporada).
+        </p>
+      </div>
+    </div>
+    <div class="ficha-medica-actions">
+      <a href="/ficha-medica-pileta-2026-2027.pdf" download="Ficha_Medica_Pileta_2026-2027.pdf" target="_blank" class="btn-download-ficha">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <span>Descargar Ficha Médica (PDF)</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sección 1 y 2: Tarifas de Ingreso Diario -->
+  <section class="section-container">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <svg class="section-icon text-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+          <path d="M12 18V6"></path>
+        </svg>
+        <h2 class="section-heading">Valores de Ingreso Diario</h2>
+      </div>
+      <span class="section-caption">Tarifas vigentes por persona en boletería según día de la semana y condición</span>
+    </div>
+
+    <div class="tariffs-grid">
+      
+      <!-- Tarjeta 1: Martes a Viernes -->
+      <div class="tariff-card card-adulto">
+        <div class="tariff-badge-top">1. Martes a Viernes</div>
+        <div class="tariff-icon-wrapper adult-bg">
+          <svg class="tariff-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <h3 class="tariff-name">Días de Semana</h3>
+        <p class="tariff-audience">Horario: de 16:00 a 20:00 hs</p>
+
+        <div class="tariff-subtable">
+          <div class="subtable-row">
+            <div class="subtable-label">
+              <strong>Mayores</strong>
+              <span>A partir de los 13 años</span>
+            </div>
+            <strong class="subtable-price">${{ config.precio_adulto | number:'1.0-0' }}</strong>
+          </div>
+          <div class="subtable-row">
+            <div class="subtable-label">
+              <strong>Menores</strong>
+              <span>De 2 a 12 años inclusive</span>
+            </div>
+            <strong class="subtable-price">${{ config.precio_nino | number:'1.0-0' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2: Sábados, Domingos y Feriados -->
+      <div class="tariff-card card-nino popular">
+        <div class="tariff-badge-top special">2. Sáb, Dom y Feriados</div>
+        <div class="tariff-icon-wrapper nino-bg">
+          <svg class="tariff-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"></circle>
+            <path d="M12 2v2"></path>
+            <path d="M12 20v2"></path>
+            <path d="m4.93 4.93 1.41 1.41"></path>
+            <path d="m17.66 17.66 1.41 1.41"></path>
+            <path d="M2 12h2"></path>
+            <path d="M20 12h2"></path>
+            <path d="m6.34 17.66-1.41 1.41"></path>
+            <path d="m19.07 4.93-1.41 1.41"></path>
+          </svg>
+        </div>
+        <h3 class="tariff-name">Fines de Semana y Feriados</h3>
+        <p class="tariff-audience">Valores para Residentes y No Residentes</p>
+
+        <div class="tariff-subtable">
+          <div class="subtable-row">
+            <div class="subtable-label">
+              <strong>Mayores (13+ años)</strong>
+              <span>Residentes / No residentes</span>
+            </div>
+            <div class="dual-price-col">
+              <span class="dual-tag res">Res: <strong>${{ (config.precio_adulto_finde_res || 6000) | number:'1.0-0' }}</strong></span>
+              <span class="dual-tag nores">No Res: <strong>${{ (config.precio_adulto_finde_nores || 8000) | number:'1.0-0' }}</strong></span>
+            </div>
+          </div>
+          <div class="subtable-row">
+            <div class="subtable-label">
+              <strong>Menores (2 a 12 años)</strong>
+              <span>Residentes / No residentes</span>
+            </div>
+            <div class="dual-price-col">
+              <span class="dual-tag res">Res: <strong>${{ (config.precio_nino_finde_res || 4000) | number:'1.0-0' }}</strong></span>
+              <span class="dual-tag nores">No Res: <strong>${{ (config.precio_nino_finde_nores || 5000) | number:'1.0-0' }}</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: Exenciones de Pago -->
+      <div class="tariff-card card-gratis">
+        <div class="tariff-badge-top free">3. Exenciones de Pago</div>
+        <div class="tariff-icon-wrapper gratis-bg">
+          <svg class="tariff-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <h3 class="tariff-name">Exentos / Gratis</h3>
+        <p class="tariff-audience">Presentando carnet o documentación</p>
+        <div class="tariff-price-row free-row">
+          <span class="tariff-amount free-text">SIN CARGO</span>
+        </div>
+        <span class="tariff-period">Acreditando condición en entrada</span>
+        <ul class="tariff-features">
+          <li>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span><strong>Personas con discapacidad</strong> (con CUD)</span>
+          </li>
+          <li>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            <span><strong>Jubilados</strong> (presentando carnet)</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Sección 4: Carnet de Socio – Temporada de Verano -->
+  <section class="section-container">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <svg class="section-icon text-blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+          <line x1="2" y1="10" x2="22" y2="10"></line>
+        </svg>
+        <h2 class="section-heading">4. Carnet de Socio – Temporada de Verano</h2>
+      </div>
+      <span class="section-caption">Abono mensual por período para Mayores y Menores</span>
+    </div>
+
+    <div class="carnet-tables-grid">
+      <!-- Carnet Mayores -->
+      <div class="carnet-box">
+        <div class="carnet-box-header mayores-hdr">
+          <h4>Mayores <span>(a partir de los 13 años)</span></h4>
+        </div>
+        <div class="carnet-rows">
+          <div class="carnet-row">
+            <span>Diciembre 2026</span>
+            <strong>${{ (config.carnet_mayor_dic || 30000) | number:'1.0-0' }}</strong>
+          </div>
+          <div class="carnet-row highlight">
+            <span>Enero 2027</span>
+            <strong>${{ (config.carnet_mayor_ene || 35000) | number:'1.0-0' }}</strong>
+          </div>
+          <div class="carnet-row">
+            <span>Febrero 2027</span>
+            <strong>${{ (config.carnet_mayor_feb || 30000) | number:'1.0-0' }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carnet Menores -->
+      <div class="carnet-box">
+        <div class="carnet-box-header menores-hdr">
+          <h4>Menores <span>(de 2 a 12 años inclusive)</span></h4>
+        </div>
+        <div class="carnet-rows">
+          <div class="carnet-row">
+            <span>Diciembre 2026</span>
+            <strong>${{ (config.carnet_menor_dic || 25000) | number:'1.0-0' }}</strong>
+          </div>
+          <div class="carnet-row highlight">
+            <span>Enero 2027</span>
+            <strong>${{ (config.carnet_menor_ene || 30000) | number:'1.0-0' }}</strong>
+          </div>
+          <div class="carnet-row">
+            <span>Febrero 2027</span>
+            <strong>${{ (config.carnet_menor_feb || 25000) | number:'1.0-0' }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Información de Horarios y Medios de Pago -->
+  <section class="section-container">
+    <div class="info-banner-card">
+      <div class="info-card-left">
+        <div class="info-circle-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+        <div class="info-text">
+          <h3 class="info-title">Días y Horarios de Apertura</h3>
+          <p class="info-body-text"><strong>{{ config.horarios }}</strong></p>
+          <span class="info-sub">Lunes cerrado por tareas programadas de mantenimiento, filtrado y desinfección sanitaria.</span>
+        </div>
+      </div>
+      <div class="info-payment-methods">
+        <span class="payment-label">Medios de Pago en Boletería:</span>
+        <div class="payment-pills">
+          <span class="pay-pill" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="12" x="2" y="6" rx="2"></rect>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M6 12h.01M18 12h.01"></path>
+            </svg>
+            <span>Efectivo</span>
+          </span>
+          <span class="pay-pill" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+              <line x1="2" x2="22" y1="10" y2="10"></line>
+            </svg>
+            <span>Transferencia</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Aviso de Acceso por Boletería -->
+  <div class="cta-direct-entry">
+    <div class="cta-content">
+      <div class="cta-icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"></path>
+          <path d="M13 5v2"></path>
+          <path d="M13 17v2"></path>
+          <path d="M13 11v2"></path>
+        </svg>
+      </div>
+      <div class="cta-text">
+        <h3 class="cta-title">Venta de Entradas Exclusiva en Puerta</h3>
+        <p class="cta-desc">Las entradas diarias se adquieren directamente en la boletería del Polideportivo Municipal por orden de llegada, presentando la ficha médica obligatoria. <strong>¡No necesitás sacar turno previo!</strong></p>
+      </div>
+    </div>
+    <div class="cta-actions">
+      <a routerLink="/inicio" class="btn-return-home">Volver al Inicio</a>
+    </div>
+  </div>
+  </ng-container>
+
+</div>

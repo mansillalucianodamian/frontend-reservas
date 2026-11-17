@@ -1,0 +1,519 @@
+<div class="boleteria-container">
+  
+  <!-- Encabezado de Boletería y Caja -->
+  <header class="boleteria-header">
+    <div class="header-main-row">
+      <div class="brand-side">
+        <img src="/Aldea-San-Antonio.png" alt="Logo Aldea San Antonio" class="boleteria-logo">
+        <div class="header-texts">
+          <div class="badge-header-row">
+            <span class="badge-header">Boletería y Entrada</span>
+          </div>
+          <h1 class="header-title">Control de Caja - Pileta Municipal</h1>
+          <span class="header-sub">Venta rápida de entradas en puerta y arqueo de caja en vivo</span>
+        </div>
+      </div>
+
+      <div class="header-nav-actions">
+        <button *ngIf="userRole === 'super_admin'"
+                type="button" 
+                class="btn-tab-toggle" 
+                [class.active]="seccionActiva === 'pos'" 
+                (click)="seccionActiva = 'pos'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+            <line x1="8" y1="21" x2="16" y2="21"></line>
+            <line x1="12" y1="17" x2="12" y2="21"></line>
+          </svg>
+          <span>Punto de Venta y Caja</span>
+        </button>
+
+        <button *ngIf="userRole === 'super_admin'"
+                type="button" 
+                class="btn-tab-toggle" 
+                [class.active]="seccionActiva === 'ajustes'" 
+                (click)="seccionActiva = 'ajustes'">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span>Tarifas y Horarios</span>
+        </button>
+
+        <a routerLink="/pileta" class="btn-link-public" title="Ver portal público de vecinos">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          <span>Portal Vecino</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Barra tricolor municipal -->
+    <div class="brand-colors-bar">
+      <div class="color-red"></div>
+      <div class="color-yellow"></div>
+      <div class="color-green"></div>
+    </div>
+  </header>
+
+  <!-- Banner de Notificación Feedback -->
+  <div class="alert-banner alert-success" *ngIf="mensajeExito">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+      <polyline points="22 4 12 14.01 9 11.01"></polyline>
+    </svg>
+    <span>{{ mensajeExito }}</span>
+  </div>
+
+  <div class="alert-banner alert-error" *ngIf="mensajeError">
+    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="8" x2="12" y2="12"></line>
+      <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <span>{{ mensajeError }}</span>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECCIÓN 1: PUNTO DE VENTA (POS) Y ARQUEO DE CAJA EN VIVO -->
+  <!-- ======================================================== -->
+  <div class="pos-layout" *ngIf="seccionActiva === 'pos'">
+    
+    <!-- COLUMNA IZQUIERDA: MOSTRADOR DE VENTA RÁPIDA -->
+    <div class="pos-card pos-sale-panel">
+      <div class="panel-header-row">
+        <div class="panel-title-wrap">
+          <svg class="panel-icon text-green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          <h2 class="panel-title">Cobro de Entradas</h2>
+        </div>
+        <button type="button" class="btn-clear-selection" (click)="limpiarSeleccion()" *ngIf="totalPersonasSeleccionadas > 0" title="Reiniciar contadores">
+          ✕ Limpiar
+        </button>
+      </div>
+
+      <p class="panel-desc">Elegí la tarifa del día y seleccioná cuántas personas ingresan.</p>
+
+      <!-- Selector de Modalidad Tarifaria (Martes a Viernes vs Finde Residentes / No Residentes) -->
+      <div class="payment-method-selector" style="border-top: none; padding-top: 0; margin-bottom: 0.25rem;">
+        <span class="section-label-bold">Tarifa a aplicar:</span>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+          <label class="payment-radio-pill" [class.selected]="modalidadTarifa === 'semana'" style="padding: 8px 6px; text-align: center; gap: 5px;">
+            <input type="radio" name="modalidadTarifa" value="semana" [(ngModel)]="modalidadTarifa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span class="pill-text" style="font-size: 0.78rem;">Mar a Vie</span>
+          </label>
+          <label class="payment-radio-pill" [class.selected]="modalidadTarifa === 'finde_residente'" style="padding: 8px 6px; text-align: center; gap: 5px;">
+            <input type="radio" name="modalidadTarifa" value="finde_residente" [(ngModel)]="modalidadTarifa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+            <span class="pill-text" style="font-size: 0.78rem;">Finde (Residente)</span>
+          </label>
+          <label class="payment-radio-pill" [class.selected]="modalidadTarifa === 'finde_no_residente'" style="padding: 8px 6px; text-align: center; gap: 5px;">
+            <input type="radio" name="modalidadTarifa" value="finde_no_residente" [(ngModel)]="modalidadTarifa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span class="pill-text" style="font-size: 0.78rem;">Finde (No Res.)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Selector Rápido de Categorías de Entradas -->
+      <div class="ticket-counters-list">
+        
+        <!-- Fila Mayores -->
+        <div class="ticket-counter-item" [class.has-count]="cantAdultos > 0">
+          <div class="counter-info">
+            <div class="counter-badge adult-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="counter-texts">
+              <span class="counter-name">Mayores</span>
+              <span class="counter-sub">A partir de los 13 años</span>
+            </div>
+          </div>
+
+          <div class="counter-price-tag">
+            <span class="unit-price">${{ precioMayorActivo | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="counter-controls">
+            <button type="button" class="btn-step btn-minus" (click)="modificarCantidad('adultos', -1)" [disabled]="cantAdultos === 0">-</button>
+            <span class="counter-value">{{ cantAdultos }}</span>
+            <button type="button" class="btn-step btn-plus" (click)="modificarCantidad('adultos', 1)">+</button>
+          </div>
+        </div>
+
+        <!-- Fila Menores -->
+        <div class="ticket-counter-item" [class.has-count]="cantNinos > 0">
+          <div class="counter-info">
+            <div class="counter-badge nino-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M9 21v-2a4 4 0 0 1 3-3.87"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="counter-texts">
+              <span class="counter-name">Menores</span>
+              <span class="counter-sub">De 2 a 12 años inclusive</span>
+            </div>
+          </div>
+
+          <div class="counter-price-tag">
+            <span class="unit-price">${{ precioMenorActivo | number:'1.0-0' }}</span>
+          </div>
+
+          <div class="counter-controls">
+            <button type="button" class="btn-step btn-minus" (click)="modificarCantidad('ninos', -1)" [disabled]="cantNinos === 0">-</button>
+            <span class="counter-value">{{ cantNinos }}</span>
+            <button type="button" class="btn-step btn-plus" (click)="modificarCantidad('ninos', 1)">+</button>
+          </div>
+        </div>
+
+        <!-- Fila Exentos / Sin Cargo -->
+        <div class="ticket-counter-item free-item" [class.has-count]="cantGratis > 0">
+          <div class="counter-info">
+            <div class="counter-badge gratis-badge">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+              </svg>
+            </div>
+            <div class="counter-texts">
+              <span class="counter-name">Exentos / Sin Cargo</span>
+              <span class="counter-sub">Discapacidad, Jubilados, Socio</span>
+            </div>
+          </div>
+
+          <div class="counter-price-tag">
+            <span class="unit-price free-price">$0</span>
+          </div>
+
+          <div class="counter-controls">
+            <button type="button" class="btn-step btn-minus" (click)="modificarCantidad('gratis', -1)" [disabled]="cantGratis === 0">-</button>
+            <span class="counter-value">{{ cantGratis }}</span>
+            <button type="button" class="btn-step btn-plus" (click)="modificarCantidad('gratis', 1)">+</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Selector de Medio de Pago -->
+      <div class="payment-method-selector">
+        <span class="section-label-bold">Medio de Pago:</span>
+        <div class="payment-radio-group">
+          <label class="payment-radio-pill" [class.selected]="medioPago === 'efectivo'" style="gap: 7px;">
+            <input type="radio" name="medioPago" value="efectivo" [(ngModel)]="medioPago">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #15803d;">
+              <rect width="20" height="12" x="2" y="6" rx="2"></rect>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M6 12h.01M18 12h.01"></path>
+            </svg>
+            <span class="pill-text">Efectivo</span>
+          </label>
+          <label class="payment-radio-pill" [class.selected]="medioPago === 'transferencia'" style="gap: 7px;">
+            <input type="radio" name="medioPago" value="transferencia" [(ngModel)]="medioPago">
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #0284c7;">
+              <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+              <line x1="2" x2="22" y1="10" y2="10"></line>
+            </svg>
+            <span class="pill-text">Transferencia / MP</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Total a Pagar y Botón de Cobro -->
+      <div class="checkout-footer">
+        <div class="total-display-card">
+          <div class="total-persons-count">
+            <span>Personas a ingresar:</span>
+            <strong>{{ totalPersonasSeleccionadas }}</strong>
+          </div>
+          <div class="total-amount-row">
+            <span class="total-label">Total a cobrar:</span>
+            <span class="total-price">${{ totalAPagar | number:'1.0-0' }}</span>
+          </div>
+        </div>
+
+        <button type="button" 
+                class="btn-checkout-primary" 
+                (click)="registrarCobro()" 
+                [disabled]="isProcessing || totalPersonasSeleccionadas === 0">
+          <svg class="checkout-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>{{ isProcessing ? 'Registrando...' : 'Registrar Cobro y Entrada' }}</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- COLUMNA DERECHA: CONTROL Y ARQUEO DE CAJA DEL DÍA EN VIVO -->
+    <div class="pos-card pos-cash-panel">
+      
+      <div class="panel-header-row">
+        <div class="panel-title-wrap">
+          <svg class="panel-icon text-blue" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <h2 class="panel-title">Caja del Día (En Vivo)</h2>
+        </div>
+        <div class="cash-header-actions">
+          <button type="button" class="btn-refresh" (click)="cargarDatosCaja()" [disabled]="cargandoCaja" title="Actualizar datos">
+            ↻
+          </button>
+          <button type="button" class="btn-close-box" (click)="verCierreDeCaja()" title="Resumen final de turno">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>Cierre de Caja</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tarjetas de Resumen KPI de Caja -->
+      <div class="cash-kpi-grid">
+        
+        <div class="kpi-card total-recaudado">
+          <span class="kpi-label">Total Recaudado Hoy</span>
+          <strong class="kpi-number">${{ resumenHoy.recaudacion_total | number:'1.0-0' }}</strong>
+          <span class="kpi-hint">{{ resumenHoy.transacciones_cobradas }} ventas registradas</span>
+        </div>
+
+        <div class="kpi-card kpi-efectivo">
+          <span class="kpi-label" style="display: flex; align-items: center; gap: 5px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="12" x="2" y="6" rx="2"></rect>
+              <circle cx="12" cy="12" r="2"></circle>
+              <path d="M6 12h.01M18 12h.01"></path>
+            </svg>
+            <span>Efectivo en Caja</span>
+          </span>
+          <strong class="kpi-number">${{ resumenHoy.recaudacion_efectivo | number:'1.0-0' }}</strong>
+          <span class="kpi-hint">En mano</span>
+        </div>
+
+        <div class="kpi-card kpi-transferencia">
+          <span class="kpi-label" style="display: flex; align-items: center; gap: 5px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+              <line x1="2" x2="22" y1="10" y2="10"></line>
+            </svg>
+            <span>Transferencias</span>
+          </span>
+          <strong class="kpi-number">${{ resumenHoy.recaudacion_transferencia | number:'1.0-0' }}</strong>
+          <span class="kpi-hint">Mercado Pago / Banco</span>
+        </div>
+
+        <div class="kpi-card kpi-personas">
+          <span class="kpi-label">Personas Ingresadas</span>
+          <strong class="kpi-number">{{ resumenHoy.total_personas }}</strong>
+          <span class="kpi-hint">
+            {{ resumenHoy.total_adultos }} may. | {{ resumenHoy.total_ninos }} men. | {{ resumenHoy.total_gratis }} exent.
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Historial de Ventas de Hoy -->
+      <div class="sales-history-section">
+        <h3 class="sales-history-title">Últimas Ventas Emitidas Hoy</h3>
+
+        <div class="loading-state" *ngIf="cargandoCaja">
+          <div class="loading-spinner"></div>
+          <p>Cargando transacciones de hoy...</p>
+        </div>
+
+        <div class="empty-sales-state" *ngIf="!cargandoCaja && ventasHoy.length === 0">
+          <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+            <path d="M3 6h18"></path>
+          </svg>
+          <p class="empty-title">Aún no hay ventas registradas hoy</p>
+          <span class="empty-sub">Cuando cobres una entrada en el mostrador aparecerá aquí al instante.</span>
+        </div>
+
+        <div class="sales-table-wrapper" *ngIf="!cargandoCaja && ventasHoy.length > 0">
+          <table class="sales-table">
+            <thead>
+              <tr>
+                <th>Hora</th>
+                <th>Detalle</th>
+                <th>Total</th>
+                <th>Pago</th>
+                <th>Estado</th>
+                <th style="text-align: right;">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of ventasHoy" [class.row-anulado]="v.estado === 'anulado'">
+                <td class="col-hora">
+                  <strong>{{ formatHora(v.fecha_hora) }}</strong>
+                  <span class="sale-id">#{{ v.id }}</span>
+                </td>
+                <td class="col-detalle">
+                  <span class="breakdown-text">
+                    <span *ngIf="v.cant_adultos > 0">{{ v.cant_adultos }} mayor(es) </span>
+                    <span *ngIf="v.cant_ninos > 0">{{ v.cant_ninos }} menor(es) </span>
+                    <span *ngIf="v.cant_gratis > 0">{{ v.cant_gratis }} exento(s)</span>
+                  </span>
+                  <span class="cajero-tag" *ngIf="v.cajero_nombre">{{ v.cajero_nombre }}</span>
+                </td>
+                <td class="col-total">
+                  <strong>${{ v.total | number:'1.0-0' }}</strong>
+                </td>
+                <td class="col-pago">
+                  <span class="pill-pay" [class.efectivo]="v.medio_pago === 'efectivo'" [class.transfer]="v.medio_pago === 'transferencia'" style="display: inline-flex; align-items: center; gap: 4px;">
+                    <svg *ngIf="v.medio_pago === 'efectivo'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="12" x="2" y="6" rx="2"></rect>
+                      <circle cx="12" cy="12" r="2"></circle>
+                    </svg>
+                    <svg *ngIf="v.medio_pago === 'transferencia'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+                      <line x1="2" x2="22" y1="10" y2="10"></line>
+                    </svg>
+                    <span>{{ v.medio_pago === 'efectivo' ? 'Efectivo' : 'Transf.' }}</span>
+                  </span>
+                </td>
+                <td class="col-estado">
+                  <span class="badge-status" [class.cobrado]="v.estado === 'cobrado'" [class.anulado]="v.estado === 'anulado'">
+                    {{ v.estado === 'cobrado' ? 'Cobrado' : 'Anulado' }}
+                  </span>
+                </td>
+                <td class="col-acciones">
+                  <button *ngIf="v.estado === 'cobrado'" 
+                          type="button" 
+                          class="btn-anular-ticket" 
+                          (click)="anularVenta(v)" 
+                          title="Anular ticket por equivocación">
+                    Anular
+                  </button>
+                  <span *ngIf="v.estado === 'anulado'" class="anulado-label">Anulado</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SECCIÓN 2: AJUSTES DE TARIFAS, ESTADO Y HORARIOS         -->
+  <!-- ======================================================== -->
+  <div class="ajustes-layout" *ngIf="seccionActiva === 'ajustes' && userRole === 'super_admin'">
+    <div class="pos-card ajustes-card">
+      <div class="panel-header-row">
+        <div class="panel-title-wrap">
+          <svg class="panel-icon text-yellow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <h2 class="panel-title">Configuración de Tarifas y Funcionamiento</h2>
+        </div>
+      </div>
+
+      <p class="panel-desc">Los cambios que guardes se reflejan de inmediato en la boletería y en el portal público de vecinos.</p>
+
+      <div class="form-grid">
+        
+        <!-- Martes a Viernes: Mayores -->
+        <div class="form-group">
+          <label class="form-label">Mar a Vie - Mayores (13+ años):</label>
+          <div class="input-currency-box">
+            <span class="currency-pre">$</span>
+            <input type="number" class="form-input" [(ngModel)]="config.precio_adulto" min="0">
+          </div>
+        </div>
+
+        <!-- Martes a Viernes: Menores -->
+        <div class="form-group">
+          <label class="form-label">Mar a Vie - Menores (2 a 12 años):</label>
+          <div class="input-currency-box">
+            <span class="currency-pre">$</span>
+            <input type="number" class="form-input" [(ngModel)]="config.precio_nino" min="0">
+          </div>
+        </div>
+
+        <!-- Sáb, Dom y Feriados: Mayores Residentes -->
+        <div class="form-group">
+          <label class="form-label">Sáb, Dom y Fer. - Mayores Residentes:</label>
+          <div class="input-currency-box">
+            <span class="currency-pre">$</span>
+            <input type="number" class="form-input" [(ngModel)]="config.precio_adulto_finde_res" min="0">
+          </div>
+        </div>
+
+        <!-- Sáb, Dom y Feriados: Menores Residentes -->
+        <div class="form-group">
+          <label class="form-label">Sáb, Dom y Fer. - Menores Residentes:</label>
+          <div class="input-currency-box">
+            <span class="currency-pre">$</span>
+            <input type="number" class="form-input" [(ngModel)]="config.precio_nino_finde_res" min="0">
+          </div>
+        </div>
+
+        <!-- Sáb, Dom y Feriados: Mayores No Residentes -->
+        <div class="form-group">
+          <label class="form-label">Sáb, Dom y Fer. - Mayores No Residentes:</label>
+          <div class="input-currency-box">
+            <span class="currency-pre">$</span>
+            <input type="number" class="form-input" [(ngModel)]="config.precio_adulto_finde_nores" min="0">
+          </div>
+        </div>
+
+        <!-- Sáb, Dom y Feriados: Menores No Residentes -->
+        <div class="form-group">
+          <label class="form-label">Sáb, Dom y Fer. - Menores No Residentes:</label>
+          <div class="input-currency-box">
+            <span class="currency-pre">$</span>
+            <input type="number" class="form-input" [(ngModel)]="config.precio_nino_finde_nores" min="0">
+          </div>
+        </div>
+
+        <!-- Horarios -->
+        <div class="form-group full-width">
+          <label class="form-label">Días y Horarios Oficiales:</label>
+          <input type="text" class="form-input" [(ngModel)]="config.horarios" placeholder="Ej: Martes a Viernes de 16:00 a 20:00 hs | Sábados, Domingos y Feriados">
+          <span class="input-hint">Texto explicativo que verán los vecinos en el portal</span>
+        </div>
+
+      </div>
+
+      <div class="ajustes-actions">
+        <button type="button" class="btn-save-config" (click)="guardarConfiguracion()" [disabled]="guardandoConfig">
+          <span>{{ guardandoConfig ? 'Guardando...' : 'Guardar Cambios' }}</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+

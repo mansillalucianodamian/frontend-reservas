@@ -9,6 +9,8 @@ import { CarritoComponent } from './carrito/carrito.component';
 import { RecepcionistaComponent } from './recepcionista/recepcionista.component';
 import { SuperAdminComponent } from './superadmin/superadmin.component';
 import { InicioComponent } from './inicio/inicio.component';
+import { PiletaComponent } from './pileta/pileta.component';
+import { BoleteriaPiletaComponent } from './boleteria-pileta/boleteria-pileta.component';
 import { roleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
@@ -16,11 +18,18 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'inicio', component: InicioComponent },
+  { path: 'pileta', component: PiletaComponent },             // Portal público informativo de pileta
   { path: 'reservas', component: ReservasComponent },       // calendario + reservar
   { path: 'mis-reservas', component: MisReservasComponent }, // listado del usuario
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'reset-password/:reset_token', component: ResetPasswordComponent },
   { path: 'carrito', component: CarritoComponent },
+  { 
+    path: 'boleteria-pileta', 
+    component: BoleteriaPiletaComponent,
+    canActivate: [roleGuard],
+    data: { roles: ['boletero', 'recepcionista', 'super_admin'] }
+  },
   { 
     path: 'recepcionista', 
     component: RecepcionistaComponent,
