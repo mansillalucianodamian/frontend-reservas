@@ -241,6 +241,35 @@
         </div>
       </div>
 
+      <!-- Selector de Color de Rollo y Auto-impresión de Pulseras -->
+      <div class="wristband-pos-config">
+        <div class="wb-color-selector-row">
+          <span class="section-label-bold">Color de Rollo del Día:</span>
+          <div class="wb-color-dots">
+            <button *ngFor="let c of coloresRollo"
+                    type="button"
+                    class="wb-color-dot"
+                    [class.active]="colorRolloActual.id === c.id"
+                    [style.background]="c.hexBg"
+                    [style.borderColor]="c.hexBorder"
+                    (click)="seleccionarColorRollo(c)"
+                    [attr.title]="c.nombre + ' (' + c.diaSugerido + ')'">
+            </button>
+            <span class="wb-color-active-name">{{ colorRolloActual.nombre }}</span>
+          </div>
+        </div>
+
+        <label class="wb-autoprint-check">
+          <input type="checkbox" [(ngModel)]="imprimirAlCobrar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect width="12" height="8" x="6" y="14"></rect>
+          </svg>
+          <span>Emitir pulseras térmicas al cobrar (1 por persona)</span>
+        </label>
+      </div>
+
       <!-- Total a Pagar y Botón de Cobro -->
       <div class="checkout-footer">
         <div class="total-display-card">
@@ -404,13 +433,25 @@
                   </span>
                 </td>
                 <td class="col-acciones">
-                  <button *ngIf="v.estado === 'cobrado'" 
-                          type="button" 
-                          class="btn-anular-ticket" 
-                          (click)="anularVenta(v)" 
-                          title="Anular ticket por equivocación">
-                    Anular
-                  </button>
+                  <div class="table-actions-group" *ngIf="v.estado === 'cobrado'">
+                    <button type="button"
+                            class="btn-print-ticket"
+                            (click)="abrirModalPulseras(v)"
+                            title="Ver o imprimir pulseras de esta venta">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                        <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                        <rect width="12" height="8" x="6" y="14"></rect>
+                      </svg>
+                      <span>Pulseras</span>
+                    </button>
+                    <button type="button" 
+                            class="btn-anular-ticket" 
+                            (click)="anularVenta(v)" 
+                            title="Anular ticket por equivocación">
+                      Anular
+                    </button>
+                  </div>
                   <span *ngIf="v.estado === 'anulado'" class="anulado-label">Anulado</span>
                 </td>
               </tr>
@@ -512,6 +553,99 @@
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL DE VISTA PREVIA E IMPRESIÓN DE PULSERAS SCH-TEC PT -->
+  <!-- ======================================================== -->
+  <div class="wb-modal-backdrop" *ngIf="mostrarModalPulseras" (click)="cerrarModalPulseras()">
+    <div class="wb-modal-card" (click)="$event.stopPropagation()">
+      <div class="wb-modal-header">
+        <div class="wb-modal-title-group">
+          <div class="wb-printer-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect width="12" height="8" x="6" y="14"></rect>
+            </svg>
+            <span>SCH-TEC PT • 25 × 250 mm</span>
+          </div>
+          <h3>Emisión de Pulseras Térmicas ({{ pulserasActuales.length }} unidad{{ pulserasActuales.length === 1 ? '' : 'es' }})</h3>
+          <p>Simulación sobre rollo color <strong>{{ colorRolloActual.nombre }}</strong> • Impresión térmica directa en negro</p>
+        </div>
+        <button type="button" class="wb-btn-close" (click)="cerrarModalPulseras()" title="Cerrar">✕</button>
+      </div>
+
+      <!-- Selector rápido de color del rollo físico en la vista previa -->
+      <div class="wb-modal-color-bar">
+        <span>Simular color de rollo colocado:</span>
+        <div class="wb-color-dots">
+          <button *ngFor="let c of coloresRollo"
+                  type="button"
+                  class="wb-color-dot"
+                  [class.active]="colorRolloActual.id === c.id"
+                  [style.background]="c.hexBg"
+                  [style.borderColor]="c.hexBorder"
+                  (click)="seleccionarColorRollo(c)"
+                  [attr.title]="c.nombre + ' (' + c.diaSugerido + ')'">
+          </button>
+          <strong class="wb-color-active-name">{{ colorRolloActual.nombre }} ({{ colorRolloActual.diaSugerido }})</strong>
+        </div>
+      </div>
+
+      <!-- Lista de Pulseras Individuales a Imprimir -->
+      <div class="wb-preview-list">
+        <div *ngFor="let p of pulserasActuales"
+             class="wb-strip-preview"
+             [style.background]="colorRolloActual.hexBg"
+             [style.borderColor]="colorRolloActual.hexBorder">
+          <!-- Extremo adhesivo troquelado -->
+          <div class="wb-strip-adhesive">
+            <div class="wb-diecut-lines">XXXX<br>XXXX</div>
+            <span>CIERRE</span>
+          </div>
+
+          <!-- Zona Central Imprimible (Térmico Negro) -->
+          <div class="wb-strip-printable">
+            <div class="wb-print-top">
+              <span>MUNICIPALIDAD DE ALDEA SAN ANTONIO • POLIDEPORTIVO</span>
+              <span>PULSERA {{ p.numero }}/{{ p.totalPulseras }}</span>
+            </div>
+            <div class="wb-print-body">
+              <div class="wb-print-cat">
+                <strong>{{ p.categoria }}</strong>
+                <small>{{ p.rangoEdad }}</small>
+              </div>
+              <div class="wb-print-info">
+                <div class="wb-print-date">{{ p.diaSemanaStr }} {{ p.fechaStr }}</div>
+                <div class="wb-print-meta">INGRESO: {{ p.horaStr }} HS • TICKET #{{ p.ticketId }} ({{ p.precioUnitario > 0 ? '$' + (p.precioUnitario | number:'1.0-0') : 'S/C' }})</div>
+              </div>
+              <div class="wb-print-barcode">
+                <div class="wb-bars-visual">||| | |||| | ||| || | ||||</div>
+                <div class="wb-code-visual">{{ p.codigoControl }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Extremo correa de ajuste -->
+          <div class="wb-strip-tail">
+            <span class="wb-tail-holes">○ ○ ○ ○ ○</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="wb-modal-footer">
+        <button type="button" class="btn-wb-cancel" (click)="cerrarModalPulseras()">Cerrar</button>
+        <button type="button" class="btn-wb-print" (click)="ejecutarImpresionTermica()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect width="12" height="8" x="6" y="14"></rect>
+          </svg>
+          <span>Imprimir {{ pulserasActuales.length }} Pulsera{{ pulserasActuales.length === 1 ? '' : 's' }} Ahora</span>
+        </button>
+      </div>
     </div>
   </div>
 
